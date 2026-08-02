@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { Router, type IRouter } from "express";
 import { desc, eq, inArray } from "drizzle-orm";
 import {
@@ -36,6 +37,8 @@ export function serializeOrder(order: Order, items: OrderItem[]) {
     novaPoshtaBranch: order.novaPoshtaBranch,
     status: order.status,
     total: Number(order.total),
+    paymentMethod: order.paymentMethod,
+    paymentStatus: order.paymentStatus,
     createdAt: order.createdAt.toISOString(),
     items: items.map((i) => ({
       productId: i.productId,
@@ -83,6 +86,24 @@ router.get("/orders", requireAdmin, async (req, res): Promise<void> => {
   );
 });
 
+/** Public endpoint: poll payment/order status by customer token (no PII returned) */
+router.get("/orders/payment-status", async (req, res): Promise<void> => {
+  const token = req.query.token as string | undefined;
+  if (!token || token.length < 16) {
+    res.status(400).json({ error: "token is required" });
+    return;
+  }
+  const [order] = await db
+    .select()
+    .from(ordersTable)
+    .where(eq(ordersTable.customerToken, token));
+  if (!order) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+  res.json({ orderId: order.id, paymentStatus: order.paymentStatus, status: order.status });
+});
+
 router.post("/orders", async (req, res): Promise<void> => {
   const parsed = CreateOrderBody.safeParse(req.body);
   if (!parsed.success) {
@@ -126,6 +147,14 @@ router.post("/orders", async (req, res): Promise<void> => {
     return;
   }
 
+  const paymentMethod =
+    (input as { paymentMethod?: string }).paymentMethod === "liqpay"
+      ? "liqpay"
+      : "cash";
+
+  // High-entropy customer token used only for polling payment status (no PII exposed)
+  const customerToken = crypto.randomUUID();
+
   const order = await db.transaction(async (tx) => {
     const [created] = await tx
       .insert(ordersTable)
@@ -138,6 +167,9 @@ router.post("/orders", async (req, res): Promise<void> => {
         novaPoshtaBranch: input.novaPoshtaBranch ?? null,
         status: "new",
         total: total.toFixed(2),
+        paymentMethod,
+        paymentStatus: "pending",
+        customerToken,
       })
       .returning();
 
@@ -208,6 +240,16 @@ router.patch("/orders/:id", requireAdmin, async (req, res): Promise<void> => {
   ];
   if (parsed.data.status && !allowedStatuses.includes(parsed.data.status)) {
     res.status(400).json({ error: "Invalid status" });
+    return;
+  }
+  const allowedPaymentStatuses = ["pending", "paid", "failed"];
+  if (
+    (parsed.data as { paymentStatus?: string }).paymentStatus &&
+    !allowedPaymentStatuses.includes(
+      (parsed.data as { paymentStatus?: string }).paymentStatus!,
+    )
+  ) {
+    res.status(400).json({ error: "Invalid paymentStatus" });
     return;
   }
   const [updated] = await db

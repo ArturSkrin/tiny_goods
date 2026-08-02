@@ -20,6 +20,10 @@ export const ordersTable = pgTable("orders", {
   novaPoshtaBranch: text("nova_poshta_branch"),
   status: text("status").notNull().default("new"),
   total: numeric("total", { precision: 10, scale: 2 }).notNull(),
+  paymentMethod: text("payment_method").notNull().default("cash"),
+  paymentStatus: text("payment_status").notNull().default("pending"),
+  liqpayOrderId: text("liqpay_order_id"),
+  customerToken: text("customer_token").notNull().default(""),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

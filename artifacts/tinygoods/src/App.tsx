@@ -18,6 +18,7 @@ import AdminOrders from './pages/AdminOrders';
 import AdminProducts from './pages/AdminProducts';
 import AdminCategories from './pages/AdminCategories';
 import AdminSettings from './pages/AdminSettings';
+import PaymentSuccess from './pages/PaymentSuccess';
 
 const queryClient = new QueryClient({
   queryCache: new QueryCache({
@@ -36,6 +37,7 @@ function Router() {
       <Route path="/" component={Home} />
       <Route path="/product/:id" component={ProductDetail} />
       <Route path="/checkout" component={Checkout} />
+      <Route path="/checkout/success" component={PaymentSuccess} />
       <Route path="/about" component={About} />
       
       {/* Admin */}

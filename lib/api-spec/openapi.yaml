@@ -235,11 +235,30 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Order"
+  /orders/payment-status:
+    get:
+      operationId: getOrderPaymentStatus
+      tags: [orders]
+      summary: Get payment status for a customer order by token (no PII returned)
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Payment status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderPaymentStatus"
+        "404":
+          description: Order not found
   /orders/{id}:
     get:
       operationId: getOrder
       tags: [orders]
-      summary: Get order with items
+      summary: Get order with items (admin only)
       parameters:
         - name: id
           in: path
@@ -276,6 +295,41 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Order"
+  /orders/{id}/liqpay-checkout:
+    post:
+      operationId: createLiqpayCheckout
+      tags: [orders]
+      summary: Generate LiqPay checkout form params for an order (paymentMethod must be liqpay)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: LiqPay checkout data and signature
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LiqpayCheckout"
+        "404":
+          description: Order not found
+        "503":
+          description: LiqPay not configured
+  /liqpay/webhook:
+    post:
+      operationId: liqpayWebhook
+      tags: [orders]
+      summary: LiqPay payment status webhook
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/LiqpayWebhookPayload"
+      responses:
+        "200":
+          description: OK
   /admin/session:
     get:
       operationId: getAdminSession
@@ -501,7 +555,7 @@ components:
         imageUrl: { type: ["string", "null"] }
     Order:
       type: object
-      required: [id, customerName, phone, contactMethod, status, total, items, createdAt]
+      required: [id, customerName, phone, contactMethod, status, total, paymentMethod, paymentStatus, items, createdAt]
       properties:
         id: { type: integer }
         customerName: { type: string }
@@ -512,6 +566,8 @@ components:
         novaPoshtaBranch: { type: ["string", "null"] }
         status: { type: string, description: "new | confirmed | shipped | completed | cancelled" }
         total: { type: number }
+        paymentMethod: { type: string, description: "cash | liqpay" }
+        paymentStatus: { type: string, description: "pending | paid | failed" }
         items:
           type: array
           items:
@@ -533,6 +589,7 @@ components:
         comment: { type: string }
         city: { type: string }
         novaPoshtaBranch: { type: string }
+        paymentMethod: { type: string, description: "cash | liqpay" }
         items:
           type: array
           minItems: 1
@@ -542,6 +599,25 @@ components:
       type: object
       properties:
         status: { type: string }
+        paymentStatus: { type: string }
+    OrderPaymentStatus:
+      type: object
+      required: [orderId, paymentStatus, status]
+      properties:
+        orderId: { type: integer }
+        paymentStatus: { type: string, description: "pending | paid | failed" }
+        status: { type: string, description: "new | confirmed | shipped | completed | cancelled" }
+    LiqpayWebhookPayload:
+      type: object
+      properties:
+        data: { type: string }
+        signature: { type: string }
+    LiqpayCheckout:
+      type: object
+      required: [data, signature]
+      properties:
+        data: { type: string }
+        signature: { type: string }
     StatusCount:
       type: object
       required: [status, count]

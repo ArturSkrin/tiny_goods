@@ -239,6 +239,8 @@ export const ListOrdersResponseItem = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
+  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
   "productName": zod.string(),
@@ -268,6 +270,7 @@ export const CreateOrderBody = zod.object({
   "comment": zod.string().optional(),
   "city": zod.string().optional(),
   "novaPoshtaBranch": zod.string().optional(),
+  "paymentMethod": zod.string().optional().describe('cash | liqpay'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
   "quantity": zod.int().min(1)
@@ -284,6 +287,8 @@ export const CreateOrderResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
+  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
   "productName": zod.string(),
@@ -296,7 +301,21 @@ export const CreateOrderResponse = zod.object({
 
 
 /**
- * @summary Get order with items
+ * @summary Get payment status for a customer order by token (no PII returned)
+ */
+export const GetOrderPaymentStatusQueryParams = zod.object({
+  "token": zod.coerce.string()
+})
+
+export const GetOrderPaymentStatusResponse = zod.object({
+  "orderId": zod.int(),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
+  "status": zod.string().describe('new | confirmed | shipped | completed | cancelled')
+})
+
+
+/**
+ * @summary Get order with items (admin only)
  */
 export const GetOrderParams = zod.object({
   "id": zod.coerce.number().int()
@@ -312,6 +331,8 @@ export const GetOrderResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
+  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
   "productName": zod.string(),
@@ -331,7 +352,8 @@ export const UpdateOrderParams = zod.object({
 })
 
 export const UpdateOrderBody = zod.object({
-  "status": zod.string().optional()
+  "status": zod.string().optional(),
+  "paymentStatus": zod.string().optional()
 })
 
 export const UpdateOrderResponse = zod.object({
@@ -344,6 +366,8 @@ export const UpdateOrderResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
+  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
   "productName": zod.string(),
@@ -353,6 +377,30 @@ export const UpdateOrderResponse = zod.object({
 })),
   "createdAt": zod.string()
 })
+
+
+/**
+ * @summary Generate LiqPay checkout form params for an order (paymentMethod must be liqpay)
+ */
+export const CreateLiqpayCheckoutParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const CreateLiqpayCheckoutResponse = zod.object({
+  "data": zod.string(),
+  "signature": zod.string()
+})
+
+
+/**
+ * @summary LiqPay payment status webhook
+ */
+export const LiqpayWebhookBody = zod.object({
+  "data": zod.string().optional(),
+  "signature": zod.string().optional()
+})
+
+export const LiqpayWebhookResponse = zod.unknown()
 
 
 /**
@@ -492,6 +540,8 @@ export const GetAdminStatsResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
+  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
   "productName": zod.string(),

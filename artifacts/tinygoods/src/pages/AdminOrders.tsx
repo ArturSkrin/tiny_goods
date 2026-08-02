@@ -13,6 +13,18 @@ const statusLabels: Record<string, string> = {
   cancelled: 'Скасовано'
 };
 
+const paymentStatusLabels: Record<string, string> = {
+  pending: 'Очікує',
+  paid: 'Оплачено',
+  failed: 'Помилка',
+};
+
+const paymentStatusColors: Record<string, string> = {
+  pending: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
+  paid: 'bg-green-500/20 text-green-400 border-green-500/30',
+  failed: 'bg-destructive/20 text-destructive-foreground border-destructive/30',
+};
+
 const statusColors: Record<string, string> = {
   new: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
   confirmed: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
@@ -83,8 +95,15 @@ export default function AdminOrders() {
                       </div>
                     </div>
                     
-                    <div className={`px-3 py-1.5 rounded-xl border text-sm font-medium ${statusColors[order.status]}`}>
-                      {statusLabels[order.status] || order.status}
+                    <div className="flex flex-wrap gap-2">
+                      <div className={`px-3 py-1.5 rounded-xl border text-sm font-medium ${statusColors[order.status]}`}>
+                        {statusLabels[order.status] || order.status}
+                      </div>
+                      {order.paymentMethod === 'liqpay' && (
+                        <div className={`px-3 py-1.5 rounded-xl border text-sm font-medium ${paymentStatusColors[order.paymentStatus] ?? 'bg-white/10 text-white/60 border-white/10'}`}>
+                          💳 {paymentStatusLabels[order.paymentStatus] ?? order.paymentStatus}
+                        </div>
+                      )}
                     </div>
                   </div>
                   

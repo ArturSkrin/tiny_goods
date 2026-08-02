@@ -16,6 +16,8 @@ export interface OrderInput {
   comment?: string;
   city?: string;
   novaPoshtaBranch?: string;
+  /** cash | liqpay */
+  paymentMethod?: string;
   /** @minItems 1 */
   items: OrderItemInput[];
 }

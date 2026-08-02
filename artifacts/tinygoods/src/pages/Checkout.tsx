@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { useCart } from '../context/cart';
 import { formatPrice } from '../lib/utils';
@@ -6,13 +6,15 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Textarea } from '../components/ui/textarea';
-import { useCreateOrder } from '@workspace/api-client-react';
+import { useCreateOrder, useCreateLiqpayCheckout } from '@workspace/api-client-react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, CreditCard, Banknote } from 'lucide-react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
+
+const LIQPAY_URL = 'https://www.liqpay.ua/api/3/checkout';
 
 const checkoutSchema = z.object({
   customerName: z.string().min(2, "Введіть ім'я"),
@@ -20,7 +22,8 @@ const checkoutSchema = z.object({
   contactMethod: z.enum(['viber', 'telegram']),
   city: z.string().min(2, "Введіть місто"),
   novaPoshtaBranch: z.string().min(1, "Введіть відділення"),
-  comment: z.string().optional()
+  comment: z.string().optional(),
+  paymentMethod: z.enum(['cash', 'liqpay']),
 });
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
@@ -28,14 +31,23 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 export default function Checkout() {
   const { items, cartTotal, clearCart } = useCart();
   const createOrder = useCreateOrder();
+  const createLiqpayCheckout = useCreateLiqpayCheckout();
   const [successOrderId, setSuccessOrderId] = useState<number | null>(null);
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<CheckoutForm>({
+  // Hidden form used to auto-submit to LiqPay
+  const liqpayFormRef = useRef<HTMLFormElement>(null);
+  const liqpayDataRef = useRef<HTMLInputElement>(null);
+  const liqpaySigRef = useRef<HTMLInputElement>(null);
+
+  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      contactMethod: 'viber'
+      contactMethod: 'viber',
+      paymentMethod: 'cash',
     }
   });
+
+  const paymentMethod = watch('paymentMethod');
 
   const onSubmit = async (data: CheckoutForm) => {
     if (cartTotal < 300) return;
@@ -43,27 +55,49 @@ export default function Checkout() {
     try {
       const order = await createOrder.mutateAsync({
         data: {
-          ...data,
+          customerName: data.customerName,
+          phone: data.phone,
+          contactMethod: data.contactMethod,
+          city: data.city,
+          novaPoshtaBranch: data.novaPoshtaBranch,
+          comment: data.comment,
+          paymentMethod: data.paymentMethod,
           items: items.map(item => ({
             productId: item.productId,
             quantity: item.quantity
           }))
         }
       });
-      setSuccessOrderId(order.id);
+
       clearCart();
+
+      if (data.paymentMethod === 'liqpay') {
+        // Get LiqPay checkout params and redirect
+        const checkout = await createLiqpayCheckout.mutateAsync({
+          id: order.id,
+        });
+
+        if (liqpayDataRef.current && liqpaySigRef.current && liqpayFormRef.current) {
+          liqpayDataRef.current.value = checkout.data;
+          liqpaySigRef.current.value = checkout.signature;
+          liqpayFormRef.current.submit();
+        }
+      } else {
+        setSuccessOrderId(order.id);
+      }
     } catch (err) {
       console.error(err);
-      // Let standard error boundary / toast handle it, or show simple alert
       alert('Помилка при створенні замовлення. Спробуйте пізніше.');
     }
   };
+
+  const isPending = createOrder.isPending || createLiqpayCheckout.isPending;
 
   if (successOrderId) {
     return (
       <StoreLayout>
         <div className="max-w-md mx-auto py-20">
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             className="glass-panel p-10 text-center rounded-[3rem] space-y-6"
@@ -73,7 +107,7 @@ export default function Checkout() {
             </div>
             <h1 className="text-3xl font-bold text-white">Дякуємо!</h1>
             <p className="text-white/70">
-              Ваше замовлення #{successOrderId} прийнято.<br/>
+              Ваше замовлення #{successOrderId} прийнято.<br />
               Наш менеджер зв'яжеться з вами найближчим часом.
             </p>
             <div className="pt-6">
@@ -104,29 +138,40 @@ export default function Checkout() {
 
   return (
     <StoreLayout>
+      {/* Hidden LiqPay auto-submit form */}
+      <form
+        ref={liqpayFormRef}
+        action={LIQPAY_URL}
+        method="POST"
+        style={{ display: 'none' }}
+      >
+        <input ref={liqpayDataRef} type="hidden" name="data" />
+        <input ref={liqpaySigRef} type="hidden" name="signature" />
+      </form>
+
       <div className="max-w-5xl mx-auto pb-20">
         <h1 className="text-3xl font-bold text-white mb-8">Оформлення замовлення</h1>
-        
+
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="glass-panel p-6 md:p-8 space-y-6 rounded-[2rem]">
             <h2 className="text-xl font-semibold text-white mb-4">Контактні дані</h2>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm text-white/70 ml-1">Ім'я та прізвище</label>
-                <Input 
-                  {...register('customerName')} 
+                <Input
+                  {...register('customerName')}
                   placeholder="Іван Іваненко"
                   className={errors.customerName ? "border-destructive/50" : ""}
                 />
                 {errors.customerName && <span className="text-xs text-destructive ml-1">{errors.customerName.message}</span>}
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm text-white/70 ml-1">Телефон</label>
-                <Input 
-                  {...register('phone')} 
+                <Input
+                  {...register('phone')}
                   placeholder="+380 50 123 4567"
                   className={errors.phone ? "border-destructive/50" : ""}
                 />
@@ -154,22 +199,22 @@ export default function Checkout() {
             </div>
 
             <h2 className="text-xl font-semibold text-white pt-4 mb-4 border-t border-white/10">Доставка (Нова Пошта)</h2>
-            
+
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm text-white/70 ml-1">Місто</label>
-                <Input 
-                  {...register('city')} 
+                <Input
+                  {...register('city')}
                   placeholder="Київ"
                   className={errors.city ? "border-destructive/50" : ""}
                 />
                 {errors.city && <span className="text-xs text-destructive ml-1">{errors.city.message}</span>}
               </div>
-              
+
               <div className="space-y-2">
                 <label className="text-sm text-white/70 ml-1">Відділення / Поштомат</label>
-                <Input 
-                  {...register('novaPoshtaBranch')} 
+                <Input
+                  {...register('novaPoshtaBranch')}
                   placeholder="№123"
                   className={errors.novaPoshtaBranch ? "border-destructive/50" : ""}
                 />
@@ -179,22 +224,70 @@ export default function Checkout() {
 
             <div className="space-y-2 pt-4">
               <label className="text-sm text-white/70 ml-1">Коментар до замовлення (необов'язково)</label>
-              <Textarea 
-                {...register('comment')} 
+              <Textarea
+                {...register('comment')}
                 placeholder="Ваші побажання..."
                 className="resize-none min-h-[100px] bg-white/5 border-white/10 text-white rounded-xl focus:border-primary/50"
               />
             </div>
-            
+
+            {/* Payment method */}
+            <div className="pt-4 border-t border-white/10">
+              <h2 className="text-xl font-semibold text-white mb-4">Спосіб оплати</h2>
+              <Controller
+                control={control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => field.onChange('cash')}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${
+                        field.value === 'cash'
+                          ? 'border-primary bg-primary/10 text-white'
+                          : 'border-white/10 bg-white/5 text-white/50 hover:border-white/30'
+                      }`}
+                    >
+                      <Banknote className="w-6 h-6" />
+                      <span className="text-sm font-medium">Накладений платіж</span>
+                      <span className="text-xs opacity-70">Оплата при отриманні</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => field.onChange('liqpay')}
+                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${
+                        field.value === 'liqpay'
+                          ? 'border-primary bg-primary/10 text-white'
+                          : 'border-white/10 bg-white/5 text-white/50 hover:border-white/30'
+                      }`}
+                    >
+                      <CreditCard className="w-6 h-6" />
+                      <span className="text-sm font-medium">Онлайн оплата</span>
+                      <span className="text-xs opacity-70">LiqPay / картка</span>
+                    </button>
+                  </div>
+                )}
+              />
+              {paymentMethod === 'liqpay' && (
+                <p className="mt-3 text-xs text-white/50 text-center">
+                  Після підтвердження замовлення вас буде перенаправлено на захищену сторінку оплати LiqPay.
+                </p>
+              )}
+            </div>
+
             <div className="pt-6">
-              <Button 
-                type="submit" 
-                size="lg" 
+              <Button
+                type="submit"
+                size="lg"
                 className="w-full h-14 text-base rounded-2xl"
-                disabled={cartTotal < 300 || createOrder.isPending}
+                disabled={cartTotal < 300 || isPending}
               >
-                {createOrder.isPending ? "Обробка..." : "Підтвердити замовлення"}
-                {!createOrder.isPending && <ArrowRight className="ml-2 w-5 h-5" />}
+                {isPending
+                  ? 'Обробка...'
+                  : paymentMethod === 'liqpay'
+                    ? 'Перейти до оплати'
+                    : 'Підтвердити замовлення'}
+                {!isPending && <ArrowRight className="ml-2 w-5 h-5" />}
               </Button>
             </div>
           </form>
@@ -203,7 +296,7 @@ export default function Checkout() {
           <div className="space-y-6">
             <div className="glass-panel p-6 rounded-[2rem] sticky top-24">
               <h3 className="text-lg font-semibold text-white mb-6">Ваше замовлення</h3>
-              
+
               <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map((item) => (
                   <div key={item.productId} className="flex gap-3 text-sm">

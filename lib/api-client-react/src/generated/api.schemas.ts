@@ -109,6 +109,10 @@ export interface Order {
   /** new | confirmed | shipped | completed | cancelled */
   status: string;
   total: number;
+  /** cash | liqpay */
+  paymentMethod: string;
+  /** pending | paid | failed */
+  paymentStatus: string;
   items: OrderItem[];
   createdAt: string;
 }
@@ -128,12 +132,33 @@ export interface OrderInput {
   comment?: string;
   city?: string;
   novaPoshtaBranch?: string;
+  /** cash | liqpay */
+  paymentMethod?: string;
   /** @minItems 1 */
   items: OrderItemInput[];
 }
 
 export interface OrderUpdate {
   status?: string;
+  paymentStatus?: string;
+}
+
+export interface OrderPaymentStatus {
+  orderId: number;
+  /** pending | paid | failed */
+  paymentStatus: string;
+  /** new | confirmed | shipped | completed | cancelled */
+  status: string;
+}
+
+export interface LiqpayWebhookPayload {
+  data?: string;
+  signature?: string;
+}
+
+export interface LiqpayCheckout {
+  data: string;
+  signature: string;
 }
 
 export interface StatusCount {
@@ -212,5 +237,9 @@ includeInactive?: boolean;
 
 export type ListOrdersParams = {
 status?: string;
+};
+
+export type GetOrderPaymentStatusParams = {
+token: string;
 };
 

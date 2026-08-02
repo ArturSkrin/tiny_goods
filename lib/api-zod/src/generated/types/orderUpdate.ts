@@ -8,4 +8,5 @@
 
 export interface OrderUpdate {
   status?: string;
+  paymentStatus?: string;
 }

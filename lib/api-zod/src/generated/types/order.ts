@@ -22,6 +22,10 @@ export interface Order {
   /** new | confirmed | shipped | completed | cancelled */
   status: string;
   total: number;
+  /** cash | liqpay */
+  paymentMethod: string;
+  /** pending | paid | failed */
+  paymentStatus: string;
   items: OrderItem[];
   createdAt: string;
 }

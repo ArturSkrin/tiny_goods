@@ -5,6 +5,7 @@ import productsRouter from "./products";
 import ordersRouter from "./orders";
 import adminRouter from "./admin";
 import adminAuthRouter from "./adminAuth";
+import liqpayRouter from "./liqpay";
 
 const router: IRouter = Router();
 
@@ -13,6 +14,7 @@ router.use(categoriesRouter);
 router.use(productsRouter);
 router.use(ordersRouter);
 router.use(adminAuthRouter);
+router.use(liqpayRouter);
 router.use(adminRouter);
 
 export default router;

@@ -28,11 +28,15 @@ import type {
   Category,
   CategoryInput,
   CategoryUpdate,
+  GetOrderPaymentStatusParams,
   HealthStatus,
+  LiqpayCheckout,
+  LiqpayWebhookPayload,
   ListOrdersParams,
   ListProductsParams,
   Order,
   OrderInput,
+  OrderPaymentStatus,
   OrderUpdate,
   PasswordChangeInput,
   Product,
@@ -968,6 +972,90 @@ export const useCreateOrder = <TError = ErrorType<unknown>,
       return useMutation(getCreateOrderMutationOptions(options));
     }
 
+export const getGetOrderPaymentStatusUrl = (params: GetOrderPaymentStatusParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/orders/payment-status?${stringifiedParams}` : `/api/orders/payment-status`
+}
+
+/**
+ * @summary Get payment status for a customer order by token (no PII returned)
+ */
+export const getOrderPaymentStatus = async (params: GetOrderPaymentStatusParams, options?: Parameters<typeof customFetch>[1]): Promise<OrderPaymentStatus> => {
+
+  return customFetch<OrderPaymentStatus>(getGetOrderPaymentStatusUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetOrderPaymentStatusQueryKey = (params?: GetOrderPaymentStatusParams,) => {
+    return [
+    `/api/orders/payment-status`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetOrderPaymentStatusQueryOptions = <TData = Awaited<ReturnType<typeof getOrderPaymentStatus>>, TError = ErrorType<void>>(params: GetOrderPaymentStatusParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOrderPaymentStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetOrderPaymentStatusQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getOrderPaymentStatus>>> = ({ signal }) => getOrderPaymentStatus(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getOrderPaymentStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetOrderPaymentStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getOrderPaymentStatus>>>
+export type GetOrderPaymentStatusQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get payment status for a customer order by token (no PII returned)
+ */
+
+export function useGetOrderPaymentStatus<TData = Awaited<ReturnType<typeof getOrderPaymentStatus>>, TError = ErrorType<void>>(
+ params: GetOrderPaymentStatusParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getOrderPaymentStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetOrderPaymentStatusQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getGetOrderUrl = (id: number,) => {
 
 
@@ -977,7 +1065,7 @@ export const getGetOrderUrl = (id: number,) => {
 }
 
 /**
- * @summary Get order with items
+ * @summary Get order with items (admin only)
  */
 export const getOrder = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<Order> => {
 
@@ -1024,7 +1112,7 @@ export type GetOrderQueryError = ErrorType<void>
 
 
 /**
- * @summary Get order with items
+ * @summary Get order with items (admin only)
  */
 
 export function useGetOrder<TData = Awaited<ReturnType<typeof getOrder>>, TError = ErrorType<void>>(
@@ -1115,6 +1203,155 @@ export const useUpdateOrder = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getUpdateOrderMutationOptions(options));
+    }
+
+export const getCreateLiqpayCheckoutUrl = (id: number,) => {
+
+
+
+
+  return `/api/orders/${id}/liqpay-checkout`
+}
+
+/**
+ * @summary Generate LiqPay checkout form params for an order (paymentMethod must be liqpay)
+ */
+export const createLiqpayCheckout = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<LiqpayCheckout> => {
+
+  return customFetch<LiqpayCheckout>(getCreateLiqpayCheckoutUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getCreateLiqpayCheckoutMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLiqpayCheckout>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createLiqpayCheckout>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['createLiqpayCheckout'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createLiqpayCheckout>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  createLiqpayCheckout(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateLiqpayCheckoutMutationResult = NonNullable<Awaited<ReturnType<typeof createLiqpayCheckout>>>
+
+    export type CreateLiqpayCheckoutMutationError = ErrorType<void>
+
+    /**
+ * @summary Generate LiqPay checkout form params for an order (paymentMethod must be liqpay)
+ */
+export const useCreateLiqpayCheckout = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createLiqpayCheckout>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createLiqpayCheckout>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getCreateLiqpayCheckoutMutationOptions(options));
+    }
+
+export const getLiqpayWebhookUrl = () => {
+
+
+
+
+  return `/api/liqpay/webhook`
+}
+
+/**
+ * @summary LiqPay payment status webhook
+ */
+export const liqpayWebhook = async (liqpayWebhookPayload: LiqpayWebhookPayload, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+    const formUrlEncoded = new URLSearchParams();
+if(liqpayWebhookPayload.data !== undefined) {
+ formUrlEncoded.append(`data`, liqpayWebhookPayload.data);
+ }
+if(liqpayWebhookPayload.signature !== undefined) {
+ formUrlEncoded.append(`signature`, liqpayWebhookPayload.signature);
+ }
+
+  return customFetch<void>(getLiqpayWebhookUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', ...options?.headers },
+    body: formUrlEncoded
+  }
+);}
+
+
+
+
+
+export const getLiqpayWebhookMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof liqpayWebhook>>, TError,{data: BodyType<LiqpayWebhookPayload>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof liqpayWebhook>>, TError,{data: BodyType<LiqpayWebhookPayload>}, TContext> => {
+
+const mutationKey = ['liqpayWebhook'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof liqpayWebhook>>, {data: BodyType<LiqpayWebhookPayload>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  liqpayWebhook(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type LiqpayWebhookMutationResult = NonNullable<Awaited<ReturnType<typeof liqpayWebhook>>>
+    export type LiqpayWebhookMutationBody = BodyType<LiqpayWebhookPayload>
+    export type LiqpayWebhookMutationError = ErrorType<unknown>
+
+    /**
+ * @summary LiqPay payment status webhook
+ */
+export const useLiqpayWebhook = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof liqpayWebhook>>, TError,{data: BodyType<LiqpayWebhookPayload>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof liqpayWebhook>>,
+        TError,
+        {data: BodyType<LiqpayWebhookPayload>},
+        TContext
+      > => {
+      return useMutation(getLiqpayWebhookMutationOptions(options));
     }
 
 export const getGetAdminSessionUrl = () => {

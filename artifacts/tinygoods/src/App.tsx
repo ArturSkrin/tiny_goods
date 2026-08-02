@@ -41,11 +41,11 @@ function Router() {
       <Route path="/about" component={About} />
       
       {/* Admin */}
-      <Route path="/admin" component={AdminDashboard} />
-      <Route path="/admin/orders" component={AdminOrders} />
-      <Route path="/admin/products" component={AdminProducts} />
-      <Route path="/admin/categories" component={AdminCategories} />
-      <Route path="/admin/settings" component={AdminSettings} />
+      <Route path="/tiny-admin" component={AdminDashboard} />
+      <Route path="/tiny-admin/orders" component={AdminOrders} />
+      <Route path="/tiny-admin/products" component={AdminProducts} />
+      <Route path="/tiny-admin/categories" component={AdminCategories} />
+      <Route path="/tiny-admin/settings" component={AdminSettings} />
       
       <Route component={NotFound} />
     </Switch>

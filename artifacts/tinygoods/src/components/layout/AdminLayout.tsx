@@ -23,11 +23,11 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const [error, setError] = useState('');
 
   const navItems = [
-    { href: '/admin', icon: LayoutDashboard, label: 'Дашборд' },
-    { href: '/admin/orders', icon: ShoppingCart, label: 'Замовлення' },
-    { href: '/admin/products', icon: Package, label: 'Товари' },
-    { href: '/admin/categories', icon: Tag, label: 'Категорії' },
-    { href: '/admin/settings', icon: Settings, label: 'Налаштування' },
+    { href: '/tiny-admin', icon: LayoutDashboard, label: 'Дашборд' },
+    { href: '/tiny-admin/orders', icon: ShoppingCart, label: 'Замовлення' },
+    { href: '/tiny-admin/products', icon: Package, label: 'Товари' },
+    { href: '/tiny-admin/categories', icon: Tag, label: 'Категорії' },
+    { href: '/tiny-admin/settings', icon: Settings, label: 'Налаштування' },
   ];
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -68,7 +68,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     try {
       await logout.mutateAsync();
       queryClient.invalidateQueries({ queryKey: getGetAdminSessionQueryKey() });
-      setLocation('/admin');
+      setLocation('/tiny-admin');
     } catch (err) {
       console.error(err);
     }
@@ -162,7 +162,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       {/* Sidebar */}
       <aside className="w-full md:w-64 glass-panel md:rounded-none md:border-y-0 md:border-l-0 border-white/10 flex flex-col shrink-0 relative z-20">
         <div className="p-6">
-          <Link href="/admin" className="text-xl font-bold text-white flex items-center gap-2">
+          <Link href="/tiny-admin" className="text-xl font-bold text-white flex items-center gap-2">
             TinyGoods Admin
           </Link>
         </div>
@@ -170,7 +170,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
         <nav className="flex-1 px-4 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible">
           {navItems.map((item) => {
             const Icon = item.icon;
-            const isActive = location === item.href || (location.startsWith(item.href) && item.href !== '/admin');
+            const isActive = location === item.href || (location.startsWith(item.href) && item.href !== '/tiny-admin');
             return (
               <Link 
                 key={item.href} 

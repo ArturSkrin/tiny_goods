@@ -55,6 +55,9 @@ export default defineConfig({
       mode: "split",
       clean: true,
       prettier: true,
+      hooks: {
+        afterAllFilesWrite: `node -e "const fs=require('fs');const p='${apiZodSrc}/generated/api.ts';fs.writeFileSync(p,fs.readFileSync(p,'utf8').replace(\\"import * as zod from 'zod';\\", \\"import * as zod from 'zod/v4';\\"))"`,
+      },
       override: {
         zod: {
           coerce: {

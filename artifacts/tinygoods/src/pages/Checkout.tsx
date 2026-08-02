@@ -1,0 +1,245 @@
+import React, { useState } from 'react';
+import { StoreLayout } from '../components/layout/StoreLayout';
+import { useCart } from '../context/cart';
+import { formatPrice } from '../lib/utils';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { Textarea } from '../components/ui/textarea';
+import { useCreateOrder } from '@workspace/api-client-react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { CheckCircle2, ArrowRight } from 'lucide-react';
+import { Link } from 'wouter';
+import { motion } from 'framer-motion';
+
+const checkoutSchema = z.object({
+  customerName: z.string().min(2, "Введіть ім'я"),
+  phone: z.string().min(10, "Введіть номер телефону"),
+  contactMethod: z.enum(['viber', 'telegram']),
+  city: z.string().min(2, "Введіть місто"),
+  novaPoshtaBranch: z.string().min(1, "Введіть відділення"),
+  comment: z.string().optional()
+});
+
+type CheckoutForm = z.infer<typeof checkoutSchema>;
+
+export default function Checkout() {
+  const { items, cartTotal, clearCart } = useCart();
+  const createOrder = useCreateOrder();
+  const [successOrderId, setSuccessOrderId] = useState<number | null>(null);
+
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CheckoutForm>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      contactMethod: 'viber'
+    }
+  });
+
+  const onSubmit = async (data: CheckoutForm) => {
+    if (cartTotal < 300) return;
+
+    try {
+      const order = await createOrder.mutateAsync({
+        data: {
+          ...data,
+          items: items.map(item => ({
+            productId: item.productId,
+            quantity: item.quantity
+          }))
+        }
+      });
+      setSuccessOrderId(order.id);
+      clearCart();
+    } catch (err) {
+      console.error(err);
+      // Let standard error boundary / toast handle it, or show simple alert
+      alert('Помилка при створенні замовлення. Спробуйте пізніше.');
+    }
+  };
+
+  if (successOrderId) {
+    return (
+      <StoreLayout>
+        <div className="max-w-md mx-auto py-20">
+          <motion.div 
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="glass-panel p-10 text-center rounded-[3rem] space-y-6"
+          >
+            <div className="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
+              <CheckCircle2 className="w-10 h-10" />
+            </div>
+            <h1 className="text-3xl font-bold text-white">Дякуємо!</h1>
+            <p className="text-white/70">
+              Ваше замовлення #{successOrderId} прийнято.<br/>
+              Наш менеджер зв'яжеться з вами найближчим часом.
+            </p>
+            <div className="pt-6">
+              <Link href="/">
+                <Button size="lg" className="w-full rounded-2xl">Повернутися на головну</Button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </StoreLayout>
+    );
+  }
+
+  if (items.length === 0) {
+    return (
+      <StoreLayout>
+        <div className="max-w-md mx-auto py-20 text-center">
+          <div className="glass-panel p-10 rounded-[3rem]">
+            <h1 className="text-2xl font-bold text-white mb-4">Кошик порожній</h1>
+            <Link href="/">
+              <Button size="lg" className="rounded-2xl">До каталогу</Button>
+            </Link>
+          </div>
+        </div>
+      </StoreLayout>
+    );
+  }
+
+  return (
+    <StoreLayout>
+      <div className="max-w-5xl mx-auto pb-20">
+        <h1 className="text-3xl font-bold text-white mb-8">Оформлення замовлення</h1>
+        
+        <div className="grid md:grid-cols-[1fr_400px] gap-8">
+          {/* Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="glass-panel p-6 md:p-8 space-y-6 rounded-[2rem]">
+            <h2 className="text-xl font-semibold text-white mb-4">Контактні дані</h2>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm text-white/70 ml-1">Ім'я та прізвище</label>
+                <Input 
+                  {...register('customerName')} 
+                  placeholder="Іван Іваненко"
+                  className={errors.customerName ? "border-destructive/50" : ""}
+                />
+                {errors.customerName && <span className="text-xs text-destructive ml-1">{errors.customerName.message}</span>}
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm text-white/70 ml-1">Телефон</label>
+                <Input 
+                  {...register('phone')} 
+                  placeholder="+380 50 123 4567"
+                  className={errors.phone ? "border-destructive/50" : ""}
+                />
+                {errors.phone && <span className="text-xs text-destructive ml-1">{errors.phone.message}</span>}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm text-white/70 ml-1">Спосіб зв'язку</label>
+              <Controller
+                control={control}
+                name="contactMethod"
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <SelectTrigger className="bg-white/5 border-white/10 text-white rounded-xl h-12">
+                      <SelectValue placeholder="Оберіть спосіб" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background/90 backdrop-blur-xl border-white/10 text-white">
+                      <SelectItem value="viber">Viber</SelectItem>
+                      <SelectItem value="telegram">Telegram</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
+
+            <h2 className="text-xl font-semibold text-white pt-4 mb-4 border-t border-white/10">Доставка (Нова Пошта)</h2>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="text-sm text-white/70 ml-1">Місто</label>
+                <Input 
+                  {...register('city')} 
+                  placeholder="Київ"
+                  className={errors.city ? "border-destructive/50" : ""}
+                />
+                {errors.city && <span className="text-xs text-destructive ml-1">{errors.city.message}</span>}
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm text-white/70 ml-1">Відділення / Поштомат</label>
+                <Input 
+                  {...register('novaPoshtaBranch')} 
+                  placeholder="№123"
+                  className={errors.novaPoshtaBranch ? "border-destructive/50" : ""}
+                />
+                {errors.novaPoshtaBranch && <span className="text-xs text-destructive ml-1">{errors.novaPoshtaBranch.message}</span>}
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-4">
+              <label className="text-sm text-white/70 ml-1">Коментар до замовлення (необов'язково)</label>
+              <Textarea 
+                {...register('comment')} 
+                placeholder="Ваші побажання..."
+                className="resize-none min-h-[100px] bg-white/5 border-white/10 text-white rounded-xl focus:border-primary/50"
+              />
+            </div>
+            
+            <div className="pt-6">
+              <Button 
+                type="submit" 
+                size="lg" 
+                className="w-full h-14 text-base rounded-2xl"
+                disabled={cartTotal < 300 || createOrder.isPending}
+              >
+                {createOrder.isPending ? "Обробка..." : "Підтвердити замовлення"}
+                {!createOrder.isPending && <ArrowRight className="ml-2 w-5 h-5" />}
+              </Button>
+            </div>
+          </form>
+
+          {/* Summary */}
+          <div className="space-y-6">
+            <div className="glass-panel p-6 rounded-[2rem] sticky top-24">
+              <h3 className="text-lg font-semibold text-white mb-6">Ваше замовлення</h3>
+              
+              <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                {items.map((item) => (
+                  <div key={item.productId} className="flex gap-3 text-sm">
+                    <div className="w-12 h-12 rounded-lg bg-white/10 shrink-0 overflow-hidden">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
+                      ) : null}
+                    </div>
+                    <div className="flex-1 flex flex-col justify-center">
+                      <span className="text-white line-clamp-1">{item.productName}</span>
+                      <span className="text-white/50">{item.quantity} шт × {formatPrice(item.price)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-white/10 pt-4 space-y-3">
+                <div className="flex justify-between text-white/70">
+                  <span>Доставка</span>
+                  <span>За тарифами НП</span>
+                </div>
+                <div className="flex justify-between text-white text-lg font-bold">
+                  <span>До сплати</span>
+                  <span className="text-primary">{formatPrice(cartTotal)}</span>
+                </div>
+              </div>
+
+              {cartTotal < 300 && (
+                <div className="mt-6 p-4 rounded-xl bg-destructive/20 border border-destructive/30 text-destructive-foreground text-sm text-center">
+                  Мінімальна сума замовлення 300 грн. Додайте ще товарів на {formatPrice(300 - cartTotal)}.
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </StoreLayout>
+  );
+}

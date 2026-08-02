@@ -1,6 +1,6 @@
-# [Project name]
+# TinyGoods UA
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Ukrainian online store (товари для дому, подарункова упаковка, гаджети та освітлення) with a glassmorphism storefront and admin panel for product/order management.
 
 ## Run & Operate
 
@@ -22,11 +22,18 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/tinygoods/` — storefront + admin frontend (React/Vite, wouter, glass dark theme). Cart in `src/context/cart.tsx` (localStorage).
+- `artifacts/api-server/src/routes/` — categories, products, orders, admin (stats)
+- `lib/db/src/schema/` — categories, products, orders + order_items
+- `lib/api-spec/openapi.yaml` — API contract (source of truth)
+- Product seed images in `artifacts/tinygoods/public/products/`
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Prices stored as `numeric(10,2)` in Postgres; routes serialize to numbers via `serializeProduct`/`serializeOrder`.
+- Minimum order 300 грн enforced server-side in POST /orders; stock decremented in a transaction.
+- Admin panel has no auth yet (planned). Ukrainian payment gateway (e.g. LiqPay/Monobank) planned.
+- Codegen post-step rewrites zod import to `zod/v4` in `lib/api-zod/src/generated/api.ts` (Orval emits zod v4 API); the sed lives in `lib/api-spec/package.json` codegen script.
 
 ## Product
 
@@ -34,7 +41,10 @@ _Describe the high-level user-facing capabilities of this app once they exist._
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- User communicates in Russian; store UI must be Ukrainian.
+- Apple-style glassmorphism (frosted translucent panels) is the required aesthetic.
+- Mobile-first: dedicated mobile UX (bottom nav), most customers are on phones.
+- Products are managed by admin via the admin panel — do not hard-copy products from the old Prom.ua site.
 
 ## Gotchas
 

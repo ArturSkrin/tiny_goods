@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "TinyGoods UA"
+description = "Интернет-магазин TinyGoods UA — товары для дома, подарочная упаковка (коробки, ленты, декор), гаджеты и освещение. Витрина в современном стеклянном стиле, mobile-first, плюс админ-панель для управления товарами, остатками и заказами."
+version = "1.0.0"
+id = "artifacts/tinygoods"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24911
+
+[services.development]
+run = "pnpm --filter @workspace/tinygoods run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/tinygoods", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/tinygoods/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24911"
+BASE_PATH = "/"

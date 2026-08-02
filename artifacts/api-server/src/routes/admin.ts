@@ -8,10 +8,11 @@ import {
 } from "@workspace/db";
 import { GetAdminStatsResponse } from "@workspace/api-zod";
 import { serializeOrder } from "./orders";
+import { requireAdmin } from "../lib/adminAuth";
 
 const router: IRouter = Router();
 
-router.get("/admin/stats", async (_req, res): Promise<void> => {
+router.get("/admin/stats", requireAdmin, async (_req, res): Promise<void> => {
   const [productCounts] = await db
     .select({
       total: sql<number>`count(*)::int`,

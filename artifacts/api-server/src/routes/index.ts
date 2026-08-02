@@ -4,6 +4,7 @@ import categoriesRouter from "./categories";
 import productsRouter from "./products";
 import ordersRouter from "./orders";
 import adminRouter from "./admin";
+import adminAuthRouter from "./adminAuth";
 
 const router: IRouter = Router();
 
@@ -11,6 +12,7 @@ router.use(healthRouter);
 router.use(categoriesRouter);
 router.use(productsRouter);
 router.use(ordersRouter);
+router.use(adminAuthRouter);
 router.use(adminRouter);
 
 export default router;

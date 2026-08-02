@@ -19,6 +19,7 @@ import {
   UpdateOrderBody,
   UpdateOrderResponse,
 } from "@workspace/api-zod";
+import { requireAdmin } from "../lib/adminAuth";
 
 const router: IRouter = Router();
 
@@ -61,7 +62,7 @@ async function loadItemsByOrderIds(orderIds: number[]) {
   return map;
 }
 
-router.get("/orders", async (req, res): Promise<void> => {
+router.get("/orders", requireAdmin, async (req, res): Promise<void> => {
   const query = ListOrdersQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
@@ -166,7 +167,7 @@ router.post("/orders", async (req, res): Promise<void> => {
   res.status(201).json(CreateOrderResponse.parse(serializeOrder(order, items)));
 });
 
-router.get("/orders/:id", async (req, res): Promise<void> => {
+router.get("/orders/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = GetOrderParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -187,7 +188,7 @@ router.get("/orders/:id", async (req, res): Promise<void> => {
   res.json(GetOrderResponse.parse(serializeOrder(order, items)));
 });
 
-router.patch("/orders/:id", async (req, res): Promise<void> => {
+router.patch("/orders/:id", requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateOrderParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

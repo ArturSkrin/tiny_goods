@@ -1,5 +1,5 @@
 import express, { type Express } from "express";
-import cors from "cors";
+import cookieParser from "cookie-parser";
 import pinoHttp from "pino-http";
 import router from "./routes";
 import { logger } from "./lib/logger";
@@ -25,7 +25,9 @@ app.use(
     },
   }),
 );
-app.use(cors());
+// The app is served same-origin through the Replit path-routing proxy, so no
+// CORS middleware: wildcard CORS + credentialed cookies would be unsafe.
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

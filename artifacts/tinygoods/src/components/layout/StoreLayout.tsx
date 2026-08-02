@@ -13,7 +13,6 @@ export function StoreLayout({ children }: { children: React.ReactNode }) {
   const navItems = [
     { href: '/', icon: Home, label: 'Головна' },
     { href: '/about', icon: Info, label: 'Про нас' },
-    { href: '/admin', icon: User, label: 'Адмін' },
   ];
 
   return (

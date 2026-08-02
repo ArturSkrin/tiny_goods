@@ -160,6 +160,49 @@ export interface AdminStats {
   topProducts: TopProduct[];
 }
 
+export interface AdminSession {
+  authenticated: boolean;
+  /** true when no admin password has been set yet */
+  setupRequired: boolean;
+  totpEnabled: boolean;
+}
+
+export interface AdminSetupInput {
+  /** @minLength 8 */
+  password: string;
+}
+
+export interface AdminLoginInput {
+  /** @minLength 1 */
+  password: string;
+  totpCode?: string;
+}
+
+export interface AdminLoginResult {
+  /** ok | totp_required */
+  status: string;
+}
+
+export interface TotpSetup {
+  secret: string;
+  otpauthUrl: string;
+}
+
+export interface TotpCodeInput {
+  /**
+     * @minLength 6
+     * @maxLength 6
+     */
+  code: string;
+}
+
+export interface PasswordChangeInput {
+  /** @minLength 1 */
+  currentPassword: string;
+  /** @minLength 8 */
+  newPassword: string;
+}
+
 export type ListProductsParams = {
 categoryId?: number;
 search?: string;

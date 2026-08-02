@@ -356,6 +356,119 @@ export const UpdateOrderResponse = zod.object({
 
 
 /**
+ * @summary Current admin session state
+ */
+export const GetAdminSessionResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "setupRequired": zod.boolean().describe('true when no admin password has been set yet'),
+  "totpEnabled": zod.boolean()
+})
+
+
+/**
+ * @summary Set initial admin password (only when not configured)
+ */
+export const setupAdminBodyPasswordMin = 8;
+
+
+
+export const SetupAdminBody = zod.object({
+  "password": zod.string().min(setupAdminBodyPasswordMin)
+})
+
+export const SetupAdminResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "setupRequired": zod.boolean().describe('true when no admin password has been set yet'),
+  "totpEnabled": zod.boolean()
+})
+
+
+/**
+ * @summary Admin login with password and optional TOTP code
+ */
+
+
+
+export const AdminLoginBody = zod.object({
+  "password": zod.string().min(1),
+  "totpCode": zod.string().optional()
+})
+
+export const AdminLoginResponse = zod.object({
+  "status": zod.string().describe('ok | totp_required')
+})
+
+
+/**
+ * @summary Log out admin
+ */
+export const AdminLogoutResponse = zod.void()
+
+
+/**
+ * @summary Generate TOTP secret and otpauth URL (requires session)
+ */
+export const TotpSetupResponse = zod.object({
+  "secret": zod.string(),
+  "otpauthUrl": zod.string()
+})
+
+
+/**
+ * @summary Enable 2FA by confirming a TOTP code (requires session)
+ */
+export const totpEnableBodyCodeMin = 6;
+export const totpEnableBodyCodeMax = 6;
+
+
+
+export const TotpEnableBody = zod.object({
+  "code": zod.string().min(totpEnableBodyCodeMin).max(totpEnableBodyCodeMax)
+})
+
+export const TotpEnableResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "setupRequired": zod.boolean().describe('true when no admin password has been set yet'),
+  "totpEnabled": zod.boolean()
+})
+
+
+/**
+ * @summary Disable 2FA by confirming a TOTP code (requires session)
+ */
+export const totpDisableBodyCodeMin = 6;
+export const totpDisableBodyCodeMax = 6;
+
+
+
+export const TotpDisableBody = zod.object({
+  "code": zod.string().min(totpDisableBodyCodeMin).max(totpDisableBodyCodeMax)
+})
+
+export const TotpDisableResponse = zod.object({
+  "authenticated": zod.boolean(),
+  "setupRequired": zod.boolean().describe('true when no admin password has been set yet'),
+  "totpEnabled": zod.boolean()
+})
+
+
+/**
+ * @summary Change admin password (requires session)
+ */
+
+export const changeAdminPasswordBodyNewPasswordMin = 8;
+
+
+
+export const ChangeAdminPasswordBody = zod.object({
+  "currentPassword": zod.string().min(1),
+  "newPassword": zod.string().min(changeAdminPasswordBodyNewPasswordMin)
+})
+
+export const ChangeAdminPasswordResponse = zod.void()
+
+
+/**
  * @summary Dashboard stats for admin
  */
 export const GetAdminStatsResponse = zod.object({

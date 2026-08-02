@@ -276,6 +276,134 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Order"
+  /admin/session:
+    get:
+      operationId: getAdminSession
+      tags: [admin]
+      summary: Current admin session state
+      responses:
+        "200":
+          description: Session state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+  /admin/setup:
+    post:
+      operationId: setupAdmin
+      tags: [admin]
+      summary: Set initial admin password (only when not configured)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminSetupInput"
+      responses:
+        "200":
+          description: Configured and logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "400":
+          description: Already configured
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login with password and optional TOTP code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Login result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminLoginResult"
+        "401":
+          description: Invalid credentials
+  /admin/logout:
+    post:
+      operationId: adminLogout
+      tags: [admin]
+      summary: Log out admin
+      responses:
+        "204":
+          description: Logged out
+  /admin/2fa/setup:
+    post:
+      operationId: totpSetup
+      tags: [admin]
+      summary: Generate TOTP secret and otpauth URL (requires session)
+      responses:
+        "200":
+          description: TOTP setup data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TotpSetup"
+  /admin/2fa/enable:
+    post:
+      operationId: totpEnable
+      tags: [admin]
+      summary: Enable 2FA by confirming a TOTP code (requires session)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TotpCodeInput"
+      responses:
+        "200":
+          description: Enabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "400":
+          description: Invalid code
+  /admin/2fa/disable:
+    post:
+      operationId: totpDisable
+      tags: [admin]
+      summary: Disable 2FA by confirming a TOTP code (requires session)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TotpCodeInput"
+      responses:
+        "200":
+          description: Disabled
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "400":
+          description: Invalid code
+  /admin/password:
+    post:
+      operationId: changeAdminPassword
+      tags: [admin]
+      summary: Change admin password (requires session)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordChangeInput"
+      responses:
+        "204":
+          description: Changed
+        "401":
+          description: Wrong current password
   /admin/stats:
     get:
       operationId: getAdminStats
@@ -442,6 +570,46 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TopProduct"
+    AdminSession:
+      type: object
+      required: [authenticated, setupRequired, totpEnabled]
+      properties:
+        authenticated: { type: boolean }
+        setupRequired: { type: boolean, description: "true when no admin password has been set yet" }
+        totpEnabled: { type: boolean }
+    AdminSetupInput:
+      type: object
+      required: [password]
+      properties:
+        password: { type: string, minLength: 8 }
+    AdminLoginInput:
+      type: object
+      required: [password]
+      properties:
+        password: { type: string, minLength: 1 }
+        totpCode: { type: string }
+    AdminLoginResult:
+      type: object
+      required: [status]
+      properties:
+        status: { type: string, description: "ok | totp_required" }
+    TotpSetup:
+      type: object
+      required: [secret, otpauthUrl]
+      properties:
+        secret: { type: string }
+        otpauthUrl: { type: string }
+    TotpCodeInput:
+      type: object
+      required: [code]
+      properties:
+        code: { type: string, minLength: 6, maxLength: 6 }
+    PasswordChangeInput:
+      type: object
+      required: [currentPassword, newPassword]
+      properties:
+        currentPassword: { type: string, minLength: 1 }
+        newPassword: { type: string, minLength: 8 }
     TopProduct:
       type: object
       required: [productId, productName, unitsSold, revenue]

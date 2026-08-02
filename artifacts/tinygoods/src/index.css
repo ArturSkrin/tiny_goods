@@ -156,3 +156,12 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* Hide horizontal scrollbars on chip rows and carousels */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}

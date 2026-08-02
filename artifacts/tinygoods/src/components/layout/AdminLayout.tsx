@@ -167,7 +167,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </Link>
         </div>
         
-        <nav className="flex-1 px-4 flex flex-row md:flex-col gap-2 overflow-x-auto md:overflow-visible">
+        <nav className="flex-1 px-4 flex flex-row md:flex-col gap-2 overflow-x-auto no-scrollbar md:overflow-visible">
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href || (location.startsWith(item.href) && item.href !== '/tiny-admin');

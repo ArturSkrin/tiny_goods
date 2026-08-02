@@ -1,25 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { Button } from '../components/ui/button';
 import { Link, useSearch } from 'wouter';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, XCircle, RefreshCw } from 'lucide-react';
-
-interface PaymentStatusData {
-  orderId: number;
-  paymentStatus: 'pending' | 'paid' | 'failed';
-  status: string;
-}
-
-async function fetchPaymentStatus(token: string): Promise<PaymentStatusData | null> {
-  try {
-    const res = await fetch(`/api/orders/payment-status?token=${encodeURIComponent(token)}`);
-    if (!res.ok) return null;
-    return res.json() as Promise<PaymentStatusData>;
-  } catch {
-    return null;
-  }
-}
+import { useGetOrderPaymentStatus, getGetOrderPaymentStatusQueryKey } from '@workspace/api-client-react';
 
 function parseToken(search: string): string | null {
   const params = new URLSearchParams(search.startsWith('?') ? search.slice(1) : search);
@@ -30,26 +15,19 @@ export default function PaymentSuccess() {
   const search = useSearch();
   const token = parseToken(search);
 
-  const [data, setData] = useState<PaymentStatusData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const load = async (isRefresh = false) => {
-    if (!token) { setLoading(false); return; }
-    if (isRefresh) setRefreshing(true); else setLoading(true);
-    const result = await fetchPaymentStatus(token);
-    setData(result);
-    if (isRefresh) setRefreshing(false); else setLoading(false);
-  };
-
-  useEffect(() => { void load(); }, [token]);
-
-  // Poll every 5 s while still pending
-  useEffect(() => {
-    if (!token || data?.paymentStatus !== 'pending') return;
-    const timer = setInterval(() => { void load(true); }, 5000);
-    return () => clearInterval(timer);
-  }, [token, data?.paymentStatus]);
+  const { data, isLoading, isError, refetch, isRefetching } = useGetOrderPaymentStatus(
+    { token: token ?? '' },
+    {
+      query: {
+        queryKey: getGetOrderPaymentStatusQueryKey({ token: token ?? '' }),
+        enabled: !!token,
+        retry: false,
+        // Poll every 5 s while the payment is still pending
+        refetchInterval: (query) =>
+          query.state.data?.paymentStatus === 'pending' ? 5000 : false,
+      },
+    },
+  );
 
   const paymentStatus = data?.paymentStatus ?? 'pending';
   const isPaid = paymentStatus === 'paid';
@@ -77,11 +55,11 @@ export default function PaymentSuccess() {
           animate={{ scale: 1, opacity: 1 }}
           className="glass-panel p-10 text-center rounded-[3rem] space-y-6"
         >
-          {loading ? (
+          {isLoading ? (
             <div className="py-6 flex justify-center">
               <div className="w-10 h-10 border-4 border-primary/30 border-t-primary rounded-full animate-spin" />
             </div>
-          ) : !data ? (
+          ) : isError || !data ? (
             <>
               <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto">
                 <XCircle className="w-10 h-10 text-white/40" />
@@ -109,14 +87,14 @@ export default function PaymentSuccess() {
 
               <h1 className="text-3xl font-bold text-white">
                 {isPaid && 'Оплата успішна!'}
-                {isPending && 'Очікуємо оплату'}
-                {isFailed && 'Оплата не пройшла'}
+                {isPending && 'Очікуємо підтвердження оплати'}
+                {isFailed && 'Оплата не вдалася'}
               </h1>
 
               <p className="text-white/70">
-                {isPaid && <>Ваше замовлення №{data.orderId} оплачено та підтверджено.<br />Менеджер зв'яжеться з вами найближчим часом.</>}
+                {isPaid && <>Замовлення №{data.orderId} оплачено та підтверджено.<br />Менеджер зв'яжеться з вами найближчим часом.</>}
                 {isPending && <>Статус оплати ще уточнюється.<br />Сторінка оновлюється автоматично кожні 5 секунд.</>}
-                {isFailed && <>Оплату не підтверджено.<br />Спробуйте ще раз або зверніться до менеджера.</>}
+                {isFailed && <>Оплату не підтверджено.<br />Спробуйте оплатити ще раз або зверніться до менеджера.</>}
               </p>
 
               {isPending && (
@@ -124,16 +102,22 @@ export default function PaymentSuccess() {
                   variant="outline"
                   size="sm"
                   className="rounded-xl"
-                  onClick={() => load(true)}
-                  disabled={refreshing}
+                  onClick={() => refetch()}
+                  disabled={isRefetching}
                 >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
                   Оновити статус
                 </Button>
               )}
 
+              {isFailed && (
+                <Link href="/checkout">
+                  <Button size="lg" className="w-full rounded-2xl">Спробувати ще раз</Button>
+                </Link>
+              )}
+
               <div className="pt-4">
-                <Link href="/"><Button size="lg" className="w-full rounded-2xl">На головну</Button></Link>
+                <Link href="/"><Button size="lg" variant={isFailed ? 'outline' : 'default'} className="w-full rounded-2xl">На головну</Button></Link>
               </div>
             </>
           )}

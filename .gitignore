@@ -47,3 +47,22 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+.replit
+.replitignore
+.replit-artifact/
+.agents/
+attached_assets/
+
+# Stray GitHub Desktop clone
+/tiny_goods/
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+kubeconfig*
+
+# Claude Code local settings
+.claude/settings.local.json

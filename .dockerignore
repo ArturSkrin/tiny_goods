@@ -1,0 +1,13 @@
+.git
+.github
+.local
+.cache
+.agents
+.config
+**/node_modules
+**/dist
+**/*.tsbuildinfo
+**/.tsbuildinfo
+attached_assets
+k8s
+.env*

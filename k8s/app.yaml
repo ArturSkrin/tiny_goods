@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: tinygoods
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tinygoods
+  namespace: tinygoods
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tinygoods
+  template:
+    metadata:
+      labels:
+        app: tinygoods
+    spec:
+      containers:
+        - name: tinygoods
+          # shortcut: mutable latest tag, switch to the git SHA tag when CI updates manifests
+          image: ghcr.io/arturskrin/tiny_goods:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          # DATABASE_URL, SESSION_SECRET (and optionally LIQPAY_*) — created by hand, not in Git
+          envFrom:
+            - secretRef:
+                name: tinygoods-secrets
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 8080
+          livenessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 8080
+            initialDelaySeconds: 10
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tinygoods
+  namespace: tinygoods
+spec:
+  selector:
+    app: tinygoods
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+# TLS ends at Cloudflare; the tunnel forwards plain HTTP to ingress-nginx (192.168.11.30).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tinygoods
+  namespace: tinygoods
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: tinygoods.skrin.pp.ua
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tinygoods
+                port:
+                  number: 80

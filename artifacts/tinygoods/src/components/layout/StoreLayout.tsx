@@ -6,6 +6,8 @@ import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CartDrawer from '../store/CartDrawer';
 import { ThemeToggle } from '../ThemeToggle';
+import { ContactButtons } from '../ContactButtons';
+import { useSettings } from '../../hooks/use-settings';
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -57,6 +59,7 @@ export function StoreLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
   const { cartCount, setIsCartOpen } = useCart();
   const goToCatalog = useGoToCatalog();
+  const settings = useSettings();
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -82,13 +85,13 @@ export function StoreLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-[100dvh] flex flex-col relative">
       {/* Desktop header */}
-      <header className="hidden md:block fixed top-0 inset-x-0 z-40 px-4 pt-4">
+      <header className="hidden md:block fixed top-0 inset-x-0 z-40 px-6 pt-4">
         <motion.div
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ type: 'spring', stiffness: 120, damping: 18 }}
           className={cn(
-            'max-w-6xl mx-auto liquid-glass liquid-glass-refract rounded-full pl-4 pr-2 py-2 flex items-center justify-between transition-[padding] duration-300',
+            'max-w-[1400px] mx-auto liquid-glass liquid-glass-refract rounded-full pl-4 pr-2 py-2 flex items-center justify-between transition-[padding] duration-300',
             scrolled && 'py-1.5',
           )}
         >
@@ -150,16 +153,21 @@ export function StoreLayout({ children }: { children: React.ReactNode }) {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-1 pt-[calc(env(safe-area-inset-top)+5.5rem)] md:pt-28 pb-32 md:pb-16 px-4 max-w-6xl mx-auto w-full"
+          className="flex-1 pt-[calc(env(safe-area-inset-top)+5.5rem)] md:pt-28 pb-32 md:pb-16 px-3 md:px-6 max-w-[1400px] mx-auto w-full"
         >
           {children}
         </motion.main>
       </AnimatePresence>
 
-      <footer className="hidden md:block pb-8 px-4">
-        <div className="max-w-6xl mx-auto flex items-center justify-between text-sm text-muted-foreground border-t border-foreground/10 pt-6">
-          <Logo />
-          <span>© {new Date().getFullYear()} TinyGoods UA · Доставка Новою Поштою по Україні</span>
+      <footer className="hidden md:block pb-8 px-6">
+        <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-6 text-sm text-muted-foreground border-t border-foreground/10 pt-6">
+          <div className="space-y-1">
+            <Logo />
+            <div>© {new Date().getFullYear()} TinyGoods UA · Доставка Новою Поштою по Україні</div>
+            {settings?.contacts.address && <div>{settings.contacts.address}</div>}
+            {settings?.contacts.workHours && <div>{settings.contacts.workHours}</div>}
+          </div>
+          {settings && <ContactButtons contacts={settings.contacts} className="justify-end" />}
         </div>
       </footer>
 

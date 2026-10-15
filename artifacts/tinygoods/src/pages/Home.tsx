@@ -10,11 +10,13 @@ import { Showcase } from '../components/home/Showcase';
 import { CustomOrder } from '../components/home/CustomOrder';
 import { Faq } from '../components/home/Faq';
 import { Reveal, SectionTitle } from '../components/home/Reveal';
+import { useSettings } from '../hooks/use-settings';
 
 export default function Home() {
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  const settings = useSettings();
   const { data: categories } = useListCategories();
   const { data: products, isLoading: isLoadingProducts } = useListProducts({
     categoryId: selectedCategory || undefined,
@@ -41,9 +43,13 @@ export default function Home() {
   return (
     <StoreLayout>
       <div className="space-y-6 md:space-y-10">
-        <Hero categories={categories ?? []} onFind={find} />
+        {settings ? (
+          <Hero settings={settings} categories={categories ?? []} onFind={find} />
+        ) : (
+          <div className="liquid-glass rounded-[32px] h-[560px] animate-pulse" />
+        )}
 
-        <Showcase onPick={(q) => find(q, null)} />
+        {settings && <Showcase items={settings.showcase} onPick={(q) => find(q, null)} />}
 
         {/* Catalog */}
         <section id="catalog" className="scroll-mt-24 md:scroll-mt-28 space-y-5">
@@ -114,8 +120,8 @@ export default function Home() {
           )}
         </section>
 
-        <CustomOrder />
-        <Faq />
+        {settings && <CustomOrder contacts={settings.contacts} />}
+        {settings && <Faq items={settings.faq} />}
       </div>
     </StoreLayout>
   );

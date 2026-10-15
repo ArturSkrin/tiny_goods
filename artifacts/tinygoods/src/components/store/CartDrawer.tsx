@@ -1,7 +1,8 @@
 import React from 'react';
 import { X, Minus, Plus, Trash2, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useCart } from '../../context/cart';
+import { useCart, variantLabel } from '../../context/cart';
+import { useSettings } from '../../hooks/use-settings';
 import { formatPrice } from '../../lib/utils';
 import { Link, useLocation } from 'wouter';
 import { Button } from '../ui/button';
@@ -9,6 +10,7 @@ import { Button } from '../ui/button';
 export default function CartDrawer() {
   const { items, isCartOpen, setIsCartOpen, updateQuantity, removeFromCart, cartTotal } = useCart();
   const [, setLocation] = useLocation();
+  const minOrder = useSettings()?.minOrderTotal ?? 0;
 
   const handleCheckout = () => {
     setIsCartOpen(false);
@@ -24,7 +26,7 @@ export default function CartDrawer() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsCartOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-foreground/15 dark:bg-black/60 backdrop-blur-sm z-50"
           />
           <motion.div
             initial={{ x: '100%' }}
@@ -60,7 +62,7 @@ export default function CartDrawer() {
               ) : (
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.productId} className="flex gap-4 p-4 rounded-2xl bg-foreground/5 border border-foreground/10 relative group">
+                    <div key={item.key} className="flex gap-4 p-4 rounded-2xl bg-foreground/5 border border-foreground/10 relative group">
                       <div className="w-20 h-20 rounded-xl bg-foreground/10 overflow-hidden shrink-0">
                         {item.imageUrl ? (
                           <img src={item.imageUrl} alt={item.productName} className="w-full h-full object-cover" />
@@ -73,19 +75,20 @@ export default function CartDrawer() {
                       
                       <div className="flex-1 flex flex-col">
                         <h3 className="text-sm font-medium text-foreground line-clamp-2">{item.productName}</h3>
+                        {variantLabel(item) && <div className="text-xs text-muted-foreground">{variantLabel(item)}</div>}
                         <div className="mt-1 text-primary font-medium">{formatPrice(item.price)}</div>
                         
                         <div className="mt-auto flex items-center gap-3">
                           <div className="flex items-center gap-2 bg-foreground/10 rounded-lg p-1">
                             <button 
-                              onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.key, item.quantity - 1)}
                               className="p-1 rounded-md hover:bg-foreground/10 text-foreground/70 hover:text-foreground"
                             >
                               <Minus className="w-3 h-3" />
                             </button>
                             <span className="text-sm w-4 text-center text-foreground">{item.quantity}</span>
                             <button 
-                              onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.key, item.quantity + 1)}
                               className="p-1 rounded-md hover:bg-foreground/10 text-foreground/70 hover:text-foreground"
                             >
                               <Plus className="w-3 h-3" />
@@ -95,7 +98,7 @@ export default function CartDrawer() {
                       </div>
                       
                       <button 
-                        onClick={() => removeFromCart(item.productId)}
+                        onClick={() => removeFromCart(item.key)}
                         className="absolute top-4 right-4 p-1.5 rounded-full text-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-colors"
                       >
                         <Trash2 className="w-4 h-4" />
@@ -113,17 +116,17 @@ export default function CartDrawer() {
                   <span className="text-lg font-bold">{formatPrice(cartTotal)}</span>
                 </div>
                 
-                {cartTotal < 300 ? (
-                  <div className="mb-4 p-3 rounded-xl bg-destructive/20 border border-destructive/30 text-destructive-foreground text-sm text-center">
-                    Мінімальна сума замовлення 300 грн.<br/>
-                    Додайте ще товарів на {formatPrice(300 - cartTotal)}.
+                {cartTotal < minOrder ? (
+                  <div className="mb-4 p-3 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive dark:text-destructive-foreground text-sm text-center">
+                    Мінімальна сума замовлення {formatPrice(minOrder)}.<br/>
+                    Додайте ще товарів на {formatPrice(minOrder - cartTotal)}.
                   </div>
                 ) : null}
 
                 <Button 
                   className="w-full h-14 text-base rounded-2xl" 
                   size="lg"
-                  disabled={cartTotal < 300}
+                  disabled={cartTotal < minOrder}
                   onClick={handleCheckout}
                 >
                   Оформити замовлення <ArrowRight className="ml-2 w-5 h-5" />

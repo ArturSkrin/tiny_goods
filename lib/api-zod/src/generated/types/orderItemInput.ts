@@ -10,4 +10,8 @@ export interface OrderItemInput {
   productId: number;
   /** @minimum 1 */
   quantity: number;
+  /** Name of one of the product's sizes */
+  size?: string;
+  /** Name of one of the product's colours */
+  color?: string;
 }

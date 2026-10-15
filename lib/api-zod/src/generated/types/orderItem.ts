@@ -7,8 +7,17 @@
  */
 
 export interface OrderItem {
-  productId: number;
+  /**
+     * null when the product was deleted
+     * @nullable
+     */
+  productId: number | null;
   productName: string;
+  /**
+     * Chosen size / colour
+     * @nullable
+     */
+  variant?: string | null;
   price: number;
   quantity: number;
   /** @nullable */

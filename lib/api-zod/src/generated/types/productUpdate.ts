@@ -5,6 +5,7 @@
  * TinyGoods UA store API
  * OpenAPI spec version: 0.1.0
  */
+import type { ProductOption } from './productOption';
 
 export interface ProductUpdate {
   categoryId?: number;
@@ -22,4 +23,6 @@ export interface ProductUpdate {
   stock?: number;
   isActive?: boolean;
   isFeatured?: boolean;
+  sizes?: ProductOption[];
+  colors?: ProductOption[];
 }

@@ -29,7 +29,7 @@ app.use(
 // The app is served same-origin through the Replit path-routing proxy, so no
 // CORS middleware: wildcard CORS + credentialed cookies would be unsafe.
 app.use(cookieParser());
-app.use(express.json());
+app.use(express.json({ limit: "8mb" })); // base64 image uploads from the admin panel
 app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", router);

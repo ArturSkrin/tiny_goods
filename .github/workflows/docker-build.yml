@@ -31,6 +31,23 @@ jobs:
           docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:${{ github.sha }}
 
+      # Apply schema changes before the new image is deployed. Additive changes only:
+      # anything needing a data-loss prompt fails here and blocks the deploy.
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Push DB schema
+        timeout-minutes: 5
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm --filter @workspace/db run push < /dev/null
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
       # ArgoCD deploys what is in k8s/, so pin the manifest to the image just built.
       # Pushes made with GITHUB_TOKEN do not trigger workflows, so this does not loop.
       - name: Bump image tag in k8s manifest

@@ -2,21 +2,17 @@ import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
 import { Plus, Package, Truck, Wallet, MessageCircle, Ruler } from 'lucide-react';
+import type { FaqItem } from '@workspace/api-client-react';
 import { Reveal, SectionTitle } from './Reveal';
 
-const FAQ = [
-  { icon: Package, q: 'Яка мінімальна сума замовлення?', a: 'Мінімальне замовлення — 300 ₴. Кошик підкаже, скільки ще додати до мінімальної суми.' },
-  { icon: Truck, q: 'Як ви доставляєте?', a: 'Новою Поштою по всій Україні — у відділення або поштомат, який ви вкажете при оформленні.' },
-  { icon: Wallet, q: 'Як можна оплатити?', a: 'Накладеним платежем при отриманні або онлайн карткою через захищену сторінку LiqPay.' },
-  { icon: Ruler, q: 'Чи можна замовити пакування під свій розмір або з логотипом?', a: 'Так. Напишіть нам — підкажемо варіанти розміру, кольору та друку і порахуємо вартість.' },
-  { icon: MessageCircle, q: 'Як із вами звʼязатися?', a: 'У Viber або Telegram. Після оформлення замовлення ми самі напишемо у вибраний месенджер, щоб підтвердити деталі.' },
-];
+const ICONS = [Package, Truck, Wallet, Ruler, MessageCircle];
 
-export function Faq() {
+export function Faq({ items }: { items: FaqItem[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const imgY = useTransform(scrollYProgress, [0, 1], ['-8%', '8%']);
 
+  if (items.length === 0) return null;
   return (
     <section ref={ref} className="grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-5">
       <Reveal className="hidden lg:block lg:col-span-5 rounded-[32px] overflow-hidden relative min-h-[460px] shadow-[0_24px_50px_-28px_hsl(var(--glass-shadow)/0.8)]">
@@ -28,7 +24,9 @@ export function Faq() {
       <Reveal delay={0.1} className="lg:col-span-7 liquid-glass rounded-[32px] p-5 md:p-10">
         <SectionTitle eyebrow="FAQ" title="Відповіді на основні питання" />
         <AccordionPrimitive.Root type="single" collapsible defaultValue="0" className="mt-6 space-y-2.5">
-          {FAQ.map((f, i) => (
+          {items.map((f, i) => {
+            const Icon = ICONS[i % ICONS.length]!;
+            return (
             <AccordionPrimitive.Item
               key={i}
               value={String(i)}
@@ -40,14 +38,15 @@ export function Faq() {
                     <Plus className="w-4 h-4" />
                   </span>
                   <span className="flex-1 font-bold text-sm md:text-[15px] text-foreground">{f.q}</span>
-                  <f.icon className="w-5 h-5 text-gold shrink-0 hidden sm:block" />
+                  <Icon className="w-5 h-5 text-gold shrink-0 hidden sm:block" />
                 </AccordionPrimitive.Trigger>
               </AccordionPrimitive.Header>
               <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
-                <p className="px-4 pb-4 pl-[60px] text-sm text-muted-foreground leading-relaxed">{f.a}</p>
+                <p className="px-4 pb-4 pl-[60px] text-sm text-muted-foreground leading-relaxed whitespace-pre-line">{f.a}</p>
               </AccordionPrimitive.Content>
             </AccordionPrimitive.Item>
-          ))}
+            );
+          })}
         </AccordionPrimitive.Root>
       </Reveal>
     </section>

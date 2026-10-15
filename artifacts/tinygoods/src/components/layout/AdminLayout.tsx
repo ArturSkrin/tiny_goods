@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Settings, LogIn, Lock } from 'lucide-react';
+import { LayoutDashboard, Package, Tag, ShoppingCart, LogOut, Settings, LogIn, Lock, Globe } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useGetAdminSession, useAdminLogin, useSetupAdmin, useAdminLogout, getGetAdminSessionQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -27,6 +27,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     { href: '/tiny-admin/orders', icon: ShoppingCart, label: 'Замовлення' },
     { href: '/tiny-admin/products', icon: Package, label: 'Товари' },
     { href: '/tiny-admin/categories', icon: Tag, label: 'Категорії' },
+    { href: '/tiny-admin/site', icon: Globe, label: 'Сайт' },
     { href: '/tiny-admin/settings', icon: Settings, label: 'Налаштування' },
   ];
 

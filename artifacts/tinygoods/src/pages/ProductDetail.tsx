@@ -1,10 +1,49 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRoute } from 'wouter';
-import { useGetProduct, getGetProductQueryKey } from '@workspace/api-client-react';
+import { useGetProduct, getGetProductQueryKey, type ProductOption } from '@workspace/api-client-react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { Button } from '../components/ui/button';
-import { useCart } from '../context/cart';
-import { formatPrice } from '../lib/utils';
+import { useCart, variantPrice } from '../context/cart';
+import { cn, formatPrice } from '../lib/utils';
+
+function OptionPicker({ label, options, value, onChange }: {
+  label: string;
+  options: ProductOption[];
+  value?: string;
+  onChange: (name: string) => void;
+}) {
+  return (
+    <div className="space-y-2.5">
+      <div className="text-sm text-foreground/70">
+        {label}: <span className="font-bold text-foreground">{value}</span>
+      </div>
+      <div className="flex flex-wrap gap-2">
+        {options.map((o) => {
+          const active = o.name === value;
+          return (
+            <button
+              key={o.name}
+              type="button"
+              onClick={() => onChange(o.name)}
+              className={cn(
+                'relative h-10 px-4 rounded-xl text-sm font-semibold flex items-center gap-2 ring-1 transition active:scale-95',
+                active ? 'ring-2 ring-primary bg-primary/10 text-foreground' : 'ring-foreground/15 text-foreground/75 hover:ring-foreground/30',
+              )}
+            >
+              {o.hex && <span className="w-4 h-4 rounded-full ring-1 ring-foreground/20" style={{ background: o.hex }} />}
+              {o.name}
+              {o.priceDelta !== 0 && (
+                <span className="text-xs text-muted-foreground">
+                  {o.priceDelta > 0 ? '+' : '−'}{formatPrice(Math.abs(o.priceDelta))}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 import { ShoppingBag, ArrowLeft, Minus, Plus, Check } from 'lucide-react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
@@ -20,6 +59,14 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [size, setSize] = useState<string>();
+  const [color, setColor] = useState<string>();
+
+  // Preselect the first option once the product loads.
+  useEffect(() => {
+    setSize(product?.sizes?.[0]?.name);
+    setColor(product?.colors?.[0]?.name);
+  }, [product?.id]);
 
   if (isLoading) {
     return (
@@ -41,8 +88,11 @@ export default function ProductDetail() {
     );
   }
 
+  const price = variantPrice(product, { size, color });
+  const optionDelta = price - product.price;
+
   const handleAdd = () => {
-    addToCart(product, quantity);
+    addToCart(product, quantity, { size, color });
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -97,12 +147,12 @@ export default function ProductDetail() {
             </h1>
             
             <div className="flex items-end gap-4 mb-6">
-              <div className="text-4xl font-bold text-foreground">
-                {formatPrice(product.price)}
-              </div>
+              <motion.div key={price} initial={{ y: -6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} className="text-4xl font-bold text-foreground">
+                {formatPrice(price)}
+              </motion.div>
               {product.oldPrice && product.oldPrice > product.price && (
                 <div className="text-xl text-foreground/40 line-through mb-1">
-                  {formatPrice(product.oldPrice)}
+                  {formatPrice(product.oldPrice + optionDelta)}
                 </div>
               )}
             </div>
@@ -116,6 +166,12 @@ export default function ProductDetail() {
             </div>
 
             <div className="glass p-6 rounded-3xl space-y-6">
+              {product.sizes.length > 0 && (
+                <OptionPicker label="Розмір" options={product.sizes} value={size} onChange={setSize} />
+              )}
+              {product.colors.length > 0 && (
+                <OptionPicker label="Колір" options={product.colors} value={color} onChange={setColor} />
+              )}
               <div className="flex items-center justify-between">
                 <span className="text-foreground/70">Кількість</span>
                 <div className="flex items-center gap-4 glass rounded-xl p-1">

@@ -30,7 +30,13 @@ export function ProductCard({ product }: { product: Product }) {
     py.set(0.5);
   };
 
+  // Products with sizes/colours need a choice first, so the button opens the product page.
+  const hasOptions = (product.sizes?.length ?? 0) + (product.colors?.length ?? 0) > 0;
+  const minDelta = (list: Product['sizes']) => Math.min(0, ...(list ?? []).map((o) => o.priceDelta));
+  const fromPrice = product.price + minDelta(product.sizes) + minDelta(product.colors);
+
   const handleAdd = (e: React.MouseEvent) => {
+    if (hasOptions) return;
     e.preventDefault();
     addToCart(product, 1);
   };
@@ -80,13 +86,16 @@ export function ProductCard({ product }: { product: Product }) {
               {hasDiscount && (
                 <div className="text-muted-foreground text-xs line-through">{formatPrice(product.oldPrice!)}</div>
               )}
-              <div className="text-base md:text-lg font-extrabold text-foreground">{formatPrice(product.price)}</div>
+              <div className="text-base md:text-lg font-extrabold text-foreground">
+                {hasOptions && <span className="text-xs font-semibold text-muted-foreground mr-1">від</span>}
+                {formatPrice(hasOptions ? fromPrice : product.price)}
+              </div>
             </div>
 
             <button
               onClick={handleAdd}
               disabled={product.stock === 0}
-              aria-label="Додати в кошик"
+              aria-label={hasOptions ? 'Обрати варіант' : 'Додати в кошик'}
               className="shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_8px_18px_-8px_hsl(var(--primary)/0.9)] transition hover:scale-110 hover:rotate-90 active:scale-90 disabled:opacity-40 disabled:hover:scale-100 disabled:hover:rotate-0"
             >
               <Plus className="w-5 h-5" />

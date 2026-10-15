@@ -6,7 +6,11 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { useQueryClient } from '@tanstack/react-query';
-import { Trash2, Edit2, Plus, X, Image as ImageIcon } from 'lucide-react';
+import { Trash2, Edit2, Plus, X, Copy, Image as ImageIcon } from 'lucide-react';
+import { ImageUpload } from '../components/admin/ImageUpload';
+import { OptionsEditor } from '../components/admin/OptionsEditor';
+
+const apiError = (e: unknown, fallback: string) => (e as { data?: { error?: string } })?.data?.error ?? fallback;
 import { formatPrice } from '../lib/utils';
 
 export default function AdminProducts() {
@@ -32,7 +36,9 @@ export default function AdminProducts() {
     imageUrl: '',
     stock: 0,
     isActive: true,
-    isFeatured: false
+    isFeatured: false,
+    sizes: [],
+    colors: []
   };
 
   const resetForm = () => {
@@ -54,6 +60,15 @@ export default function AdminProducts() {
     });
   };
 
+  // Opens the create form prefilled from an existing product (e.g. the same box in another size).
+  const handleDuplicate = (prod: any) => {
+    handleEdit(prod);
+    setEditingId(null);
+    setIsCreating(true);
+    setFormData((f: any) => ({ ...f, name: `${prod.name} (копія)`, sku: '' }));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   const handleSave = async () => {
     try {
       const payload = {
@@ -61,7 +76,9 @@ export default function AdminProducts() {
         categoryId: parseInt(formData.categoryId),
         price: Number(formData.price),
         oldPrice: formData.oldPrice ? Number(formData.oldPrice) : null,
-        stock: Number(formData.stock)
+        stock: Number(formData.stock),
+        sizes: formData.sizes.filter((o: any) => o.name.trim()),
+        colors: formData.colors.filter((o: any) => o.name.trim())
       };
 
       if (isCreating) {
@@ -73,18 +90,18 @@ export default function AdminProducts() {
       resetForm();
     } catch (e) {
       console.error(e);
-      alert('Помилка збереження');
+      alert(apiError(e, 'Помилка збереження'));
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('Видалити товар?')) return;
+    if (!confirm('Видалити товар? У старих замовленнях він залишиться під своєю назвою.')) return;
     try {
       await deleteProd.mutateAsync({ id });
       queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
     } catch (e) {
       console.error(e);
-      alert('Помилка видалення');
+      alert(apiError(e, 'Помилка видалення'));
     }
   };
 
@@ -175,17 +192,8 @@ export default function AdminProducts() {
 
               <div className="space-y-4">
                 <div className="space-y-1">
-                  <label className="text-sm text-white/60">URL зображення</label>
-                  <Input 
-                    value={formData.imageUrl}
-                    onChange={e => setFormData({...formData, imageUrl: e.target.value})}
-                    placeholder="https://..."
-                  />
-                  {formData.imageUrl && (
-                    <div className="mt-2 w-full h-32 bg-white/5 rounded-xl border border-white/10 overflow-hidden flex items-center justify-center">
-                      <img src={formData.imageUrl} alt="Preview" className="h-full object-contain" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                    </div>
-                  )}
+                  <label className="text-sm text-white/60">Зображення</label>
+                  <ImageUpload value={formData.imageUrl} onChange={url => setFormData({...formData, imageUrl: url})} />
                 </div>
 
                 <div className="space-y-1">
@@ -219,7 +227,26 @@ export default function AdminProducts() {
                 </div>
               </div>
             </div>
-            
+
+            <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-white/10">
+              <OptionsEditor
+                label="Розміри"
+                placeholder="Напр. 10×10×5 см"
+                value={formData.sizes ?? []}
+                onChange={sizes => setFormData({...formData, sizes})}
+              />
+              <OptionsEditor
+                label="Кольори"
+                placeholder="Напр. Пудровий"
+                withColor
+                value={formData.colors ?? []}
+                onChange={colors => setFormData({...formData, colors})}
+              />
+              <p className="md:col-span-2 text-xs text-white/40">
+                Ціна для покупця = базова ціна + надбавка обраного розміру + надбавка обраного кольору. Залишок спільний для всіх варіантів.
+              </p>
+            </div>
+
             <div className="flex justify-end gap-3 pt-4 border-t border-white/10">
               <Button variant="ghost" onClick={resetForm}>Скасувати</Button>
               <Button 
@@ -255,12 +282,20 @@ export default function AdminProducts() {
                   <div className="flex items-center gap-4 text-sm">
                     <span className="text-primary font-bold">{formatPrice(prod.price)}</span>
                     <span className="text-white/50">Залишок: {prod.stock}</span>
+                    {(prod.sizes.length > 0 || prod.colors.length > 0) && (
+                      <span className="text-white/40 hidden sm:inline">
+                        {[prod.sizes.length && `${prod.sizes.length} розм.`, prod.colors.length && `${prod.colors.length} кол.`].filter(Boolean).join(' · ')}
+                      </span>
+                    )}
                     <span className="text-white/30 truncate hidden sm:inline">{categories?.find(c => c.id === prod.categoryId)?.name}</span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <Button variant="ghost" size="icon" onClick={() => handleEdit(prod)}>
+                  <Button variant="ghost" size="icon" title="Дублювати" onClick={() => handleDuplicate(prod)}>
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" title="Редагувати" onClick={() => handleEdit(prod)}>
                     <Edit2 className="w-4 h-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => handleDelete(prod.id)}>

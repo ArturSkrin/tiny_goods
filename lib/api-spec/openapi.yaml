@@ -458,6 +458,53 @@ paths:
           description: Changed
         "401":
           description: Wrong current password
+  /settings:
+    get:
+      operationId: getSettings
+      tags: [admin]
+      summary: Public storefront settings (texts, contacts, amounts)
+      responses:
+        "200":
+          description: Settings
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+    put:
+      operationId: updateSettings
+      tags: [admin]
+      summary: Replace storefront settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SiteSettings"
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SiteSettings"
+  /images:
+    post:
+      operationId: uploadImage
+      tags: [admin]
+      summary: Upload an image (base64 data URL); served at the returned url
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImageUpload"
+      responses:
+        "201":
+          description: Uploaded
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImageUploadResult"
   /admin/stats:
     get:
       operationId: getAdminStats
@@ -501,9 +548,16 @@ components:
         name: { type: string, minLength: 1 }
         slug: { type: string, minLength: 1 }
         sortOrder: { type: integer }
+    ProductOption:
+      type: object
+      required: [name, priceDelta]
+      properties:
+        name: { type: string, minLength: 1 }
+        priceDelta: { type: number, description: "Added to the base price (UAH), may be 0 or negative" }
+        hex: { type: ["string", "null"], description: "Swatch colour for colour options" }
     Product:
       type: object
-      required: [id, categoryId, name, price, stock, isActive, isFeatured, createdAt]
+      required: [id, categoryId, name, price, stock, isActive, isFeatured, sizes, colors, createdAt]
       properties:
         id: { type: integer }
         categoryId: { type: integer }
@@ -516,6 +570,12 @@ components:
         stock: { type: integer }
         isActive: { type: boolean }
         isFeatured: { type: boolean }
+        sizes:
+          type: array
+          items: { $ref: "#/components/schemas/ProductOption" }
+        colors:
+          type: array
+          items: { $ref: "#/components/schemas/ProductOption" }
         createdAt: { type: string }
     ProductInput:
       type: object
@@ -531,6 +591,12 @@ components:
         stock: { type: integer }
         isActive: { type: boolean }
         isFeatured: { type: boolean }
+        sizes:
+          type: array
+          items: { $ref: "#/components/schemas/ProductOption" }
+        colors:
+          type: array
+          items: { $ref: "#/components/schemas/ProductOption" }
     ProductUpdate:
       type: object
       properties:
@@ -544,12 +610,19 @@ components:
         stock: { type: integer }
         isActive: { type: boolean }
         isFeatured: { type: boolean }
+        sizes:
+          type: array
+          items: { $ref: "#/components/schemas/ProductOption" }
+        colors:
+          type: array
+          items: { $ref: "#/components/schemas/ProductOption" }
     OrderItem:
       type: object
       required: [productId, productName, price, quantity]
       properties:
-        productId: { type: integer }
+        productId: { type: ["integer", "null"], description: "null when the product was deleted" }
         productName: { type: string }
+        variant: { type: ["string", "null"], description: "Chosen size / colour" }
         price: { type: number }
         quantity: { type: integer }
         imageUrl: { type: ["string", "null"] }
@@ -579,6 +652,8 @@ components:
       properties:
         productId: { type: integer }
         quantity: { type: integer, minimum: 1 }
+        size: { type: string, description: "Name of one of the product's sizes" }
+        color: { type: string, description: "Name of one of the product's colours" }
     OrderInput:
       type: object
       required: [customerName, phone, contactMethod, items]
@@ -690,7 +765,75 @@ components:
       type: object
       required: [productId, productName, unitsSold, revenue]
       properties:
-        productId: { type: integer }
+        productId: { type: ["integer", "null"] }
         productName: { type: string }
         unitsSold: { type: integer }
         revenue: { type: number }
+    SiteContacts:
+      type: object
+      required: [phone, viber, telegram, instagram, email, address, workHours]
+      properties:
+        phone: { type: string }
+        viber: { type: string, description: "Phone number used for the Viber link" }
+        telegram: { type: string, description: "Username or t.me link" }
+        instagram: { type: string, description: "Username or link" }
+        email: { type: string }
+        address: { type: string }
+        workHours: { type: string }
+    SiteHero:
+      type: object
+      required: [eyebrow, title, titleAccent, subtitle]
+      properties:
+        eyebrow: { type: string }
+        title: { type: string }
+        titleAccent: { type: string }
+        subtitle: { type: string }
+    PromoCard:
+      type: object
+      required: [title, note, image, color, query]
+      properties:
+        title: { type: string }
+        note: { type: string }
+        image: { type: string }
+        color: { type: string, description: "Header colour, #rrggbb" }
+        query: { type: string, description: "Catalog search applied on click" }
+    ShowcaseItem:
+      type: object
+      required: [label, title, image, query]
+      properties:
+        label: { type: string }
+        title: { type: string }
+        image: { type: string }
+        query: { type: string }
+    FaqItem:
+      type: object
+      required: [q, a]
+      properties:
+        q: { type: string }
+        a: { type: string }
+    SiteSettings:
+      type: object
+      required: [minOrderTotal, contacts, hero, promos, showcase, faq]
+      properties:
+        minOrderTotal: { type: number, minimum: 0 }
+        contacts: { $ref: "#/components/schemas/SiteContacts" }
+        hero: { $ref: "#/components/schemas/SiteHero" }
+        promos:
+          type: array
+          items: { $ref: "#/components/schemas/PromoCard" }
+        showcase:
+          type: array
+          items: { $ref: "#/components/schemas/ShowcaseItem" }
+        faq:
+          type: array
+          items: { $ref: "#/components/schemas/FaqItem" }
+    ImageUpload:
+      type: object
+      required: [dataUrl]
+      properties:
+        dataUrl: { type: string, description: "data:image/(png|jpeg|webp|gif);base64,..." }
+    ImageUploadResult:
+      type: object
+      required: [url]
+      properties:
+        url: { type: string }

@@ -6,6 +6,8 @@ import ordersRouter from "./orders";
 import adminRouter from "./admin";
 import adminAuthRouter from "./adminAuth";
 import liqpayRouter from "./liqpay";
+import settingsRouter from "./settings";
+import imagesRouter from "./images";
 
 const router: IRouter = Router();
 
@@ -16,5 +18,7 @@ router.use(ordersRouter);
 router.use(adminAuthRouter);
 router.use(liqpayRouter);
 router.use(adminRouter);
+router.use(settingsRouter);
+router.use(imagesRouter);
 
 export default router;

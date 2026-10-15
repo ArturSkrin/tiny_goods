@@ -33,6 +33,18 @@ export interface CategoryUpdate {
   sortOrder?: number;
 }
 
+export interface ProductOption {
+  /** @minLength 1 */
+  name: string;
+  /** Added to the base price (UAH), may be 0 or negative */
+  priceDelta: number;
+  /**
+     * Swatch colour for colour options
+     * @nullable
+     */
+  hex?: string | null;
+}
+
 export interface Product {
   id: number;
   categoryId: number;
@@ -49,6 +61,8 @@ export interface Product {
   stock: number;
   isActive: boolean;
   isFeatured: boolean;
+  sizes: ProductOption[];
+  colors: ProductOption[];
   createdAt: string;
 }
 
@@ -65,6 +79,8 @@ export interface ProductInput {
   stock?: number;
   isActive?: boolean;
   isFeatured?: boolean;
+  sizes?: ProductOption[];
+  colors?: ProductOption[];
 }
 
 export interface ProductUpdate {
@@ -83,11 +99,22 @@ export interface ProductUpdate {
   stock?: number;
   isActive?: boolean;
   isFeatured?: boolean;
+  sizes?: ProductOption[];
+  colors?: ProductOption[];
 }
 
 export interface OrderItem {
-  productId: number;
+  /**
+     * null when the product was deleted
+     * @nullable
+     */
+  productId: number | null;
   productName: string;
+  /**
+     * Chosen size / colour
+     * @nullable
+     */
+  variant?: string | null;
   price: number;
   quantity: number;
   /** @nullable */
@@ -121,6 +148,10 @@ export interface OrderItemInput {
   productId: number;
   /** @minimum 1 */
   quantity: number;
+  /** Name of one of the product's sizes */
+  size?: string;
+  /** Name of one of the product's colours */
+  color?: string;
 }
 
 export interface OrderInput {
@@ -167,7 +198,8 @@ export interface StatusCount {
 }
 
 export interface TopProduct {
-  productId: number;
+  /** @nullable */
+  productId: number | null;
   productName: string;
   unitsSold: number;
   revenue: number;
@@ -226,6 +258,67 @@ export interface PasswordChangeInput {
   currentPassword: string;
   /** @minLength 8 */
   newPassword: string;
+}
+
+export interface SiteContacts {
+  phone: string;
+  /** Phone number used for the Viber link */
+  viber: string;
+  /** Username or t.me link */
+  telegram: string;
+  /** Username or link */
+  instagram: string;
+  email: string;
+  address: string;
+  workHours: string;
+}
+
+export interface SiteHero {
+  eyebrow: string;
+  title: string;
+  titleAccent: string;
+  subtitle: string;
+}
+
+export interface PromoCard {
+  title: string;
+  note: string;
+  image: string;
+  /** Header colour, #rrggbb */
+  color: string;
+  /** Catalog search applied on click */
+  query: string;
+}
+
+export interface ShowcaseItem {
+  label: string;
+  title: string;
+  image: string;
+  query: string;
+}
+
+export interface FaqItem {
+  q: string;
+  a: string;
+}
+
+export interface SiteSettings {
+  /** @minimum 0 */
+  minOrderTotal: number;
+  contacts: SiteContacts;
+  hero: SiteHero;
+  promos: PromoCard[];
+  showcase: ShowcaseItem[];
+  faq: FaqItem[];
+}
+
+export interface ImageUpload {
+  /** data:image/(png|jpeg|webp|gif);base64,... */
+  dataUrl: string;
+}
+
+export interface ImageUploadResult {
+  url: string;
 }
 
 export type ListProductsParams = {

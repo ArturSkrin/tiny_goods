@@ -63,6 +63,8 @@ kind: Ingress
 metadata:
   name: tinygoods
   namespace: tinygoods
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m" # admin image uploads
 spec:
   ingressClassName: nginx
   rules:

@@ -2,18 +2,28 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Product } from '@workspace/api-client-react';
 
 export interface CartItem {
+  /** productId + chosen options; one cart line per distinct variant */
+  key: string;
   productId: number;
   productName: string;
+  /** Display price incl. option surcharges; the server recalculates on checkout */
   price: number;
   quantity: number;
   imageUrl?: string | null;
+  size?: string;
+  color?: string;
+}
+
+export interface CartOptions {
+  size?: string;
+  color?: string;
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product, quantity: number) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  addToCart: (product: Product, quantity: number, options?: CartOptions) => void;
+  removeFromCart: (key: string) => void;
+  updateQuantity: (key: string, quantity: number) => void;
   clearCart: () => void;
   cartTotal: number;
   cartCount: number;
@@ -23,57 +33,64 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
+const lineKey = (productId: number, o: CartOptions = {}) => `${productId}|${o.size ?? ''}|${o.color ?? ''}`;
+
+/** Base price plus the surcharges of the chosen size and colour. */
+export function variantPrice(product: Product, o: CartOptions = {}) {
+  const delta = (list: Product['sizes'], name?: string) => list.find((x) => x.name === name)?.priceDelta ?? 0;
+  return Math.max(0, product.price + delta(product.sizes ?? [], o.size) + delta(product.colors ?? [], o.color));
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
-      const saved = localStorage.getItem('tinygoods-cart');
-      return saved ? JSON.parse(saved) : [];
+      const saved: CartItem[] = JSON.parse(localStorage.getItem('tinygoods-cart') ?? '[]');
+      // Carts saved before variants existed have no key.
+      return saved.map((i) => ({ ...i, key: i.key ?? lineKey(i.productId, i) }));
     } catch {
       return [];
     }
   });
-  
+
   const [isCartOpen, setIsCartOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('tinygoods-cart', JSON.stringify(items));
   }, [items]);
 
-  const addToCart = (product: Product, quantity: number) => {
+  const addToCart = (product: Product, quantity: number, options: CartOptions = {}) => {
+    const key = lineKey(product.id, options);
     setItems((current) => {
-      const existing = current.find(item => item.productId === product.id);
-      if (existing) {
-        return current.map(item => 
-          item.productId === product.id 
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
+      if (current.some((item) => item.key === key)) {
+        return current.map((item) => (item.key === key ? { ...item, quantity: item.quantity + quantity } : item));
       }
-      return [...current, {
-        productId: product.id,
-        productName: product.name,
-        price: product.price,
-        quantity,
-        imageUrl: product.imageUrl
-      }];
+      return [
+        ...current,
+        {
+          key,
+          productId: product.id,
+          productName: product.name,
+          price: variantPrice(product, options),
+          quantity,
+          imageUrl: product.imageUrl,
+          size: options.size,
+          color: options.color,
+        },
+      ];
     });
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (productId: number) => {
-    setItems(current => current.filter(item => item.productId !== productId));
+  const removeFromCart = (key: string) => {
+    setItems((current) => current.filter((item) => item.key !== key));
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (key: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(key);
       return;
     }
-    setItems(current => 
-      current.map(item => 
-        item.productId === productId ? { ...item, quantity } : item
-      )
-    );
+    setItems((current) => current.map((item) => (item.key === key ? { ...item, quantity } : item)));
   };
 
   const clearCart = () => setItems([]);
@@ -82,17 +99,19 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const cartCount = items.reduce((count, item) => count + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{
-      items,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      cartTotal,
-      cartCount,
-      isCartOpen,
-      setIsCartOpen
-    }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        cartTotal,
+        cartCount,
+        isCartOpen,
+        setIsCartOpen,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -105,3 +124,5 @@ export function useCart() {
   }
   return context;
 }
+
+export const variantLabel = (i: { size?: string; color?: string }) => [i.size, i.color].filter(Boolean).join(' · ');

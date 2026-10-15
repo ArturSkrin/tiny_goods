@@ -21,6 +21,7 @@ import AdminOrders from './pages/AdminOrders';
 import AdminProducts from './pages/AdminProducts';
 import AdminCategories from './pages/AdminCategories';
 import AdminSettings from './pages/AdminSettings';
+import AdminSite from './pages/AdminSite';
 import PaymentSuccess from './pages/PaymentSuccess';
 
 const queryClient = new QueryClient({
@@ -49,6 +50,7 @@ function Router() {
       <Route path="/tiny-admin/products" component={AdminProducts} />
       <Route path="/tiny-admin/categories" component={AdminCategories} />
       <Route path="/tiny-admin/settings" component={AdminSettings} />
+      <Route path="/tiny-admin/site" component={AdminSite} />
       
       <Route component={NotFound} />
     </Switch>

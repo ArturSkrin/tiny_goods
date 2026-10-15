@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { StoreLayout } from '../components/layout/StoreLayout';
-import { useCart } from '../context/cart';
+import { useCart, variantLabel } from '../context/cart';
+import { useSettings } from '../hooks/use-settings';
 import { formatPrice } from '../lib/utils';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -30,6 +31,7 @@ type CheckoutForm = z.infer<typeof checkoutSchema>;
 
 export default function Checkout() {
   const { items, cartTotal, clearCart } = useCart();
+  const minOrder = useSettings()?.minOrderTotal ?? 0;
   const createOrder = useCreateOrder();
   const createLiqpayCheckout = useCreateLiqpayCheckout();
   const [successOrderId, setSuccessOrderId] = useState<number | null>(null);
@@ -50,7 +52,7 @@ export default function Checkout() {
   const paymentMethod = watch('paymentMethod');
 
   const onSubmit = async (data: CheckoutForm) => {
-    if (cartTotal < 300) return;
+    if (cartTotal < minOrder) return;
 
     try {
       const order = await createOrder.mutateAsync({
@@ -64,7 +66,9 @@ export default function Checkout() {
           paymentMethod: data.paymentMethod,
           items: items.map(item => ({
             productId: item.productId,
-            quantity: item.quantity
+            quantity: item.quantity,
+            size: item.size,
+            color: item.color,
           }))
         }
       });
@@ -87,7 +91,7 @@ export default function Checkout() {
       }
     } catch (err) {
       console.error(err);
-      alert('Помилка при створенні замовлення. Спробуйте пізніше.');
+      alert((err as { data?: { error?: string } })?.data?.error ?? 'Помилка при створенні замовлення. Спробуйте пізніше.');
     }
   };
 
@@ -280,7 +284,7 @@ export default function Checkout() {
                 type="submit"
                 size="lg"
                 className="w-full h-14 text-base rounded-2xl"
-                disabled={cartTotal < 300 || isPending}
+                disabled={cartTotal < minOrder || isPending}
               >
                 {isPending
                   ? 'Обробка...'
@@ -299,7 +303,7 @@ export default function Checkout() {
 
               <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map((item) => (
-                  <div key={item.productId} className="flex gap-3 text-sm">
+                  <div key={item.key} className="flex gap-3 text-sm">
                     <div className="w-12 h-12 rounded-lg bg-foreground/10 shrink-0 overflow-hidden">
                       {item.imageUrl ? (
                         <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
@@ -307,6 +311,7 @@ export default function Checkout() {
                     </div>
                     <div className="flex-1 flex flex-col justify-center">
                       <span className="text-foreground line-clamp-1">{item.productName}</span>
+                      {variantLabel(item) && <span className="text-xs text-muted-foreground">{variantLabel(item)}</span>}
                       <span className="text-foreground/50">{item.quantity} шт × {formatPrice(item.price)}</span>
                     </div>
                   </div>
@@ -324,9 +329,9 @@ export default function Checkout() {
                 </div>
               </div>
 
-              {cartTotal < 300 && (
+              {cartTotal < minOrder && (
                 <div className="mt-6 p-4 rounded-xl bg-destructive/20 border border-destructive/30 text-destructive-foreground text-sm text-center">
-                  Мінімальна сума замовлення 300 грн. Додайте ще товарів на {formatPrice(300 - cartTotal)}.
+                  Мінімальна сума замовлення {formatPrice(minOrder)}. Додайте ще товарів на {formatPrice(minOrder - cartTotal)}.
                 </div>
               )}
             </div>

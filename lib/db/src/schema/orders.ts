@@ -34,10 +34,12 @@ export const orderItemsTable = pgTable("order_items", {
   orderId: integer("order_id")
     .notNull()
     .references(() => ordersTable.id),
-  productId: integer("product_id")
-    .notNull()
-    .references(() => productsTable.id),
+  // Nullable so products can be deleted; the item keeps its name/price snapshot.
+  productId: integer("product_id").references(() => productsTable.id, {
+    onDelete: "set null",
+  }),
   productName: text("product_name").notNull(),
+  variant: text("variant"),
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   quantity: integer("quantity").notNull(),
   imageUrl: text("image_url"),

@@ -98,6 +98,10 @@ export const ListProductsQueryParams = zod.object({
   "includeInactive": zod.coerce.boolean().optional()
 })
 
+
+
+
+
 export const ListProductsResponseItem = zod.object({
   "id": zod.int(),
   "categoryId": zod.int(),
@@ -110,6 +114,16 @@ export const ListProductsResponseItem = zod.object({
   "stock": zod.int(),
   "isActive": zod.boolean(),
   "isFeatured": zod.boolean(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
   "createdAt": zod.string()
 })
 export const ListProductsResponse = zod.array(ListProductsResponseItem)
@@ -118,6 +132,8 @@ export const ListProductsResponse = zod.array(ListProductsResponseItem)
 /**
  * @summary Create product
  */
+
+
 
 
 
@@ -131,8 +147,22 @@ export const CreateProductBody = zod.object({
   "imageUrl": zod.string().optional(),
   "stock": zod.int().optional(),
   "isActive": zod.boolean().optional(),
-  "isFeatured": zod.boolean().optional()
+  "isFeatured": zod.boolean().optional(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})).optional(),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})).optional()
 })
+
+
+
+
 
 export const CreateProductResponse = zod.object({
   "id": zod.int(),
@@ -146,6 +176,16 @@ export const CreateProductResponse = zod.object({
   "stock": zod.int(),
   "isActive": zod.boolean(),
   "isFeatured": zod.boolean(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
   "createdAt": zod.string()
 })
 
@@ -156,6 +196,10 @@ export const CreateProductResponse = zod.object({
 export const GetProductParams = zod.object({
   "id": zod.coerce.number().int()
 })
+
+
+
+
 
 export const GetProductResponse = zod.object({
   "id": zod.int(),
@@ -169,6 +213,16 @@ export const GetProductResponse = zod.object({
   "stock": zod.int(),
   "isActive": zod.boolean(),
   "isFeatured": zod.boolean(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
   "createdAt": zod.string()
 })
 
@@ -183,6 +237,8 @@ export const UpdateProductParams = zod.object({
 
 
 
+
+
 export const UpdateProductBody = zod.object({
   "categoryId": zod.int().optional(),
   "name": zod.string().min(1).optional(),
@@ -193,8 +249,22 @@ export const UpdateProductBody = zod.object({
   "imageUrl": zod.string().nullish(),
   "stock": zod.int().optional(),
   "isActive": zod.boolean().optional(),
-  "isFeatured": zod.boolean().optional()
+  "isFeatured": zod.boolean().optional(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})).optional(),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})).optional()
 })
+
+
+
+
 
 export const UpdateProductResponse = zod.object({
   "id": zod.int(),
@@ -208,6 +278,16 @@ export const UpdateProductResponse = zod.object({
   "stock": zod.int(),
   "isActive": zod.boolean(),
   "isFeatured": zod.boolean(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+})),
   "createdAt": zod.string()
 })
 
@@ -242,8 +322,9 @@ export const ListOrdersResponseItem = zod.object({
   "paymentMethod": zod.string().describe('cash | liqpay'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
-  "productId": zod.int(),
+  "productId": zod.int().nullable().describe('null when the product was deleted'),
   "productName": zod.string(),
+  "variant": zod.string().nullish().describe('Chosen size \/ colour'),
   "price": zod.number(),
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
@@ -273,7 +354,9 @@ export const CreateOrderBody = zod.object({
   "paymentMethod": zod.string().optional().describe('cash | liqpay'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
-  "quantity": zod.int().min(1)
+  "quantity": zod.int().min(1),
+  "size": zod.string().optional().describe('Name of one of the product\'s sizes'),
+  "color": zod.string().optional().describe('Name of one of the product\'s colours')
 })).min(1)
 })
 
@@ -290,8 +373,9 @@ export const CreateOrderResponse = zod.object({
   "paymentMethod": zod.string().describe('cash | liqpay'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
-  "productId": zod.int(),
+  "productId": zod.int().nullable().describe('null when the product was deleted'),
   "productName": zod.string(),
+  "variant": zod.string().nullish().describe('Chosen size \/ colour'),
   "price": zod.number(),
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
@@ -334,8 +418,9 @@ export const GetOrderResponse = zod.object({
   "paymentMethod": zod.string().describe('cash | liqpay'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
-  "productId": zod.int(),
+  "productId": zod.int().nullable().describe('null when the product was deleted'),
   "productName": zod.string(),
+  "variant": zod.string().nullish().describe('Chosen size \/ colour'),
   "price": zod.number(),
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
@@ -369,8 +454,9 @@ export const UpdateOrderResponse = zod.object({
   "paymentMethod": zod.string().describe('cash | liqpay'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
-  "productId": zod.int(),
+  "productId": zod.int().nullable().describe('null when the product was deleted'),
   "productName": zod.string(),
+  "variant": zod.string().nullish().describe('Chosen size \/ colour'),
   "price": zod.number(),
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
@@ -517,6 +603,146 @@ export const ChangeAdminPasswordResponse = zod.void()
 
 
 /**
+ * @summary Public storefront settings (texts, contacts, amounts)
+ */
+export const getSettingsResponseMinOrderTotalMin = 0;
+
+
+
+export const GetSettingsResponse = zod.object({
+  "minOrderTotal": zod.number().min(getSettingsResponseMinOrderTotalMin),
+  "contacts": zod.object({
+  "phone": zod.string(),
+  "viber": zod.string().describe('Phone number used for the Viber link'),
+  "telegram": zod.string().describe('Username or t.me link'),
+  "instagram": zod.string().describe('Username or link'),
+  "email": zod.string(),
+  "address": zod.string(),
+  "workHours": zod.string()
+}),
+  "hero": zod.object({
+  "eyebrow": zod.string(),
+  "title": zod.string(),
+  "titleAccent": zod.string(),
+  "subtitle": zod.string()
+}),
+  "promos": zod.array(zod.object({
+  "title": zod.string(),
+  "note": zod.string(),
+  "image": zod.string(),
+  "color": zod.string().describe('Header colour, #rrggbb'),
+  "query": zod.string().describe('Catalog search applied on click')
+})),
+  "showcase": zod.array(zod.object({
+  "label": zod.string(),
+  "title": zod.string(),
+  "image": zod.string(),
+  "query": zod.string()
+})),
+  "faq": zod.array(zod.object({
+  "q": zod.string(),
+  "a": zod.string()
+}))
+})
+
+
+/**
+ * @summary Replace storefront settings
+ */
+export const updateSettingsBodyMinOrderTotalMin = 0;
+
+
+
+export const UpdateSettingsBody = zod.object({
+  "minOrderTotal": zod.number().min(updateSettingsBodyMinOrderTotalMin),
+  "contacts": zod.object({
+  "phone": zod.string(),
+  "viber": zod.string().describe('Phone number used for the Viber link'),
+  "telegram": zod.string().describe('Username or t.me link'),
+  "instagram": zod.string().describe('Username or link'),
+  "email": zod.string(),
+  "address": zod.string(),
+  "workHours": zod.string()
+}),
+  "hero": zod.object({
+  "eyebrow": zod.string(),
+  "title": zod.string(),
+  "titleAccent": zod.string(),
+  "subtitle": zod.string()
+}),
+  "promos": zod.array(zod.object({
+  "title": zod.string(),
+  "note": zod.string(),
+  "image": zod.string(),
+  "color": zod.string().describe('Header colour, #rrggbb'),
+  "query": zod.string().describe('Catalog search applied on click')
+})),
+  "showcase": zod.array(zod.object({
+  "label": zod.string(),
+  "title": zod.string(),
+  "image": zod.string(),
+  "query": zod.string()
+})),
+  "faq": zod.array(zod.object({
+  "q": zod.string(),
+  "a": zod.string()
+}))
+})
+
+export const updateSettingsResponseMinOrderTotalMin = 0;
+
+
+
+export const UpdateSettingsResponse = zod.object({
+  "minOrderTotal": zod.number().min(updateSettingsResponseMinOrderTotalMin),
+  "contacts": zod.object({
+  "phone": zod.string(),
+  "viber": zod.string().describe('Phone number used for the Viber link'),
+  "telegram": zod.string().describe('Username or t.me link'),
+  "instagram": zod.string().describe('Username or link'),
+  "email": zod.string(),
+  "address": zod.string(),
+  "workHours": zod.string()
+}),
+  "hero": zod.object({
+  "eyebrow": zod.string(),
+  "title": zod.string(),
+  "titleAccent": zod.string(),
+  "subtitle": zod.string()
+}),
+  "promos": zod.array(zod.object({
+  "title": zod.string(),
+  "note": zod.string(),
+  "image": zod.string(),
+  "color": zod.string().describe('Header colour, #rrggbb'),
+  "query": zod.string().describe('Catalog search applied on click')
+})),
+  "showcase": zod.array(zod.object({
+  "label": zod.string(),
+  "title": zod.string(),
+  "image": zod.string(),
+  "query": zod.string()
+})),
+  "faq": zod.array(zod.object({
+  "q": zod.string(),
+  "a": zod.string()
+}))
+})
+
+
+/**
+ * @summary Upload an image (base64 data URL); served at the returned url
+ */
+export const UploadImageBody = zod.object({
+  "dataUrl": zod.string().describe('data:image\/(png|jpeg|webp|gif);base64,...')
+})
+
+export const UploadImageResponse = zod.object({
+  "url": zod.string()
+})
+
+
+/**
  * @summary Dashboard stats for admin
  */
 export const GetAdminStatsResponse = zod.object({
@@ -543,8 +769,9 @@ export const GetAdminStatsResponse = zod.object({
   "paymentMethod": zod.string().describe('cash | liqpay'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
-  "productId": zod.int(),
+  "productId": zod.int().nullable().describe('null when the product was deleted'),
   "productName": zod.string(),
+  "variant": zod.string().nullish().describe('Chosen size \/ colour'),
   "price": zod.number(),
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
@@ -552,7 +779,7 @@ export const GetAdminStatsResponse = zod.object({
   "createdAt": zod.string()
 })),
   "topProducts": zod.array(zod.object({
-  "productId": zod.int(),
+  "productId": zod.int().nullable(),
   "productName": zod.string(),
   "unitsSold": zod.int(),
   "revenue": zod.number()

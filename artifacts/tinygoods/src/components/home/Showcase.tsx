@@ -1,23 +1,14 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
+import type { ShowcaseItem } from '@workspace/api-client-react';
 import { Reveal, SectionTitle } from './Reveal';
 
-const ITEMS = [
-  { label: 'Основа подарунка', title: 'Коробки', img: '/products/giftbox.jpg', query: 'коробк' },
-  { label: 'Для вручення', title: 'Пакети', img: '/products/giftbag.jpg', query: 'пакет' },
-  { label: 'Фінальний акцент', title: 'Стрічки', img: '/products/ribbon.jpg', query: 'стрічк' },
-  { label: 'Папір для пакування', title: 'Тішʼю', img: '/products/tissue.jpg', query: 'тіш' },
-  { label: 'Атмосфера', title: 'Нічники', img: '/products/nightlight.jpg', query: 'нічник' },
-  { label: 'Затишок', title: 'Настільні лампи', img: '/products/desklamp.jpg', query: 'ламп' },
-  { label: 'Завжди заряджений', title: 'Павербанки', img: '/products/powerbank.jpg', query: 'павербанк' },
-  { label: 'В дорогу', title: 'Ліхтарики', img: '/products/flashlight.jpg', query: 'ліхтар' },
-];
-
-export function Showcase({ onPick }: { onPick: (query: string) => void }) {
+export function Showcase({ items, onPick }: { items: ShowcaseItem[]; onPick: (query: string) => void }) {
   const track = useRef<HTMLDivElement>(null);
   const page = (dir: 1 | -1) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' });
 
+  if (items.length === 0) return null;
   return (
     <Reveal className="liquid-glass rounded-[32px] p-5 md:p-10">
       <div className="flex items-end justify-between gap-4 mb-6">
@@ -37,9 +28,9 @@ export function Showcase({ onPick }: { onPick: (query: string) => void }) {
       </div>
 
       <div ref={track} className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 pb-2">
-        {ITEMS.map((it, i) => (
+        {items.map((it, i) => (
           <motion.button
-            key={it.title}
+            key={i}
             onClick={() => onPick(it.query)}
             initial={{ opacity: 0, y: 30, rotate: -2 }}
             whileInView={{ opacity: 1, y: 0, rotate: 0 }}
@@ -49,8 +40,8 @@ export function Showcase({ onPick }: { onPick: (query: string) => void }) {
             whileTap={{ scale: 0.97 }}
             className="snap-start shrink-0 w-[58%] sm:w-[36%] md:w-[calc((100%-64px)/5)] rounded-[22px] overflow-hidden bg-background/80 dark:bg-white/[0.06] ring-1 ring-foreground/10 text-left group shadow-[0_14px_30px_-18px_hsl(var(--glass-shadow)/0.6)]"
           >
-            <div className="aspect-[4/3] overflow-hidden">
-              <img src={it.img} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="aspect-[4/3] overflow-hidden bg-foreground/10">
+              <img src={it.image} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
             </div>
             <div className="p-3.5 flex items-end justify-between gap-2">
               <div>

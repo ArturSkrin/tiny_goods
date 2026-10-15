@@ -7,7 +7,8 @@
  */
 
 export interface TopProduct {
-  productId: number;
+  /** @nullable */
+  productId: number | null;
   productName: string;
   unitsSold: number;
   revenue: number;

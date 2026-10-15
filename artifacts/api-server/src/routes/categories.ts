@@ -101,7 +101,7 @@ router.delete("/categories/:id", requireAdmin, async (req, res): Promise<void> =
   if ((countRow?.count ?? 0) > 0) {
     res
       .status(400)
-      .json({ error: "Cannot delete category that still has products" });
+      .json({ error: "У категорії є товари — спершу перенесіть або видаліть їх" });
     return;
   }
   const [deleted] = await db

@@ -95,7 +95,7 @@ export default function AdminDashboard() {
                 <div className="text-white/50 text-sm">Немає даних</div>
               ) : (
                 stats.topProducts.map(tp => (
-                  <div key={tp.productId} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                  <div key={tp.productId ?? tp.productName} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
                     <div className="flex-1 pr-4">
                       <div className="text-white font-medium line-clamp-1">{tp.productName}</div>
                       <div className="text-white/50 text-sm">{tp.unitsSold} продано</div>

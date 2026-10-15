@@ -41,7 +41,7 @@ export default function AdminCategories() {
       resetForm();
     } catch (e) {
       console.error(e);
-      alert('Помилка збереження');
+      alert((e as { data?: { error?: string } })?.data?.error ?? 'Помилка збереження');
     }
   };
 
@@ -52,7 +52,7 @@ export default function AdminCategories() {
       queryClient.invalidateQueries({ queryKey: getListCategoriesQueryKey() });
     } catch (e) {
       console.error(e);
-      alert('Помилка видалення');
+      alert((e as { data?: { error?: string } })?.data?.error ?? 'Помилка видалення');
     }
   };
 

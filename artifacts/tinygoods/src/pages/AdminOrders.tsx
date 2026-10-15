@@ -128,9 +128,9 @@ export default function AdminOrders() {
                   <div className="pt-2">
                     <div className="text-white/40 mb-2 text-sm">Товари:</div>
                     <div className="space-y-2">
-                      {order.items.map(item => (
-                        <div key={item.productId} className="flex justify-between items-center text-sm p-2 bg-white/5 rounded-lg">
-                          <span className="text-white/90">{item.quantity} × {item.productName}</span>
+                      {order.items.map((item, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-sm p-2 bg-white/5 rounded-lg">
+                          <span className="text-white/90">{item.quantity} × {item.productName}{item.variant && <span className="text-white/50"> — {item.variant}</span>}</span>
                           <span className="text-white/60">{formatPrice(item.price)}</span>
                         </div>
                       ))}

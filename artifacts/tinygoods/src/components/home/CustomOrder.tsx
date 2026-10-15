@@ -4,6 +4,9 @@ import { motion, useInView, useScroll, useTransform } from 'framer-motion';
 import { Ruler, Palette, Truck, ArrowRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Reveal } from './Reveal';
+import type { SiteContacts } from '@workspace/api-client-react';
+import { contactLinks } from '../../hooks/use-settings';
+import { ContactButtons } from '../ContactButtons';
 
 const STEPS = [
   { icon: Ruler, title: 'Розмір під ваш продукт', text: 'Підберемо форму й розмір або зробимо під ваші габарити.' },
@@ -44,7 +47,7 @@ function Dieline() {
   );
 }
 
-export function CustomOrder() {
+export function CustomOrder({ contacts }: { contacts: SiteContacts }) {
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
   const bagY = useTransform(scrollYProgress, [0, 1], [60, -60]);
@@ -86,12 +89,19 @@ export function CustomOrder() {
             ))}
           </ol>
 
-          <Link
-            href="/about"
-            className="mt-6 inline-flex h-12 px-6 rounded-2xl bg-primary text-primary-foreground font-bold items-center gap-2 shadow-[0_10px_24px_-10px_hsl(var(--primary))] hover:brightness-110 active:scale-[0.98] transition"
-          >
-            Обговорити замовлення <ArrowRight className="w-4 h-4" />
-          </Link>
+          <div className="mt-6 space-y-3">
+            <div className="text-sm font-bold text-foreground">Обговорити замовлення:</div>
+            {Object.values(contactLinks(contacts)).some(Boolean) ? (
+              <ContactButtons contacts={contacts} />
+            ) : (
+              <Link
+                href="/about"
+                className="inline-flex h-12 px-6 rounded-2xl bg-primary text-primary-foreground font-bold items-center gap-2 shadow-[0_10px_24px_-10px_hsl(var(--primary))] hover:brightness-110 active:scale-[0.98] transition"
+              >
+                Звʼязатися з нами <ArrowRight className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
         </div>
 
         <div className="relative">

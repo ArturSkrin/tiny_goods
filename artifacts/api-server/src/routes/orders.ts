@@ -1,6 +1,6 @@
 import crypto from "crypto";
 import { Router, type IRouter } from "express";
-import { desc, eq, inArray } from "drizzle-orm";
+import { desc, eq, inArray, sql } from "drizzle-orm";
 import {
   db,
   ordersTable,
@@ -8,7 +8,10 @@ import {
   productsTable,
   type Order,
   type OrderItem,
+  type Product,
+  type ProductOption,
 } from "@workspace/db";
+import { getSettings } from "../lib/settings";
 import {
   ListOrdersQueryParams,
   ListOrdersResponse,
@@ -24,7 +27,14 @@ import { requireAdmin } from "../lib/adminAuth";
 
 const router: IRouter = Router();
 
-const MIN_ORDER_TOTAL = 300;
+/**
+ * Resolve the chosen option by name. Returns null when the product has no such options,
+ * undefined when the choice is missing or unknown (invalid order line).
+ */
+function pickOption(options: ProductOption[], name: string | undefined) {
+  if (options.length === 0) return null;
+  return options.find((o) => o.name === name);
+}
 
 export function serializeOrder(order: Order, items: OrderItem[]) {
   return {
@@ -43,6 +53,7 @@ export function serializeOrder(order: Order, items: OrderItem[]) {
     items: items.map((i) => ({
       productId: i.productId,
       productName: i.productName,
+      variant: i.variant,
       price: Number(i.price),
       quantity: i.quantity,
       imageUrl: i.imageUrl,
@@ -119,31 +130,49 @@ router.post("/orders", async (req, res): Promise<void> => {
     .where(inArray(productsTable.id, productIds));
   const productMap = new Map(products.map((p) => [p.id, p]));
 
+  // Price every line on the server from the chosen size/colour; never trust client prices.
+  const lines: { product: Product; quantity: number; price: number; variant: string | null }[] = [];
+  const qtyByProduct = new Map<number, number>();
   for (const item of input.items) {
     const product = productMap.get(item.productId);
     if (!product || !product.isActive) {
       res
         .status(400)
-        .json({ error: `Product ${item.productId} is not available` });
+        .json({ error: `Товар #${item.productId} недоступний` });
       return;
     }
-    if (product.stock < item.quantity) {
+    const size = pickOption(product.sizes, item.size);
+    const color = pickOption(product.colors, item.color);
+    if (size === undefined || color === undefined) {
       res
         .status(400)
-        .json({ error: `Not enough stock for "${product.name}"` });
+        .json({ error: `Оберіть розмір і колір для «${product.name}»` });
+      return;
+    }
+    const price =
+      Number(product.price) + (size?.priceDelta ?? 0) + (color?.priceDelta ?? 0);
+    const variant = [size?.name, color?.name].filter(Boolean).join(" · ") || null;
+    lines.push({ product, quantity: item.quantity, price: Math.max(0, price), variant });
+    qtyByProduct.set(product.id, (qtyByProduct.get(product.id) ?? 0) + item.quantity);
+  }
+
+  for (const [id, qty] of qtyByProduct) {
+    const product = productMap.get(id)!;
+    if (product.stock < qty) {
+      res
+        .status(400)
+        .json({ error: `Недостатньо на складі: «${product.name}»` });
       return;
     }
   }
 
-  const total = input.items.reduce((sum, item) => {
-    const product = productMap.get(item.productId)!;
-    return sum + Number(product.price) * item.quantity;
-  }, 0);
+  const total = lines.reduce((sum, l) => sum + l.price * l.quantity, 0);
 
-  if (total < MIN_ORDER_TOTAL) {
+  const { minOrderTotal } = await getSettings();
+  if (total < minOrderTotal) {
     res
       .status(400)
-      .json({ error: `Minimum order total is ${MIN_ORDER_TOTAL} UAH` });
+      .json({ error: `Мінімальна сума замовлення — ${minOrderTotal} грн` });
     return;
   }
 
@@ -173,20 +202,22 @@ router.post("/orders", async (req, res): Promise<void> => {
       })
       .returning();
 
-    for (const item of input.items) {
-      const product = productMap.get(item.productId)!;
+    for (const line of lines) {
       await tx.insert(orderItemsTable).values({
         orderId: created!.id,
-        productId: product.id,
-        productName: product.name,
-        price: product.price,
-        quantity: item.quantity,
-        imageUrl: product.imageUrl,
+        productId: line.product.id,
+        productName: line.product.name,
+        variant: line.variant,
+        price: line.price.toFixed(2),
+        quantity: line.quantity,
+        imageUrl: line.product.imageUrl,
       });
+    }
+    for (const [id, qty] of qtyByProduct) {
       await tx
         .update(productsTable)
-        .set({ stock: product.stock - item.quantity })
-        .where(eq(productsTable.id, product.id));
+        .set({ stock: sql`${productsTable.stock} - ${qty}` })
+        .where(eq(productsTable.id, id));
     }
 
     return created!;

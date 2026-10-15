@@ -360,13 +360,11 @@
   50% { transform: translate3d(40px, 50vh, 0) rotate(200deg); }
   100% { transform: translate3d(-20px, 105vh, 0) rotate(420deg); opacity: 0.2; }
 }
-@keyframes sway { 50% { transform: rotate(-2.5deg); } }
-@keyframes bob { 50% { transform: translateY(-8px); } }
-.sway { transform-origin: 0 0; animation: sway 7s ease-in-out infinite; }
-.bob { transform-box: fill-box; animation: bob 5s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-10px); } }
+.bob { animation: bob 6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ambient-blob, .ambient-rays, .petal, .sway, .bob { animation: none; }
+  .ambient-blob, .ambient-rays, .petal, .bob { animation: none; }
   html { scroll-behavior: auto; }
 }
 

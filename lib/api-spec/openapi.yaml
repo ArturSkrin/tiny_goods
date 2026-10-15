@@ -577,6 +577,7 @@ components:
         productCount: { type: integer }
         imageUrl: { type: ["string", "null"] }
         tagline: { type: ["string", "null"], description: "Small label on the home page showcase card" }
+        coverUrl: { type: ["string", "null"], description: "imageUrl, or a product photo from this category when none is set" }
     CategoryInput:
       type: object
       required: [name, slug]

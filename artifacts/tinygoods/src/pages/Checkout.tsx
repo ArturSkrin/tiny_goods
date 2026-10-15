@@ -186,7 +186,7 @@ export default function Checkout() {
               {([
                 ['lastName', 'Прізвище', 'Іваненко'],
                 ['firstName', "Ім'я", 'Іван'],
-                ['middleName', 'По батькові (необовʼязково)', 'Іванович'],
+                ['middleName', 'По батькові', 'Необовʼязково'],
               ] as const).map(([name, label, placeholder]) => (
                 <div key={name} className="space-y-2">
                   <label className="text-sm text-foreground/70 ml-1">{label}</label>

@@ -16,6 +16,13 @@ const router: IRouter = Router();
 
 const productCountExpr = sql<number>`count(${productsTable.id}) filter (where ${productsTable.isActive})::int`;
 
+// Own image, else a photo of an active product in the category (featured first, then newest).
+const coverUrlExpr = sql<string | null>`coalesce(${categoriesTable.imageUrl}, (
+  select p.image_url from products p
+  where p.category_id = ${categoriesTable.id} and p.is_active and p.image_url is not null and p.image_url <> ''
+  order by p.is_featured desc, p.created_at desc limit 1
+))`;
+
 async function categoryWithCount(id: number) {
   const [row] = await db
     .select({
@@ -25,6 +32,7 @@ async function categoryWithCount(id: number) {
       sortOrder: categoriesTable.sortOrder,
       imageUrl: categoriesTable.imageUrl,
       tagline: categoriesTable.tagline,
+      coverUrl: coverUrlExpr,
       productCount: productCountExpr,
     })
     .from(categoriesTable)
@@ -43,6 +51,7 @@ router.get("/categories", async (_req, res): Promise<void> => {
       sortOrder: categoriesTable.sortOrder,
       imageUrl: categoriesTable.imageUrl,
       tagline: categoriesTable.tagline,
+      coverUrl: coverUrlExpr,
       productCount: productCountExpr,
     })
     .from(categoriesTable)

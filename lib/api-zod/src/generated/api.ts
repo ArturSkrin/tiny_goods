@@ -27,7 +27,8 @@ export const ListCategoriesResponseItem = zod.object({
   "sortOrder": zod.int(),
   "productCount": zod.int(),
   "imageUrl": zod.string().nullish(),
-  "tagline": zod.string().nullish().describe('Small label on the home page showcase card')
+  "tagline": zod.string().nullish().describe('Small label on the home page showcase card'),
+  "coverUrl": zod.string().nullish().describe('imageUrl, or a product photo from this category when none is set')
 })
 export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
 
@@ -54,7 +55,8 @@ export const CreateCategoryResponse = zod.object({
   "sortOrder": zod.int(),
   "productCount": zod.int(),
   "imageUrl": zod.string().nullish(),
-  "tagline": zod.string().nullish().describe('Small label on the home page showcase card')
+  "tagline": zod.string().nullish().describe('Small label on the home page showcase card'),
+  "coverUrl": zod.string().nullish().describe('imageUrl, or a product photo from this category when none is set')
 })
 
 
@@ -84,7 +86,8 @@ export const UpdateCategoryResponse = zod.object({
   "sortOrder": zod.int(),
   "productCount": zod.int(),
   "imageUrl": zod.string().nullish(),
-  "tagline": zod.string().nullish().describe('Small label on the home page showcase card')
+  "tagline": zod.string().nullish().describe('Small label on the home page showcase card'),
+  "coverUrl": zod.string().nullish().describe('imageUrl, or a product photo from this category when none is set')
 })
 
 

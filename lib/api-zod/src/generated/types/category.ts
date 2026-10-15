@@ -19,4 +19,9 @@ export interface Category {
      * @nullable
      */
   tagline?: string | null;
+  /**
+     * imageUrl, or a product photo from this category when none is set
+     * @nullable
+     */
+  coverUrl?: string | null;
 }

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import { Reveal } from './Reveal';
 
 type Season = 'spring' | 'newyear';
@@ -58,6 +59,34 @@ const PARTICLES = Array.from({ length: 22 }, (_, i) => ({
   duration: `${9 + ((i * 13) % 8)}s`,
   size: 4 + ((i * 7) % 6),
 }));
+
+/* ── Falling snow ────────────────────────────────────────────────────── */
+
+// One arm of each crystal design (drawn pointing up from the centre, repeated 6×).
+const SNOW_ARMS = [
+  'M0 0V-10 M0 -4 L-3 -7 M0 -4 L3 -7 M0 -7 L-2 -9 M0 -7 L2 -9',
+  'M0 0V-10 M0 -5 L-4 -8 M0 -5 L4 -8 M-1.5 -10 L1.5 -10',
+  'M0 0V-10 M0 -3 L-2.5 -5 M0 -3 L2.5 -5 M0 -6 L-3.5 -9 M0 -6 L3.5 -9',
+  'M0 -2V-10 M-2 -8 L0 -10 L2 -8 M0 -5 L-3 -5.5 M0 -5 L3 -5.5',
+];
+
+function FallingSnowflake({ variant, size, style }: { variant: number; size: number; style: CSSProperties }) {
+  const arm = SNOW_ARMS[variant % SNOW_ARMS.length];
+  return (
+    <svg viewBox="-12 -12 24 24" width={size} height={size} className="snowflake" style={style} aria-hidden="true">
+      <g fill="none" strokeLinecap="round" strokeLinejoin="round">
+        {/* bluish outline so white flakes read on a light backdrop */}
+        <g stroke="#8fb0d9" strokeWidth="2.6" opacity=".55">
+          {[0, 60, 120, 180, 240, 300].map((r) => <path key={r} d={arm} transform={`rotate(${r})`} />)}
+        </g>
+        <g stroke="#fff" strokeWidth="1.4">
+          {[0, 60, 120, 180, 240, 300].map((r) => <path key={r} d={arm} transform={`rotate(${r})`} />)}
+        </g>
+        {variant % 2 === 0 && <circle r="1.6" fill="#fff" stroke="#8fb0d9" strokeWidth=".6" />}
+      </g>
+    </svg>
+  );
+}
 
 /* ── Branches ─────────────────────────────────────────────────────────── */
 
@@ -361,18 +390,18 @@ export function BrandBanner({ season = 'spring' }: { season?: Season }) {
         </div>
       )}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        {PARTICLES.slice(0, winter ? 22 : 14).map((p, i) => (
-          <span
-            key={i}
-            className={winter ? 'snowflake' : 'petal'}
-            style={{
-              left: p.left,
-              animationDelay: p.delay,
-              animationDuration: p.duration,
-              ...(winter ? { width: p.size, height: p.size } : {}),
-            }}
-          />
-        ))}
+        {winter
+          ? PARTICLES.map((p, i) => (
+              <FallingSnowflake
+                key={i}
+                variant={i}
+                size={10 + p.size * 2.2}
+                style={{ left: p.left, animationDelay: p.delay, animationDuration: `${parseFloat(p.duration) + 4}s` }}
+              />
+            ))
+          : PARTICLES.slice(0, 14).map((p, i) => (
+              <span key={i} className="petal" style={{ left: p.left, animationDelay: p.delay, animationDuration: p.duration }} />
+            ))}
       </div>
 
       <svg viewBox="0 0 340 160" className="absolute -top-2 -left-4 w-[55%] max-w-[380px] pointer-events-none" aria-hidden="true">

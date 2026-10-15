@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowLeft, Minus, Plus, Check, ShieldCheck, Truck, ChevronDown, Gift } from 'lucide-react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { RichText } from '../components/store/RichText';
-import { useCart, variantPrice } from '../context/cart';
+import { useCart, variantImage, variantPrice } from '../context/cart';
 import { cn, formatPrice } from '../lib/utils';
 
 function OptionPicker({ label, options, value, onChange }: {
@@ -32,7 +32,11 @@ function OptionPicker({ label, options, value, onChange }: {
                 active ? 'ring-2 ring-primary bg-primary/10 text-foreground' : 'ring-foreground/15 text-foreground/75 hover:ring-foreground/30',
               )}
             >
-              {o.hex && <span className="w-4 h-4 rounded-full ring-1 ring-foreground/20" style={{ background: o.hex }} />}
+              {o.imageUrl ? (
+                <img src={o.imageUrl} alt="" className="w-7 h-7 -ml-2 rounded-lg object-cover" />
+              ) : (
+                o.hex && <span className="w-4 h-4 rounded-full ring-1 ring-foreground/20" style={{ background: o.hex }} />
+              )}
               {o.name}
               {o.priceDelta !== 0 && (
                 <span className="text-xs text-muted-foreground">
@@ -93,10 +97,11 @@ export default function ProductDetail() {
   const [size, setSize] = useState<string>();
   const [color, setColor] = useState<string>();
 
-  // Preselect the first option once the product loads.
+  // Preselect the colour picked on the catalog card (?color=…), else the first options.
   useEffect(() => {
+    const wanted = new URLSearchParams(window.location.search).get('color');
     setSize(product?.sizes?.[0]?.name);
-    setColor(product?.colors?.[0]?.name);
+    setColor(product?.colors?.find((c) => c.name === wanted)?.name ?? product?.colors?.[0]?.name);
   }, [product?.id]);
 
   if (isLoading) {
@@ -118,6 +123,7 @@ export default function ProductDetail() {
   }
 
   const price = variantPrice(product, { size, color });
+  const image = variantImage(product, color);
   const optionDelta = price - product.price;
   const hasDiscount = product.oldPrice != null && product.oldPrice > product.price;
   const soldOut = product.stock === 0;
@@ -151,8 +157,10 @@ export default function ProductDetail() {
             className="md:sticky md:top-28 liquid-glass rounded-[28px] p-2"
           >
             <div className="relative aspect-square rounded-[22px] overflow-hidden bg-white/60 dark:bg-white/5">
-              {product.imageUrl ? (
-                <img src={product.imageUrl} alt={product.name} className="w-full h-full object-cover" />
+              {image ? (
+                <AnimatePresence initial={false} mode="popLayout">
+                  <motion.img key={image} src={image} alt={product.name} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.3 }} className="absolute inset-0 w-full h-full object-cover" />
+                </AnimatePresence>
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-foreground/20"><Gift className="w-16 h-16" /></div>
               )}

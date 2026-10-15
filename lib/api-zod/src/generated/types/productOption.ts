@@ -16,4 +16,9 @@ export interface ProductOption {
      * @nullable
      */
   hex?: string | null;
+  /**
+     * Photo of the product in this colour
+     * @nullable
+     */
+  imageUrl?: string | null;
 }

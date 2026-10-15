@@ -1,6 +1,7 @@
 import type { ProductOption } from '@workspace/api-client-react';
 import { Plus, Trash2 } from 'lucide-react';
 import { Input } from '../ui/input';
+import { ImageThumbUpload } from './ImageUpload';
 
 /** Edits a product's sizes or colours: name, price surcharge and (for colours) a swatch. */
 export function OptionsEditor({
@@ -34,12 +35,16 @@ export function OptionsEditor({
       {value.map((o, i) => (
         <div key={i} className="flex gap-2 items-center">
           {withColor && (
-            <input
-              type="color"
-              value={o.hex ?? '#000000'}
-              onChange={(e) => set(i, { hex: e.target.value })}
-              className="w-12 h-12 shrink-0 rounded-xl bg-transparent border border-white/10 cursor-pointer"
-            />
+            <>
+              <ImageThumbUpload value={o.imageUrl} onChange={(imageUrl) => set(i, { imageUrl })} title="Фото товару в цьому кольорі" />
+              <input
+                type="color"
+                value={o.hex ?? '#000000'}
+                onChange={(e) => set(i, { hex: e.target.value })}
+                title="Колір кружечка, якщо фото немає"
+                className="w-12 h-12 shrink-0 rounded-xl bg-transparent border border-white/10 cursor-pointer"
+              />
+            </>
           )}
           <Input value={o.name} onChange={(e) => set(i, { name: e.target.value })} placeholder={placeholder} />
           <div className="relative w-36 shrink-0">

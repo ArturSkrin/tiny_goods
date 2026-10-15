@@ -135,7 +135,7 @@ router.post("/orders", async (req, res): Promise<void> => {
   const productMap = new Map(products.map((p) => [p.id, p]));
 
   // Price every line on the server from the chosen size/colour; never trust client prices.
-  const lines: { product: Product; quantity: number; price: number; variant: string | null }[] = [];
+  const lines: { product: Product; quantity: number; price: number; variant: string | null; imageUrl: string | null }[] = [];
   const qtyByProduct = new Map<number, number>();
   for (const item of input.items) {
     const product = productMap.get(item.productId);
@@ -156,7 +156,9 @@ router.post("/orders", async (req, res): Promise<void> => {
     const price =
       Number(product.price) + (size?.priceDelta ?? 0) + (color?.priceDelta ?? 0);
     const variant = [size?.name, color?.name].filter(Boolean).join(" · ") || null;
-    lines.push({ product, quantity: item.quantity, price: Math.max(0, price), variant });
+    // The chosen colour's own photo, if it has one, is what the buyer saw.
+    const imageUrl = color?.imageUrl || product.imageUrl;
+    lines.push({ product, quantity: item.quantity, price: Math.max(0, price), variant, imageUrl });
     qtyByProduct.set(product.id, (qtyByProduct.get(product.id) ?? 0) + item.quantity);
   }
 
@@ -225,7 +227,7 @@ router.post("/orders", async (req, res): Promise<void> => {
         variant: line.variant,
         price: line.price.toFixed(2),
         quantity: line.quantity,
-        imageUrl: line.product.imageUrl,
+        imageUrl: line.imageUrl,
       });
     }
     for (const [id, qty] of qtyByProduct) {

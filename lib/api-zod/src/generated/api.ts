@@ -130,12 +130,14 @@ export const ListProductsResponseItem = zod.object({
   "sizes": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "colors": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "createdAt": zod.string()
 })
@@ -164,12 +166,14 @@ export const CreateProductBody = zod.object({
   "sizes": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })).optional(),
   "colors": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })).optional()
 })
 
@@ -192,12 +196,14 @@ export const CreateProductResponse = zod.object({
   "sizes": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "colors": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "createdAt": zod.string()
 })
@@ -229,12 +235,14 @@ export const GetProductResponse = zod.object({
   "sizes": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "colors": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "createdAt": zod.string()
 })
@@ -266,12 +274,14 @@ export const UpdateProductBody = zod.object({
   "sizes": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })).optional(),
   "colors": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })).optional()
 })
 
@@ -294,12 +304,14 @@ export const UpdateProductResponse = zod.object({
   "sizes": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "colors": zod.array(zod.object({
   "name": zod.string().min(1),
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
-  "hex": zod.string().nullish().describe('Swatch colour for colour options')
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
   "createdAt": zod.string()
 })

@@ -4,7 +4,7 @@ import { ImagePlus, Loader2, X } from 'lucide-react';
 import { Input } from '../ui/input';
 
 /** Downscale to max 1600px and re-encode as WebP so uploads stay small. */
-async function compress(file: File): Promise<string> {
+export async function compress(file: File): Promise<string> {
   const bitmap = await createImageBitmap(file);
   const scale = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement('canvas');
@@ -12,6 +12,52 @@ async function compress(file: File): Promise<string> {
   canvas.height = Math.round(bitmap.height * scale);
   canvas.getContext('2d')!.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
   return canvas.toDataURL('image/webp', 0.85);
+}
+
+/** Compact square uploader (e.g. a photo per colour); click to upload, × to clear. */
+export function ImageThumbUpload({ value, onChange, title }: { value?: string | null; onChange: (url: string | null) => void; title?: string }) {
+  const input = useRef<HTMLInputElement>(null);
+  const upload = useUploadImage();
+
+  const onFile = async (file?: File) => {
+    if (!file) return;
+    try {
+      const { url } = await upload.mutateAsync({ data: { dataUrl: await compress(file) } });
+      onChange(url);
+    } catch (e) {
+      alert((e as { data?: { error?: string } })?.data?.error ?? 'Не вдалося завантажити');
+    }
+  };
+
+  return (
+    <div className="relative shrink-0">
+      <button
+        type="button"
+        title={title ?? 'Фото'}
+        onClick={() => input.current?.click()}
+        className="w-12 h-12 rounded-xl border border-dashed border-white/25 bg-white/5 hover:bg-white/10 flex items-center justify-center overflow-hidden"
+      >
+        {upload.isPending ? (
+          <Loader2 className="w-4 h-4 animate-spin text-white/60" />
+        ) : value ? (
+          <img src={value} alt="" className="w-full h-full object-cover" />
+        ) : (
+          <ImagePlus className="w-4 h-4 text-white/50" />
+        )}
+      </button>
+      {value && (
+        <button
+          type="button"
+          onClick={() => onChange(null)}
+          aria-label="Прибрати фото"
+          className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-black/80 text-white flex items-center justify-center"
+        >
+          <X className="w-3 h-3" />
+        </button>
+      )}
+      <input ref={input} type="file" accept="image/*" hidden onChange={(e) => onFile(e.target.files?.[0])} />
+    </div>
+  );
 }
 
 export function ImageUpload({ value, onChange }: { value: string; onChange: (url: string) => void }) {

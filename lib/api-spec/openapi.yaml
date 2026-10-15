@@ -602,6 +602,7 @@ components:
         name: { type: string, minLength: 1 }
         priceDelta: { type: number, description: "Added to the base price (UAH), may be 0 or negative" }
         hex: { type: ["string", "null"], description: "Swatch colour for colour options" }
+        imageUrl: { type: ["string", "null"], description: "Photo of the product in this colour" }
     Product:
       type: object
       required: [id, categoryId, name, price, stock, isActive, isFeatured, sizes, colors, createdAt]

@@ -41,6 +41,11 @@ export function variantPrice(product: Product, o: CartOptions = {}) {
   return Math.max(0, product.price + delta(product.sizes ?? [], o.size) + delta(product.colors ?? [], o.color));
 }
 
+/** Photo of the chosen colour, falling back to the main product photo. */
+export function variantImage(product: Product, color?: string) {
+  return product.colors?.find((c) => c.name === color)?.imageUrl || product.imageUrl;
+}
+
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
@@ -72,7 +77,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           productName: product.name,
           price: variantPrice(product, options),
           quantity,
-          imageUrl: product.imageUrl,
+          imageUrl: variantImage(product, options.color),
           size: options.size,
           color: options.color,
         },

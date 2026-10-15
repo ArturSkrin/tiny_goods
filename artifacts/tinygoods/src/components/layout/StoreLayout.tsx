@@ -6,8 +6,7 @@ import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import CartDrawer from '../store/CartDrawer';
 import { ThemeToggle } from '../ThemeToggle';
-import { ContactButtons } from '../ContactButtons';
-import { useSettings } from '../../hooks/use-settings';
+import { contactLinks, useSettings } from '../../hooks/use-settings';
 
 export function Logo({ className }: { className?: string }) {
   return (
@@ -31,6 +30,35 @@ export function useGoToCatalog() {
       setTimeout(scroll, 350);
     }
   };
+}
+
+type FooterLink = { label: string; href?: string | null; onClick?: () => void; hide?: boolean };
+
+/** Plain grey text column; empty entries are skipped. */
+function FooterColumn({ title, links }: { title: string; links: FooterLink[] }) {
+  const visible = links.filter((l) => l.label && !l.hide);
+  if (visible.length === 0) return null;
+  const cls = 'hover:text-foreground transition-colors';
+  return (
+    <div className="space-y-2">
+      <div className="text-xs font-bold uppercase tracking-wider text-foreground/50">{title}</div>
+      <ul className="space-y-1.5">
+        {visible.map((l) => (
+          <li key={l.label}>
+            {l.onClick ? (
+              <button onClick={l.onClick} className={cls}>{l.label}</button>
+            ) : l.href?.startsWith('/') ? (
+              <Link href={l.href} className={cls}>{l.label}</Link>
+            ) : l.href ? (
+              <a href={l.href} target={l.href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" className={cls}>{l.label}</a>
+            ) : (
+              <span>{l.label}</span>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
 }
 
 function CartBadge({ count, className }: { count: number; className?: string }) {
@@ -160,14 +188,42 @@ export function StoreLayout({ children }: { children: React.ReactNode }) {
       </AnimatePresence>
 
       <footer className="hidden md:block pb-8 px-6">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between gap-6 text-sm text-muted-foreground border-t border-foreground/10 pt-6">
-          <div className="space-y-1">
+        <div className="max-w-[1400px] mx-auto grid grid-cols-[1.4fr_1fr_1fr_1fr] gap-8 text-sm text-muted-foreground border-t border-foreground/10 pt-8">
+          <div className="space-y-2">
             <Logo />
-            <div>© {new Date().getFullYear()} TinyGoods UA · Доставка Новою Поштою по Україні</div>
-            {settings?.contacts.address && <div>{settings.contacts.address}</div>}
-            {settings?.contacts.workHours && <div>{settings.contacts.workHours}</div>}
+            <div>© {new Date().getFullYear()} TinyGoods UA</div>
+            <div>Доставка Новою Поштою по Україні</div>
           </div>
-          {settings && <ContactButtons contacts={settings.contacts} className="justify-end" />}
+          <FooterColumn
+            title="Магазин"
+            links={[
+              { label: 'Головна', href: '/' },
+              { label: 'Каталог', onClick: goToCatalog },
+              { label: 'Про нас', href: '/about' },
+            ]}
+          />
+          {settings && (
+            <>
+              <FooterColumn
+                title="Контакти"
+                links={[
+                  { label: settings.contacts.phone, href: contactLinks(settings.contacts).phone },
+                  { label: settings.contacts.email, href: contactLinks(settings.contacts).email },
+                  { label: settings.contacts.workHours },
+                  { label: settings.contacts.address },
+                ]}
+              />
+              <FooterColumn
+                title="Месенджери"
+                links={[
+                  { label: 'Telegram', href: contactLinks(settings.contacts).telegram, hide: !settings.contacts.telegram },
+                  { label: 'Viber', href: contactLinks(settings.contacts).viber, hide: !settings.contacts.viber },
+                  { label: 'WhatsApp', href: contactLinks(settings.contacts).whatsapp, hide: !settings.contacts.whatsapp },
+                  { label: 'Instagram', href: contactLinks(settings.contacts).instagram, hide: !settings.contacts.instagram },
+                ]}
+              />
+            </>
+          )}
         </div>
       </footer>
 

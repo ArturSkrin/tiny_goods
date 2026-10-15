@@ -20,9 +20,9 @@ spec:
     spec:
       containers:
         - name: tinygoods
-          # shortcut: mutable latest tag, switch to the git SHA tag when CI updates manifests
+          # Tag is rewritten to the commit SHA by CI (.github/workflows/docker-build.yml)
           image: ghcr.io/arturskrin/tiny_goods:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           # DATABASE_URL, SESSION_SECRET (and optionally LIQPAY_*) — created by hand, not in Git

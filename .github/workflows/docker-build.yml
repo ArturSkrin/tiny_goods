@@ -6,7 +6,7 @@ on:
       - main
 
 permissions:
-  contents: read
+  contents: write # commit the new image tag into k8s/app.yaml
   packages: write
 
 jobs:
@@ -30,3 +30,15 @@ jobs:
           docker build -t $IMAGE_NAME:latest -t $IMAGE_NAME:${{ github.sha }} .
           docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:${{ github.sha }}
+
+      # ArgoCD deploys what is in k8s/, so pin the manifest to the image just built.
+      # Pushes made with GITHUB_TOKEN do not trigger workflows, so this does not loop.
+      - name: Bump image tag in k8s manifest
+        run: |
+          sed -i -E "s|(image: ghcr.io/${GITHUB_REPOSITORY,,}):.*|\1:${GITHUB_SHA}|" k8s/app.yaml
+          git diff --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Deploy ${GITHUB_SHA::7}"
+          git pull --rebase origin main
+          git push origin HEAD:main

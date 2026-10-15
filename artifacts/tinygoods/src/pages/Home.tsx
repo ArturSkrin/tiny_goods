@@ -35,7 +35,7 @@ export default function Home() {
 
   const chip = (active: boolean) =>
     cn(
-      'whitespace-nowrap px-5 h-10 rounded-full transition-all text-sm font-semibold active:scale-95',
+      'shrink-0 whitespace-nowrap px-5 h-10 rounded-full transition-all text-sm font-semibold active:scale-95',
       active
         ? 'bg-primary text-primary-foreground shadow-[0_8px_20px_-8px_hsl(var(--primary))]'
         : 'liquid-glass text-foreground/75 hover:text-foreground',
@@ -78,7 +78,7 @@ export default function Home() {
             </div>
           </Reveal>
 
-          <div className="flex gap-2 overflow-x-auto py-1 no-scrollbar -mx-4 px-4 md:mx-0 md:px-0">
+          <div className="flex gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain py-1 no-scrollbar -mx-3 px-3 md:mx-0 md:px-0">
             <button onClick={() => setSelectedCategory(null)} className={chip(selectedCategory === null)}>
               Усі товари
             </button>

@@ -48,7 +48,7 @@ export function PromoCarousel({ promos, onPick }: { promos: PromoCard[]; onPick:
       <div
         ref={track}
         onScroll={onScroll}
-        className="flex gap-3 overflow-x-auto snap-x snap-mandatory no-scrollbar h-full -mx-3 px-3 md:-mx-6 md:px-6 lg:mx-0 lg:px-0 rounded-[32px]"
+        className="flex gap-3 overflow-x-auto overflow-y-hidden overscroll-x-contain snap-x snap-mandatory no-scrollbar h-full -mx-3 px-3 md:-mx-6 md:px-6 lg:mx-0 lg:px-0 rounded-[32px]"
       >
         {promos.map((p, i) => (
           <motion.button

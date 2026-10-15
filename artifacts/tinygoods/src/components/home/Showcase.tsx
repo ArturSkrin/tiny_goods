@@ -28,7 +28,7 @@ export function Showcase({ categories, onPick }: { categories: Category[]; onPic
         </div>
       </div>
 
-      <div ref={track} className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 pb-2">
+      <div ref={track} className="flex gap-3 md:gap-4 overflow-x-auto overflow-y-hidden overscroll-x-contain snap-x snap-mandatory no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 pt-2 -mt-2 pb-2">
         {categories.map((c, i) => (
           <motion.button
             key={c.id}

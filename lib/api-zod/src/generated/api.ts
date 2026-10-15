@@ -611,6 +611,7 @@ export const getSettingsResponseMinOrderTotalMin = 0;
 
 export const GetSettingsResponse = zod.object({
   "minOrderTotal": zod.number().min(getSettingsResponseMinOrderTotalMin),
+  "bannerTheme": zod.enum(['spring', 'newyear']).describe('Seasonal look of the home page brand banner'),
   "contacts": zod.object({
   "phone": zod.string(),
   "viber": zod.string().describe('Phone number used for the Viber link'),
@@ -656,6 +657,7 @@ export const updateSettingsBodyMinOrderTotalMin = 0;
 
 export const UpdateSettingsBody = zod.object({
   "minOrderTotal": zod.number().min(updateSettingsBodyMinOrderTotalMin),
+  "bannerTheme": zod.enum(['spring', 'newyear']).describe('Seasonal look of the home page brand banner'),
   "contacts": zod.object({
   "phone": zod.string(),
   "viber": zod.string().describe('Phone number used for the Viber link'),
@@ -697,6 +699,7 @@ export const updateSettingsResponseMinOrderTotalMin = 0;
 
 export const UpdateSettingsResponse = zod.object({
   "minOrderTotal": zod.number().min(updateSettingsResponseMinOrderTotalMin),
+  "bannerTheme": zod.enum(['spring', 'newyear']).describe('Seasonal look of the home page brand banner'),
   "contacts": zod.object({
   "phone": zod.string(),
   "viber": zod.string().describe('Phone number used for the Viber link'),

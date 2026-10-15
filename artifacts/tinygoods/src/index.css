@@ -360,11 +360,27 @@
   50% { transform: translate3d(40px, 50vh, 0) rotate(200deg); }
   100% { transform: translate3d(-20px, 105vh, 0) rotate(420deg); opacity: 0.2; }
 }
+/* Snow for the New Year banner */
+.snowflake {
+  position: absolute;
+  top: -12px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, #fff 0%, #fff 40%, rgba(255,255,255,0) 72%);
+  box-shadow: 0 0 4px 1px rgba(110, 145, 200, 0.55);
+  animation: snow-fall linear infinite;
+}
+@keyframes snow-fall {
+  0% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(14px, 25vh, 0); }
+  50% { transform: translate3d(-10px, 50vh, 0); }
+  75% { transform: translate3d(12px, 75vh, 0); }
+  100% { transform: translate3d(-6px, 105vh, 0); opacity: .3; }
+}
 @keyframes bob { 50% { transform: translateY(-10px); } }
 .bob { animation: bob 6s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ambient-blob, .ambient-rays, .petal, .bob { animation: none; }
+  .ambient-blob, .ambient-rays, .petal, .snowflake, .bob { animation: none; }
   html { scroll-behavior: auto; }
 }
 

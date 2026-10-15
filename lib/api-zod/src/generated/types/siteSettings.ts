@@ -10,10 +10,13 @@ import type { PromoCard } from './promoCard';
 import type { ShowcaseItem } from './showcaseItem';
 import type { SiteContacts } from './siteContacts';
 import type { SiteHero } from './siteHero';
+import type { SiteSettingsBannerTheme } from './siteSettingsBannerTheme';
 
 export interface SiteSettings {
   /** @minimum 0 */
   minOrderTotal: number;
+  /** Seasonal look of the home page brand banner */
+  bannerTheme: SiteSettingsBannerTheme;
   contacts: SiteContacts;
   hero: SiteHero;
   promos: PromoCard[];

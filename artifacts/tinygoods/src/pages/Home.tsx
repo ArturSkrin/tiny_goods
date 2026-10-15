@@ -52,7 +52,7 @@ export default function Home() {
 
         {settings && <Showcase items={settings.showcase} onPick={(q) => find(q, null)} />}
 
-        <BrandBanner />
+        {settings && <BrandBanner season={settings.bannerTheme} />}
 
         {/* Catalog */}
         <section id="catalog" className="scroll-mt-24 md:scroll-mt-28 space-y-5">

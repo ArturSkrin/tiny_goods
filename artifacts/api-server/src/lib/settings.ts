@@ -6,6 +6,7 @@ import type { SiteSettings } from "@workspace/api-zod";
 /** Used until the admin saves settings for the first time. */
 export const DEFAULT_SETTINGS: SiteSettings = {
   minOrderTotal: 300,
+  bannerTheme: "spring",
   // Placeholder contacts (invalid +380 00 number) until real ones are entered in the admin.
   contacts: {
     phone: "+380 00 000 00 00",

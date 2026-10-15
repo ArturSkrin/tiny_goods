@@ -814,9 +814,10 @@ components:
         a: { type: string }
     SiteSettings:
       type: object
-      required: [minOrderTotal, contacts, hero, promos, showcase, faq]
+      required: [minOrderTotal, bannerTheme, contacts, hero, promos, showcase, faq]
       properties:
         minOrderTotal: { type: number, minimum: 0 }
+        bannerTheme: { type: string, enum: [spring, newyear], description: "Seasonal look of the home page brand banner" }
         contacts: { $ref: "#/components/schemas/SiteContacts" }
         hero: { $ref: "#/components/schemas/SiteHero" }
         promos:

@@ -39,6 +39,7 @@ export * from './showcaseItem';
 export * from './siteContacts';
 export * from './siteHero';
 export * from './siteSettings';
+export * from './siteSettingsBannerTheme';
 export * from './statusCount';
 export * from './topProduct';
 export * from './totpCodeInput';

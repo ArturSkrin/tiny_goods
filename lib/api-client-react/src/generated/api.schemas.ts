@@ -304,9 +304,22 @@ export interface FaqItem {
   a: string;
 }
 
+/**
+ * Seasonal look of the home page brand banner
+ */
+export type SiteSettingsBannerTheme = typeof SiteSettingsBannerTheme[keyof typeof SiteSettingsBannerTheme];
+
+
+export const SiteSettingsBannerTheme = {
+  spring: 'spring',
+  newyear: 'newyear',
+} as const;
+
 export interface SiteSettings {
   /** @minimum 0 */
   minOrderTotal: number;
+  /** Seasonal look of the home page brand banner */
+  bannerTheme: SiteSettingsBannerTheme;
   contacts: SiteContacts;
   hero: SiteHero;
   promos: PromoCard[];

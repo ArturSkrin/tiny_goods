@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useGetSettings, useUpdateSettings, getGetSettingsQueryKey, type SiteSettings } from '@workspace/api-client-react';
 import { ArrowDown, ArrowUp, Plus, Save, Trash2, Check } from 'lucide-react';
@@ -8,7 +8,20 @@ import { Input } from '../components/ui/input';
 import { Textarea } from '../components/ui/textarea';
 import { ImageUpload } from '../components/admin/ImageUpload';
 
-function Section({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
+const TABS = [
+  { id: 'general', label: 'Загальне' },
+  { id: 'contacts', label: 'Контакти' },
+  { id: 'hero', label: 'Головний екран' },
+  { id: 'promos', label: 'Промо-карусель' },
+  { id: 'showcase', label: 'Вітрина' },
+  { id: 'faq', label: 'FAQ' },
+] as const;
+
+const ActiveTab = createContext<string>('general');
+
+/** Settings card, shown only while its tab is selected. */
+function Section({ id, title, hint, children }: { id: (typeof TABS)[number]['id']; title: string; hint?: string; children: React.ReactNode }) {
+  if (useContext(ActiveTab) !== id) return null;
   return (
     <section className="glass-panel p-6 rounded-3xl space-y-4">
       <div>
@@ -70,6 +83,7 @@ export default function AdminSite() {
   const queryClient = useQueryClient();
   const [s, setS] = useState<SiteSettings>();
   const [saved, setSaved] = useState(false);
+  const [tab, setTab] = useState<string>('general');
 
   useEffect(() => {
     if (data && !s) setS(data);
@@ -111,13 +125,47 @@ export default function AdminSite() {
           <p className="text-white/50 mt-1">Тексти, контакти, суми та блоки головної сторінки. Зміни зʼявляться на сайті після збереження.</p>
         </div>
 
-        <Section title="Замовлення">
+        <div className="sticky top-0 z-20 -mx-1 px-1 py-2 flex gap-2 overflow-x-auto no-scrollbar backdrop-blur-xl">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => setTab(t.id)}
+              className={`h-10 px-4 rounded-xl text-sm font-semibold whitespace-nowrap transition ${
+                tab === t.id ? 'bg-primary text-primary-foreground shadow-lg' : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        <ActiveTab.Provider value={tab}>
+
+        <Section id="general" title="Замовлення">
           <Field label="Мінімальна сума замовлення, грн">
             <Input type="number" min={0} value={s.minOrderTotal} onChange={(e) => set('minOrderTotal', Number(e.target.value))} className="max-w-xs" />
           </Field>
         </Section>
 
-        <Section title="Контакти" hint="Порожні поля на сайті не показуються.">
+        <Section id="general" title="Сезонний банер" hint="Оформлення банера «TinyGoods UA» на головній.">
+          <div className="flex flex-wrap gap-3">
+            {([['spring', '🌸 Весна — квіти та пелюстки'], ['newyear', '🎄 Новий рік — хвоя та сніг']] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                onClick={() => set('bannerTheme', value)}
+                className={`h-12 px-5 rounded-2xl border text-sm font-semibold transition ${
+                  s.bannerTheme === value ? 'border-primary bg-primary/15 text-white' : 'border-white/10 bg-white/5 text-white/60 hover:text-white'
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </Section>
+
+        <Section id="contacts" title="Контакти" hint="Порожні поля на сайті не показуються.">
           <div className="grid md:grid-cols-2 gap-4">
             {contact('phone', 'Телефон', '+380 67 123 45 67')}
             {contact('viber', 'Viber (номер)', '+380 67 123 45 67')}
@@ -130,7 +178,7 @@ export default function AdminSite() {
           </div>
         </Section>
 
-        <Section title="Головний екран">
+        <Section id="hero" title="Головний екран">
           <div className="grid md:grid-cols-2 gap-4">
             <Field label="Надпис над заголовком">
               <Input value={s.hero.eyebrow} onChange={(e) => set('hero', { ...s.hero, eyebrow: e.target.value })} />
@@ -150,7 +198,7 @@ export default function AdminSite() {
           </div>
         </Section>
 
-        <Section title="Промо-карусель" hint="Картки біля головного екрана. Клік відкриває каталог з пошуком за словом.">
+        <Section id="promos" title="Промо-карусель" hint="Картки біля головного екрана. Клік відкриває каталог з пошуком за словом.">
           <ListEditor
             items={s.promos}
             onChange={(v) => set('promos', v)}
@@ -176,7 +224,7 @@ export default function AdminSite() {
           />
         </Section>
 
-        <Section title="Вітрина «Усе для ідеального подарунка»">
+        <Section id="showcase" title="Вітрина «Усе для ідеального подарунка»">
           <ListEditor
             items={s.showcase}
             onChange={(v) => set('showcase', v)}
@@ -195,7 +243,7 @@ export default function AdminSite() {
           />
         </Section>
 
-        <Section title="Питання та відповіді (FAQ)">
+        <Section id="faq" title="Питання та відповіді (FAQ)">
           <ListEditor
             items={s.faq}
             onChange={(v) => set('faq', v)}
@@ -209,6 +257,8 @@ export default function AdminSite() {
             )}
           />
         </Section>
+
+        </ActiveTab.Provider>
 
         <div className="fixed bottom-6 right-6 z-30">
           <Button size="lg" onClick={save} disabled={update.isPending} className="rounded-2xl shadow-2xl">

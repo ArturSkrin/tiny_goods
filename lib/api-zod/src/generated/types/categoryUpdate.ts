@@ -12,4 +12,8 @@ export interface CategoryUpdate {
   /** @minLength 1 */
   slug?: string;
   sortOrder?: number;
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  tagline?: string | null;
 }

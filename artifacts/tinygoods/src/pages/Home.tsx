@@ -50,7 +50,7 @@ export default function Home() {
           <div className="liquid-glass rounded-[32px] h-[560px] animate-pulse" />
         )}
 
-        {settings && <Showcase items={settings.showcase} onPick={(q) => find(q, null)} />}
+        <Showcase categories={categories ?? []} onPick={(id) => find('', id)} />
 
         {settings && <BrandBanner season={settings.bannerTheme} />}
 

@@ -13,7 +13,6 @@ const TABS = [
   { id: 'contacts', label: 'Контакти' },
   { id: 'hero', label: 'Головний екран' },
   { id: 'promos', label: 'Промо-карусель' },
-  { id: 'showcase', label: 'Вітрина' },
   { id: 'faq', label: 'FAQ' },
 ] as const;
 
@@ -219,25 +218,6 @@ export default function AdminSite() {
                   </div>
                 </div>
                 <Field label="Зображення"><ImageUpload value={p.image} onChange={(image) => upd({ image })} /></Field>
-              </div>
-            )}
-          />
-        </Section>
-
-        <Section id="showcase" title="Вітрина «Усе для ідеального подарунка»">
-          <ListEditor
-            items={s.showcase}
-            onChange={(v) => set('showcase', v)}
-            addLabel="Додати картку"
-            create={() => ({ label: '', title: '', image: '', query: '' })}
-            render={(it, upd) => (
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-3">
-                  <Field label="Назва"><Input value={it.title} onChange={(e) => upd({ title: e.target.value })} /></Field>
-                  <Field label="Малий надпис"><Input value={it.label} onChange={(e) => upd({ label: e.target.value })} /></Field>
-                  <Field label="Пошук у каталозі"><Input value={it.query} onChange={(e) => upd({ query: e.target.value })} /></Field>
-                </div>
-                <Field label="Зображення"><ImageUpload value={it.image} onChange={(image) => upd({ image })} /></Field>
               </div>
             )}
           />

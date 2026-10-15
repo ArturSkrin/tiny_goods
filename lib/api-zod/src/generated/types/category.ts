@@ -12,4 +12,11 @@ export interface Category {
   slug: string;
   sortOrder: number;
   productCount: number;
+  /** @nullable */
+  imageUrl?: string | null;
+  /**
+     * Small label on the home page showcase card
+     * @nullable
+     */
+  tagline?: string | null;
 }

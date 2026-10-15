@@ -23,6 +23,8 @@ async function categoryWithCount(id: number) {
       name: categoriesTable.name,
       slug: categoriesTable.slug,
       sortOrder: categoriesTable.sortOrder,
+      imageUrl: categoriesTable.imageUrl,
+      tagline: categoriesTable.tagline,
       productCount: productCountExpr,
     })
     .from(categoriesTable)
@@ -39,6 +41,8 @@ router.get("/categories", async (_req, res): Promise<void> => {
       name: categoriesTable.name,
       slug: categoriesTable.slug,
       sortOrder: categoriesTable.sortOrder,
+      imageUrl: categoriesTable.imageUrl,
+      tagline: categoriesTable.tagline,
       productCount: productCountExpr,
     })
     .from(categoriesTable)

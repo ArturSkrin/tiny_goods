@@ -7,7 +7,6 @@
  */
 import type { FaqItem } from './faqItem';
 import type { PromoCard } from './promoCard';
-import type { ShowcaseItem } from './showcaseItem';
 import type { SiteContacts } from './siteContacts';
 import type { SiteHero } from './siteHero';
 import type { SiteSettingsBannerTheme } from './siteSettingsBannerTheme';
@@ -20,6 +19,5 @@ export interface SiteSettings {
   contacts: SiteContacts;
   hero: SiteHero;
   promos: PromoCard[];
-  showcase: ShowcaseItem[];
   faq: FaqItem[];
 }

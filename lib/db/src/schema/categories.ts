@@ -7,6 +7,9 @@ export const categoriesTable = pgTable("categories", {
   name: text("name").notNull(),
   slug: text("slug").notNull().unique(),
   sortOrder: integer("sort_order").notNull().default(0),
+  // Shown on the home page showcase card
+  imageUrl: text("image_url"),
+  tagline: text("tagline"),
 });
 
 export const insertCategorySchema = createInsertSchema(categoriesTable).omit({

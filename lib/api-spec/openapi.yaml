@@ -535,6 +535,8 @@ components:
         slug: { type: string }
         sortOrder: { type: integer }
         productCount: { type: integer }
+        imageUrl: { type: ["string", "null"] }
+        tagline: { type: ["string", "null"], description: "Small label on the home page showcase card" }
     CategoryInput:
       type: object
       required: [name, slug]
@@ -542,12 +544,16 @@ components:
         name: { type: string, minLength: 1 }
         slug: { type: string, minLength: 1 }
         sortOrder: { type: integer }
+        imageUrl: { type: ["string", "null"] }
+        tagline: { type: ["string", "null"] }
     CategoryUpdate:
       type: object
       properties:
         name: { type: string, minLength: 1 }
         slug: { type: string, minLength: 1 }
         sortOrder: { type: integer }
+        imageUrl: { type: ["string", "null"] }
+        tagline: { type: ["string", "null"] }
     ProductOption:
       type: object
       required: [name, priceDelta]
@@ -798,14 +804,6 @@ components:
         image: { type: string }
         color: { type: string, description: "Header colour, #rrggbb" }
         query: { type: string, description: "Catalog search applied on click" }
-    ShowcaseItem:
-      type: object
-      required: [label, title, image, query]
-      properties:
-        label: { type: string }
-        title: { type: string }
-        image: { type: string }
-        query: { type: string }
     FaqItem:
       type: object
       required: [q, a]
@@ -814,7 +812,7 @@ components:
         a: { type: string }
     SiteSettings:
       type: object
-      required: [minOrderTotal, bannerTheme, contacts, hero, promos, showcase, faq]
+      required: [minOrderTotal, bannerTheme, contacts, hero, promos, faq]
       properties:
         minOrderTotal: { type: number, minimum: 0 }
         bannerTheme: { type: string, enum: [spring, newyear], description: "Seasonal look of the home page brand banner" }
@@ -823,9 +821,6 @@ components:
         promos:
           type: array
           items: { $ref: "#/components/schemas/PromoCard" }
-        showcase:
-          type: array
-          items: { $ref: "#/components/schemas/ShowcaseItem" }
         faq:
           type: array
           items: { $ref: "#/components/schemas/FaqItem" }

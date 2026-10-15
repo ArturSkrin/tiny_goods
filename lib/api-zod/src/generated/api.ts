@@ -25,7 +25,9 @@ export const ListCategoriesResponseItem = zod.object({
   "name": zod.string(),
   "slug": zod.string(),
   "sortOrder": zod.int(),
-  "productCount": zod.int()
+  "productCount": zod.int(),
+  "imageUrl": zod.string().nullish(),
+  "tagline": zod.string().nullish().describe('Small label on the home page showcase card')
 })
 export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
 
@@ -40,7 +42,9 @@ export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
 export const CreateCategoryBody = zod.object({
   "name": zod.string().min(1),
   "slug": zod.string().min(1),
-  "sortOrder": zod.int().optional()
+  "sortOrder": zod.int().optional(),
+  "imageUrl": zod.string().nullish(),
+  "tagline": zod.string().nullish()
 })
 
 export const CreateCategoryResponse = zod.object({
@@ -48,7 +52,9 @@ export const CreateCategoryResponse = zod.object({
   "name": zod.string(),
   "slug": zod.string(),
   "sortOrder": zod.int(),
-  "productCount": zod.int()
+  "productCount": zod.int(),
+  "imageUrl": zod.string().nullish(),
+  "tagline": zod.string().nullish().describe('Small label on the home page showcase card')
 })
 
 
@@ -66,7 +72,9 @@ export const UpdateCategoryParams = zod.object({
 export const UpdateCategoryBody = zod.object({
   "name": zod.string().min(1).optional(),
   "slug": zod.string().min(1).optional(),
-  "sortOrder": zod.int().optional()
+  "sortOrder": zod.int().optional(),
+  "imageUrl": zod.string().nullish(),
+  "tagline": zod.string().nullish()
 })
 
 export const UpdateCategoryResponse = zod.object({
@@ -74,7 +82,9 @@ export const UpdateCategoryResponse = zod.object({
   "name": zod.string(),
   "slug": zod.string(),
   "sortOrder": zod.int(),
-  "productCount": zod.int()
+  "productCount": zod.int(),
+  "imageUrl": zod.string().nullish(),
+  "tagline": zod.string().nullish().describe('Small label on the home page showcase card')
 })
 
 
@@ -635,12 +645,6 @@ export const GetSettingsResponse = zod.object({
   "color": zod.string().describe('Header colour, #rrggbb'),
   "query": zod.string().describe('Catalog search applied on click')
 })),
-  "showcase": zod.array(zod.object({
-  "label": zod.string(),
-  "title": zod.string(),
-  "image": zod.string(),
-  "query": zod.string()
-})),
   "faq": zod.array(zod.object({
   "q": zod.string(),
   "a": zod.string()
@@ -681,12 +685,6 @@ export const UpdateSettingsBody = zod.object({
   "color": zod.string().describe('Header colour, #rrggbb'),
   "query": zod.string().describe('Catalog search applied on click')
 })),
-  "showcase": zod.array(zod.object({
-  "label": zod.string(),
-  "title": zod.string(),
-  "image": zod.string(),
-  "query": zod.string()
-})),
   "faq": zod.array(zod.object({
   "q": zod.string(),
   "a": zod.string()
@@ -722,12 +720,6 @@ export const UpdateSettingsResponse = zod.object({
   "image": zod.string(),
   "color": zod.string().describe('Header colour, #rrggbb'),
   "query": zod.string().describe('Catalog search applied on click')
-})),
-  "showcase": zod.array(zod.object({
-  "label": zod.string(),
-  "title": zod.string(),
-  "image": zod.string(),
-  "query": zod.string()
 })),
   "faq": zod.array(zod.object({
   "q": zod.string(),

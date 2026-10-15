@@ -1,14 +1,15 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, ArrowUpRight } from 'lucide-react';
-import type { ShowcaseItem } from '@workspace/api-client-react';
+import { ArrowLeft, ArrowRight, ArrowUpRight, Gift } from 'lucide-react';
+import type { Category } from '@workspace/api-client-react';
 import { Reveal, SectionTitle } from './Reveal';
 
-export function Showcase({ items, onPick }: { items: ShowcaseItem[]; onPick: (query: string) => void }) {
+/** Category cards (image + tagline are edited in the admin «Категорії» page). */
+export function Showcase({ categories, onPick }: { categories: Category[]; onPick: (categoryId: number) => void }) {
   const track = useRef<HTMLDivElement>(null);
   const page = (dir: 1 | -1) => track.current?.scrollBy({ left: dir * track.current.clientWidth * 0.8, behavior: 'smooth' });
 
-  if (items.length === 0) return null;
+  if (categories.length === 0) return null;
   return (
     <Reveal className="liquid-glass rounded-[32px] p-5 md:p-10">
       <div className="flex items-end justify-between gap-4 mb-6">
@@ -28,10 +29,10 @@ export function Showcase({ items, onPick }: { items: ShowcaseItem[]; onPick: (qu
       </div>
 
       <div ref={track} className="flex gap-3 md:gap-4 overflow-x-auto snap-x snap-mandatory no-scrollbar -mx-5 px-5 md:mx-0 md:px-0 pb-2">
-        {items.map((it, i) => (
+        {categories.map((c, i) => (
           <motion.button
-            key={i}
-            onClick={() => onPick(it.query)}
+            key={c.id}
+            onClick={() => onPick(c.id)}
             initial={{ opacity: 0, y: 30, rotate: -2 }}
             whileInView={{ opacity: 1, y: 0, rotate: 0 }}
             viewport={{ once: true }}
@@ -40,13 +41,17 @@ export function Showcase({ items, onPick }: { items: ShowcaseItem[]; onPick: (qu
             whileTap={{ scale: 0.97 }}
             className="snap-start shrink-0 w-[58%] sm:w-[36%] md:w-[calc((100%-64px)/5)] rounded-[22px] overflow-hidden bg-background/80 dark:bg-white/[0.06] ring-1 ring-foreground/10 text-left group shadow-[0_14px_30px_-18px_hsl(var(--glass-shadow)/0.6)]"
           >
-            <div className="aspect-[4/3] overflow-hidden bg-foreground/10">
-              <img src={it.image} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+            <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/15 to-gold/20 flex items-center justify-center">
+              {c.imageUrl ? (
+                <img src={c.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+              ) : (
+                <Gift className="w-10 h-10 text-primary/50" />
+              )}
             </div>
             <div className="p-3.5 flex items-end justify-between gap-2">
-              <div>
-                <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground">{it.label}</div>
-                <div className="font-bold text-foreground">{it.title}</div>
+              <div className="min-w-0">
+                {c.tagline && <div className="text-[10px] font-bold uppercase tracking-[0.14em] text-muted-foreground truncate">{c.tagline}</div>}
+                <div className="font-bold text-foreground truncate">{c.name}</div>
               </div>
               <ArrowUpRight className="w-5 h-5 text-primary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </div>

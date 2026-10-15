@@ -4,7 +4,8 @@ import { useListCategories, useCreateCategory, useUpdateCategory, useDeleteCateg
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { useQueryClient } from '@tanstack/react-query';
-import { Trash2, Edit2, Plus, X } from 'lucide-react';
+import { Trash2, Edit2, Plus, X, Image as ImageIcon } from 'lucide-react';
+import { ImageUpload } from '../components/admin/ImageUpload';
 
 export default function AdminCategories() {
   const { data: categories, isLoading } = useListCategories();
@@ -15,27 +16,27 @@ export default function AdminCategories() {
   const deleteCat = useDeleteCategory();
 
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ name: '', slug: '', sortOrder: 0 });
+  const [formData, setFormData] = useState({ name: '', slug: '', sortOrder: 0, imageUrl: '', tagline: '' });
   const [isCreating, setIsCreating] = useState(false);
 
   const resetForm = () => {
     setEditingId(null);
     setIsCreating(false);
-    setFormData({ name: '', slug: '', sortOrder: 0 });
+    setFormData({ name: '', slug: '', sortOrder: 0, imageUrl: '', tagline: '' });
   };
 
   const handleEdit = (cat: any) => {
     setEditingId(cat.id);
     setIsCreating(false);
-    setFormData({ name: cat.name, slug: cat.slug, sortOrder: cat.sortOrder });
+    setFormData({ name: cat.name, slug: cat.slug, sortOrder: cat.sortOrder, imageUrl: cat.imageUrl ?? '', tagline: cat.tagline ?? '' });
   };
 
   const handleSave = async () => {
     try {
       if (isCreating) {
-        await createCat.mutateAsync({ data: formData });
+        await createCat.mutateAsync({ data: { ...formData, imageUrl: formData.imageUrl || null, tagline: formData.tagline || null } });
       } else if (editingId) {
-        await updateCat.mutateAsync({ id: editingId, data: formData });
+        await updateCat.mutateAsync({ id: editingId, data: { ...formData, imageUrl: formData.imageUrl || null, tagline: formData.tagline || null } });
       }
       queryClient.invalidateQueries({ queryKey: getListCategoriesQueryKey() });
       resetForm();
@@ -105,7 +106,23 @@ export default function AdminCategories() {
                 />
               </div>
             </div>
-            
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm text-white/60">Картинка для вітрини на головній</label>
+                <ImageUpload value={formData.imageUrl} onChange={url => setFormData({...formData, imageUrl: url})} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm text-white/60">Підпис над назвою (необовʼязково)</label>
+                <Input
+                  value={formData.tagline}
+                  onChange={e => setFormData({...formData, tagline: e.target.value})}
+                  placeholder="Фінальний акцент"
+                />
+                <p className="text-xs text-white/40 pt-1">Порядок карток на головній — за полем «Сортування».</p>
+              </div>
+            </div>
+
             <div className="flex justify-end gap-3 pt-4">
               <Button variant="ghost" onClick={resetForm}>Скасувати</Button>
               <Button 
@@ -134,7 +151,17 @@ export default function AdminCategories() {
               <tbody>
                 {categories?.map(cat => (
                   <tr key={cat.id} className="border-b border-white/5 hover:bg-white/5 transition-colors">
-                    <td className="p-4 text-white font-medium">{cat.name}</td>
+                    <td className="p-4 text-white font-medium">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-white/10 overflow-hidden shrink-0 flex items-center justify-center">
+                          {cat.imageUrl ? <img src={cat.imageUrl} alt="" className="w-full h-full object-cover" /> : <ImageIcon className="w-4 h-4 text-white/30" />}
+                        </div>
+                        <div>
+                          <div>{cat.name}</div>
+                          {cat.tagline && <div className="text-xs text-white/40">{cat.tagline}</div>}
+                        </div>
+                      </div>
+                    </td>
                     <td className="p-4 text-white/60">{cat.slug}</td>
                     <td className="p-4 text-white/60 text-center">{cat.productCount}</td>
                     <td className="p-4 text-right space-x-2">

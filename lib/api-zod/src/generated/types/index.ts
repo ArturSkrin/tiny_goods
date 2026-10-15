@@ -35,7 +35,6 @@ export * from './productInput';
 export * from './productOption';
 export * from './productUpdate';
 export * from './promoCard';
-export * from './showcaseItem';
 export * from './siteContacts';
 export * from './siteHero';
 export * from './siteSettings';

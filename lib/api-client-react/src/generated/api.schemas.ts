@@ -15,6 +15,13 @@ export interface Category {
   slug: string;
   sortOrder: number;
   productCount: number;
+  /** @nullable */
+  imageUrl?: string | null;
+  /**
+     * Small label on the home page showcase card
+     * @nullable
+     */
+  tagline?: string | null;
 }
 
 export interface CategoryInput {
@@ -23,6 +30,10 @@ export interface CategoryInput {
   /** @minLength 1 */
   slug: string;
   sortOrder?: number;
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  tagline?: string | null;
 }
 
 export interface CategoryUpdate {
@@ -31,6 +42,10 @@ export interface CategoryUpdate {
   /** @minLength 1 */
   slug?: string;
   sortOrder?: number;
+  /** @nullable */
+  imageUrl?: string | null;
+  /** @nullable */
+  tagline?: string | null;
 }
 
 export interface ProductOption {
@@ -292,13 +307,6 @@ export interface PromoCard {
   query: string;
 }
 
-export interface ShowcaseItem {
-  label: string;
-  title: string;
-  image: string;
-  query: string;
-}
-
 export interface FaqItem {
   q: string;
   a: string;
@@ -323,7 +331,6 @@ export interface SiteSettings {
   contacts: SiteContacts;
   hero: SiteHero;
   promos: PromoCard[];
-  showcase: ShowcaseItem[];
   faq: FaqItem[];
 }
 

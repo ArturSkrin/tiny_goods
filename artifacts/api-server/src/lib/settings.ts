@@ -33,16 +33,6 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     { title: "Тішʼю для пакування", note: "ніжно та охайно", image: "/products/tissue.jpg", color: "#dc7f6e", query: "тіш" },
     { title: "Корисні гаджети", note: "павербанки й ліхтарики", image: "/products/powerbank.jpg", color: "#5d7191", query: "павербанк" },
   ],
-  showcase: [
-    { label: "Основа подарунка", title: "Коробки", image: "/products/giftbox.jpg", query: "коробк" },
-    { label: "Для вручення", title: "Пакети", image: "/products/giftbag.jpg", query: "пакет" },
-    { label: "Фінальний акцент", title: "Стрічки", image: "/products/ribbon.jpg", query: "стрічк" },
-    { label: "Папір для пакування", title: "Тішʼю", image: "/products/tissue.jpg", query: "тіш" },
-    { label: "Атмосфера", title: "Нічники", image: "/products/nightlight.jpg", query: "нічник" },
-    { label: "Затишок", title: "Настільні лампи", image: "/products/desklamp.jpg", query: "ламп" },
-    { label: "Завжди заряджений", title: "Павербанки", image: "/products/powerbank.jpg", query: "павербанк" },
-    { label: "В дорогу", title: "Ліхтарики", image: "/products/flashlight.jpg", query: "ліхтар" },
-  ],
   faq: [
     { q: "Яка мінімальна сума замовлення?", a: "Мінімальне замовлення — 300 ₴. Кошик підкаже, скільки ще додати до мінімальної суми." },
     { q: "Як ви доставляєте?", a: "Новою Поштою по всій Україні — у відділення або поштомат, який ви вкажете при оформленні." },

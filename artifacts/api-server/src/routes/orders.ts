@@ -40,6 +40,10 @@ export function serializeOrder(order: Order, items: OrderItem[]) {
   return {
     id: order.id,
     customerName: order.customerName,
+    lastName: order.lastName,
+    firstName: order.firstName,
+    middleName: order.middleName,
+    email: order.email,
     phone: order.phone,
     contactMethod: order.contactMethod,
     comment: order.comment,
@@ -190,12 +194,21 @@ router.post("/orders", async (req, res): Promise<void> => {
     const [created] = await tx
       .insert(ordersTable)
       .values({
-        customerName: input.customerName,
+        customerName: [input.lastName, input.firstName, input.middleName]
+          .map((s) => s?.trim())
+          .filter(Boolean)
+          .join(" "),
+        lastName: input.lastName.trim(),
+        firstName: input.firstName.trim(),
+        middleName: input.middleName?.trim() || null,
+        email: input.email.trim(),
         phone: input.phone,
         contactMethod: input.contactMethod,
         comment: input.comment ?? null,
         city: input.city ?? null,
         novaPoshtaBranch: input.novaPoshtaBranch ?? null,
+        npCityRef: input.npCityRef ?? null,
+        npWarehouseRef: input.npWarehouseRef ?? null,
         status: "new",
         total: total.toFixed(2),
         paymentMethod,

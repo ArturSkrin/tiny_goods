@@ -12,12 +12,18 @@ import { productsTable } from "./products";
 
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
-  customerName: text("customer_name").notNull(),
+  customerName: text("customer_name").notNull(), // "Last First Middle", kept for display
+  lastName: text("last_name"),
+  firstName: text("first_name"),
+  middleName: text("middle_name"),
+  email: text("email"),
   phone: text("phone").notNull(),
   contactMethod: text("contact_method").notNull(),
   comment: text("comment"),
   city: text("city"),
   novaPoshtaBranch: text("nova_poshta_branch"),
+  npCityRef: text("np_city_ref"),
+  npWarehouseRef: text("np_warehouse_ref"),
   status: text("status").notNull().default("new"),
   total: numeric("total", { precision: 10, scale: 2 }).notNull(),
   paymentMethod: text("payment_method").notNull().default("cash"),

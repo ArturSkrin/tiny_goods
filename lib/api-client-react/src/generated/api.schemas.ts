@@ -139,8 +139,16 @@ export interface OrderItem {
 export interface Order {
   id: number;
   customerName: string;
+  /** @nullable */
+  lastName?: string | null;
+  /** @nullable */
+  firstName?: string | null;
+  /** @nullable */
+  middleName?: string | null;
+  /** @nullable */
+  email?: string | null;
   phone: string;
-  /** viber | telegram */
+  /** viber | telegram | whatsapp | phone */
   contactMethod: string;
   /** @nullable */
   comment?: string | null;
@@ -169,15 +177,33 @@ export interface OrderItemInput {
   color?: string;
 }
 
+export type OrderInputContactMethod = typeof OrderInputContactMethod[keyof typeof OrderInputContactMethod];
+
+
+export const OrderInputContactMethod = {
+  viber: 'viber',
+  telegram: 'telegram',
+  whatsapp: 'whatsapp',
+  phone: 'phone',
+} as const;
+
 export interface OrderInput {
   /** @minLength 1 */
-  customerName: string;
+  lastName: string;
+  /** @minLength 1 */
+  firstName: string;
+  middleName?: string;
   /** @minLength 5 */
   phone: string;
-  contactMethod: string;
+  email: string;
+  contactMethod: OrderInputContactMethod;
   comment?: string;
   city?: string;
   novaPoshtaBranch?: string;
+  /** Nova Poshta city Ref */
+  npCityRef?: string;
+  /** Nova Poshta warehouse Ref */
+  npWarehouseRef?: string;
   /** cash | liqpay */
   paymentMethod?: string;
   /** @minItems 1 */
@@ -334,6 +360,19 @@ export interface SiteSettings {
   faq: FaqItem[];
 }
 
+export interface NpCity {
+  ref: string;
+  name: string;
+  /** Oblast */
+  area: string;
+}
+
+export interface NpWarehouse {
+  ref: string;
+  number: string;
+  name: string;
+}
+
 export interface ImageUpload {
   /** data:image/(png|jpeg|webp|gif);base64,... */
   dataUrl: string;
@@ -356,5 +395,14 @@ status?: string;
 
 export type GetOrderPaymentStatusParams = {
 token: string;
+};
+
+export type SearchNpCitiesParams = {
+q?: string;
+};
+
+export type SearchNpWarehousesParams = {
+cityRef: string;
+q?: string;
 };
 

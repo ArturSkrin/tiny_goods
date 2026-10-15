@@ -5,7 +5,7 @@ import { useSettings } from '../hooks/use-settings';
 import { formatPrice } from '../lib/utils';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
+import { CityPicker, WarehousePicker } from '../components/store/NovaPoshtaPickers';
 import { Textarea } from '../components/ui/textarea';
 import { useCreateOrder, useCreateLiqpayCheckout } from '@workspace/api-client-react';
 import { useForm, Controller } from 'react-hook-form';
@@ -18,14 +18,26 @@ import { motion } from 'framer-motion';
 const LIQPAY_URL = 'https://www.liqpay.ua/api/3/checkout';
 
 const checkoutSchema = z.object({
-  customerName: z.string().min(2, "Введіть ім'я"),
-  phone: z.string().min(10, "Введіть номер телефону"),
-  contactMethod: z.enum(['viber', 'telegram']),
-  city: z.string().min(2, "Введіть місто"),
-  novaPoshtaBranch: z.string().min(1, "Введіть відділення"),
+  lastName: z.string().trim().min(2, 'Введіть прізвище'),
+  firstName: z.string().trim().min(2, "Введіть ім'я"),
+  middleName: z.string().trim().optional(),
+  phone: z.string().regex(/^\+?[\d\s()-]{10,}$/, 'Введіть номер телефону'),
+  email: z.string().trim().email('Введіть коректний email'),
+  contactMethod: z.enum(['viber', 'telegram', 'whatsapp', 'phone']),
+  city: z.string(),
+  npCityRef: z.string().min(1, 'Оберіть місто зі списку'),
+  novaPoshtaBranch: z.string(),
+  npWarehouseRef: z.string().min(1, 'Оберіть відділення зі списку'),
   comment: z.string().optional(),
   paymentMethod: z.literal('liqpay'),
 });
+
+const CONTACT_METHODS = [
+  { value: 'viber', label: 'Viber' },
+  { value: 'telegram', label: 'Telegram' },
+  { value: 'whatsapp', label: 'WhatsApp' },
+  { value: 'phone', label: 'Подзвонити' },
+] as const;
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
@@ -41,13 +53,18 @@ export default function Checkout() {
   const liqpayDataRef = useRef<HTMLInputElement>(null);
   const liqpaySigRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, control, formState: { errors } } = useForm<CheckoutForm>({
+  const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       contactMethod: 'viber',
       paymentMethod: 'liqpay',
+      city: '',
+      npCityRef: '',
+      novaPoshtaBranch: '',
+      npWarehouseRef: '',
     }
   });
+  const npCityRef = watch('npCityRef');
 
 
   const onSubmit = async (data: CheckoutForm) => {
@@ -56,11 +73,16 @@ export default function Checkout() {
     try {
       const order = await createOrder.mutateAsync({
         data: {
-          customerName: data.customerName,
+          lastName: data.lastName,
+          firstName: data.firstName,
+          middleName: data.middleName || undefined,
           phone: data.phone,
+          email: data.email,
           contactMethod: data.contactMethod,
           city: data.city,
+          npCityRef: data.npCityRef,
           novaPoshtaBranch: data.novaPoshtaBranch,
+          npWarehouseRef: data.npWarehouseRef,
           comment: data.comment,
           paymentMethod: data.paymentMethod,
           items: items.map(item => ({
@@ -160,68 +182,84 @@ export default function Checkout() {
           <form onSubmit={handleSubmit(onSubmit)} className="glass-panel p-6 md:p-8 space-y-6 rounded-[2rem]">
             <h2 className="text-xl font-semibold text-foreground mb-4">Контактні дані</h2>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm text-foreground/70 ml-1">Ім'я та прізвище</label>
-                <Input
-                  {...register('customerName')}
-                  placeholder="Іван Іваненко"
-                  className={errors.customerName ? "border-destructive/50" : ""}
-                />
-                {errors.customerName && <span className="text-xs text-destructive ml-1">{errors.customerName.message}</span>}
-              </div>
+            <div className="grid md:grid-cols-3 gap-4">
+              {([
+                ['lastName', 'Прізвище', 'Іваненко'],
+                ['firstName', "Ім'я", 'Іван'],
+                ['middleName', 'По батькові (необовʼязково)', 'Іванович'],
+              ] as const).map(([name, label, placeholder]) => (
+                <div key={name} className="space-y-2">
+                  <label className="text-sm text-foreground/70 ml-1">{label}</label>
+                  <Input {...register(name)} placeholder={placeholder} autoComplete={name === 'lastName' ? 'family-name' : name === 'firstName' ? 'given-name' : 'additional-name'} className={errors[name] ? 'border-destructive/50' : ''} />
+                  {errors[name] && <span className="text-xs text-destructive ml-1">{errors[name]?.message}</span>}
+                </div>
+              ))}
+            </div>
 
+            <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-sm text-foreground/70 ml-1">Телефон</label>
-                <Input
-                  {...register('phone')}
-                  placeholder="+380 50 123 4567"
-                  className={errors.phone ? "border-destructive/50" : ""}
-                />
+                <Input {...register('phone')} type="tel" autoComplete="tel" placeholder="+380 50 123 4567" className={errors.phone ? 'border-destructive/50' : ''} />
                 {errors.phone && <span className="text-xs text-destructive ml-1">{errors.phone.message}</span>}
+              </div>
+              <div className="space-y-2">
+                <label className="text-sm text-foreground/70 ml-1">Email</label>
+                <Input {...register('email')} type="email" autoComplete="email" placeholder="you@example.com" className={errors.email ? 'border-destructive/50' : ''} />
+                {errors.email && <span className="text-xs text-destructive ml-1">{errors.email.message}</span>}
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm text-foreground/70 ml-1">Спосіб зв'язку</label>
+              <label className="text-sm text-foreground/70 ml-1">Як з вами звʼязатися?</label>
               <Controller
                 control={control}
                 name="contactMethod"
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="bg-foreground/5 border-foreground/10 text-foreground rounded-xl h-12">
-                      <SelectValue placeholder="Оберіть спосіб" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background/90 backdrop-blur-xl border-foreground/10 text-foreground">
-                      <SelectItem value="viber">Viber</SelectItem>
-                      <SelectItem value="telegram">Telegram</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {CONTACT_METHODS.map((m) => (
+                      <button
+                        key={m.value}
+                        type="button"
+                        onClick={() => field.onChange(m.value)}
+                        className={`h-11 rounded-xl text-sm font-semibold border transition active:scale-95 ${
+                          field.value === m.value ? 'border-primary bg-primary/10 text-foreground ring-1 ring-primary/40' : 'border-foreground/10 bg-foreground/5 text-foreground/60 hover:text-foreground'
+                        }`}
+                      >
+                        {m.label}
+                      </button>
+                    ))}
+                  </div>
                 )}
               />
             </div>
 
             <h2 className="text-xl font-semibold text-foreground pt-4 mb-4 border-t border-foreground/10">Доставка (Нова Пошта)</h2>
 
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-sm text-foreground/70 ml-1">Місто</label>
-                <Input
-                  {...register('city')}
-                  placeholder="Київ"
-                  className={errors.city ? "border-destructive/50" : ""}
+            <div className="grid md:grid-cols-2 gap-4">
+              <div>
+                <CityPicker
+                  invalid={!!errors.npCityRef}
+                  onChange={(c) => {
+                    setValue('city', `${c.name} (${c.area} обл.)`);
+                    setValue('npCityRef', c.ref, { shouldValidate: true });
+                    setValue('novaPoshtaBranch', '');
+                    setValue('npWarehouseRef', '');
+                  }}
                 />
-                {errors.city && <span className="text-xs text-destructive ml-1">{errors.city.message}</span>}
+                {errors.npCityRef && <span className="text-xs text-destructive ml-1">{errors.npCityRef.message}</span>}
               </div>
-
-              <div className="space-y-2">
-                <label className="text-sm text-foreground/70 ml-1">Відділення / Поштомат</label>
-                <Input
-                  {...register('novaPoshtaBranch')}
-                  placeholder="№123"
-                  className={errors.novaPoshtaBranch ? "border-destructive/50" : ""}
+              <div>
+                <WarehousePicker
+                  key={npCityRef}
+                  cityRef={npCityRef || undefined}
+                  value={watch('novaPoshtaBranch')}
+                  invalid={!!errors.npWarehouseRef}
+                  onChange={(w) => {
+                    setValue('novaPoshtaBranch', w.name);
+                    setValue('npWarehouseRef', w.ref, { shouldValidate: true });
+                  }}
                 />
-                {errors.novaPoshtaBranch && <span className="text-xs text-destructive ml-1">{errors.novaPoshtaBranch.message}</span>}
+                {errors.npWarehouseRef && <span className="text-xs text-destructive ml-1">{errors.npWarehouseRef.message}</span>}
               </div>
             </div>
 

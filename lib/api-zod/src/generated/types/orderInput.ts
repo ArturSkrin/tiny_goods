@@ -5,17 +5,26 @@
  * TinyGoods UA store API
  * OpenAPI spec version: 0.1.0
  */
+import type { OrderInputContactMethod } from './orderInputContactMethod';
 import type { OrderItemInput } from './orderItemInput';
 
 export interface OrderInput {
   /** @minLength 1 */
-  customerName: string;
+  lastName: string;
+  /** @minLength 1 */
+  firstName: string;
+  middleName?: string;
   /** @minLength 5 */
   phone: string;
-  contactMethod: string;
+  email: string;
+  contactMethod: OrderInputContactMethod;
   comment?: string;
   city?: string;
   novaPoshtaBranch?: string;
+  /** Nova Poshta city Ref */
+  npCityRef?: string;
+  /** Nova Poshta warehouse Ref */
+  npWarehouseRef?: string;
   /** cash | liqpay */
   paymentMethod?: string;
   /** @minItems 1 */

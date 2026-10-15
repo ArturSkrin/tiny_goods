@@ -505,6 +505,46 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ImageUploadResult"
+  /np/cities:
+    get:
+      operationId: searchNpCities
+      tags: [orders]
+      summary: Nova Poshta cities (major regional centres when q is empty)
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Cities
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/NpCity" }
+  /np/warehouses:
+    get:
+      operationId: searchNpWarehouses
+      tags: [orders]
+      summary: Nova Poshta branches and parcel lockers of a city
+      parameters:
+        - name: cityRef
+          in: query
+          required: true
+          schema: { type: string }
+        - name: q
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Warehouses
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/NpWarehouse" }
   /admin/stats:
     get:
       operationId: getAdminStats
@@ -638,8 +678,12 @@ components:
       properties:
         id: { type: integer }
         customerName: { type: string }
+        lastName: { type: ["string", "null"] }
+        firstName: { type: ["string", "null"] }
+        middleName: { type: ["string", "null"] }
+        email: { type: ["string", "null"] }
         phone: { type: string }
-        contactMethod: { type: string, description: "viber | telegram" }
+        contactMethod: { type: string, description: "viber | telegram | whatsapp | phone" }
         comment: { type: ["string", "null"] }
         city: { type: ["string", "null"] }
         novaPoshtaBranch: { type: ["string", "null"] }
@@ -662,14 +706,19 @@ components:
         color: { type: string, description: "Name of one of the product's colours" }
     OrderInput:
       type: object
-      required: [customerName, phone, contactMethod, items]
+      required: [lastName, firstName, phone, email, contactMethod, items]
       properties:
-        customerName: { type: string, minLength: 1 }
+        lastName: { type: string, minLength: 1 }
+        firstName: { type: string, minLength: 1 }
+        middleName: { type: string }
         phone: { type: string, minLength: 5 }
-        contactMethod: { type: string }
+        email: { type: string, format: email }
+        contactMethod: { type: string, enum: [viber, telegram, whatsapp, phone] }
         comment: { type: string }
         city: { type: string }
         novaPoshtaBranch: { type: string }
+        npCityRef: { type: string, description: "Nova Poshta city Ref" }
+        npWarehouseRef: { type: string, description: "Nova Poshta warehouse Ref" }
         paymentMethod: { type: string, description: "cash | liqpay" }
         items:
           type: array
@@ -824,6 +873,20 @@ components:
         faq:
           type: array
           items: { $ref: "#/components/schemas/FaqItem" }
+    NpCity:
+      type: object
+      required: [ref, name, area]
+      properties:
+        ref: { type: string }
+        name: { type: string }
+        area: { type: string, description: "Oblast" }
+    NpWarehouse:
+      type: object
+      required: [ref, number, name]
+      properties:
+        ref: { type: string }
+        number: { type: string }
+        name: { type: string }
     ImageUpload:
       type: object
       required: [dataUrl]

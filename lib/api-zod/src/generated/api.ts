@@ -322,8 +322,12 @@ export const ListOrdersQueryParams = zod.object({
 export const ListOrdersResponseItem = zod.object({
   "id": zod.int(),
   "customerName": zod.string(),
+  "lastName": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "middleName": zod.string().nullish(),
+  "email": zod.string().nullish(),
   "phone": zod.string(),
-  "contactMethod": zod.string().describe('viber | telegram'),
+  "contactMethod": zod.string().describe('viber | telegram | whatsapp | phone'),
   "comment": zod.string().nullish(),
   "city": zod.string().nullish(),
   "novaPoshtaBranch": zod.string().nullish(),
@@ -348,6 +352,7 @@ export const ListOrdersResponse = zod.array(ListOrdersResponseItem)
  * @summary Place an order (checkout)
  */
 
+
 export const createOrderBodyPhoneMin = 5;
 
 
@@ -355,12 +360,17 @@ export const createOrderBodyPhoneMin = 5;
 
 
 export const CreateOrderBody = zod.object({
-  "customerName": zod.string().min(1),
+  "lastName": zod.string().min(1),
+  "firstName": zod.string().min(1),
+  "middleName": zod.string().optional(),
   "phone": zod.string().min(createOrderBodyPhoneMin),
-  "contactMethod": zod.string(),
+  "email": zod.email(),
+  "contactMethod": zod.enum(['viber', 'telegram', 'whatsapp', 'phone']),
   "comment": zod.string().optional(),
   "city": zod.string().optional(),
   "novaPoshtaBranch": zod.string().optional(),
+  "npCityRef": zod.string().optional().describe('Nova Poshta city Ref'),
+  "npWarehouseRef": zod.string().optional().describe('Nova Poshta warehouse Ref'),
   "paymentMethod": zod.string().optional().describe('cash | liqpay'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
@@ -373,8 +383,12 @@ export const CreateOrderBody = zod.object({
 export const CreateOrderResponse = zod.object({
   "id": zod.int(),
   "customerName": zod.string(),
+  "lastName": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "middleName": zod.string().nullish(),
+  "email": zod.string().nullish(),
   "phone": zod.string(),
-  "contactMethod": zod.string().describe('viber | telegram'),
+  "contactMethod": zod.string().describe('viber | telegram | whatsapp | phone'),
   "comment": zod.string().nullish(),
   "city": zod.string().nullish(),
   "novaPoshtaBranch": zod.string().nullish(),
@@ -418,8 +432,12 @@ export const GetOrderParams = zod.object({
 export const GetOrderResponse = zod.object({
   "id": zod.int(),
   "customerName": zod.string(),
+  "lastName": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "middleName": zod.string().nullish(),
+  "email": zod.string().nullish(),
   "phone": zod.string(),
-  "contactMethod": zod.string().describe('viber | telegram'),
+  "contactMethod": zod.string().describe('viber | telegram | whatsapp | phone'),
   "comment": zod.string().nullish(),
   "city": zod.string().nullish(),
   "novaPoshtaBranch": zod.string().nullish(),
@@ -454,8 +472,12 @@ export const UpdateOrderBody = zod.object({
 export const UpdateOrderResponse = zod.object({
   "id": zod.int(),
   "customerName": zod.string(),
+  "lastName": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "middleName": zod.string().nullish(),
+  "email": zod.string().nullish(),
   "phone": zod.string(),
-  "contactMethod": zod.string().describe('viber | telegram'),
+  "contactMethod": zod.string().describe('viber | telegram | whatsapp | phone'),
   "comment": zod.string().nullish(),
   "city": zod.string().nullish(),
   "novaPoshtaBranch": zod.string().nullish(),
@@ -741,6 +763,37 @@ export const UploadImageResponse = zod.object({
 
 
 /**
+ * @summary Nova Poshta cities (major regional centres when q is empty)
+ */
+export const SearchNpCitiesQueryParams = zod.object({
+  "q": zod.coerce.string().optional()
+})
+
+export const SearchNpCitiesResponseItem = zod.object({
+  "ref": zod.string(),
+  "name": zod.string(),
+  "area": zod.string().describe('Oblast')
+})
+export const SearchNpCitiesResponse = zod.array(SearchNpCitiesResponseItem)
+
+
+/**
+ * @summary Nova Poshta branches and parcel lockers of a city
+ */
+export const SearchNpWarehousesQueryParams = zod.object({
+  "cityRef": zod.coerce.string(),
+  "q": zod.coerce.string().optional()
+})
+
+export const SearchNpWarehousesResponseItem = zod.object({
+  "ref": zod.string(),
+  "number": zod.string(),
+  "name": zod.string()
+})
+export const SearchNpWarehousesResponse = zod.array(SearchNpWarehousesResponseItem)
+
+
+/**
  * @summary Dashboard stats for admin
  */
 export const GetAdminStatsResponse = zod.object({
@@ -757,8 +810,12 @@ export const GetAdminStatsResponse = zod.object({
   "recentOrders": zod.array(zod.object({
   "id": zod.int(),
   "customerName": zod.string(),
+  "lastName": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "middleName": zod.string().nullish(),
+  "email": zod.string().nullish(),
   "phone": zod.string(),
-  "contactMethod": zod.string().describe('viber | telegram'),
+  "contactMethod": zod.string().describe('viber | telegram | whatsapp | phone'),
   "comment": zod.string().nullish(),
   "city": zod.string().nullish(),
   "novaPoshtaBranch": zod.string().nullish(),

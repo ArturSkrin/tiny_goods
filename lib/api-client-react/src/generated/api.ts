@@ -36,6 +36,8 @@ import type {
   LiqpayWebhookPayload,
   ListOrdersParams,
   ListProductsParams,
+  NpCity,
+  NpWarehouse,
   Order,
   OrderInput,
   OrderPaymentStatus,
@@ -44,6 +46,8 @@ import type {
   Product,
   ProductInput,
   ProductUpdate,
+  SearchNpCitiesParams,
+  SearchNpWarehousesParams,
   SiteSettings,
   TotpCodeInput,
   TotpSetup
@@ -2149,6 +2153,174 @@ export const useUploadImage = <TError = ErrorType<unknown>,
       > => {
       return useMutation(getUploadImageMutationOptions(options));
     }
+
+export const getSearchNpCitiesUrl = (params?: SearchNpCitiesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/np/cities?${stringifiedParams}` : `/api/np/cities`
+}
+
+/**
+ * @summary Nova Poshta cities (major regional centres when q is empty)
+ */
+export const searchNpCities = async (params?: SearchNpCitiesParams, options?: Parameters<typeof customFetch>[1]): Promise<NpCity[]> => {
+
+  return customFetch<NpCity[]>(getSearchNpCitiesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchNpCitiesQueryKey = (params?: SearchNpCitiesParams,) => {
+    return [
+    `/api/np/cities`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchNpCitiesQueryOptions = <TData = Awaited<ReturnType<typeof searchNpCities>>, TError = ErrorType<unknown>>(params?: SearchNpCitiesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchNpCities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchNpCitiesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchNpCities>>> = ({ signal }) => searchNpCities(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchNpCities>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchNpCitiesQueryResult = NonNullable<Awaited<ReturnType<typeof searchNpCities>>>
+export type SearchNpCitiesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Nova Poshta cities (major regional centres when q is empty)
+ */
+
+export function useSearchNpCities<TData = Awaited<ReturnType<typeof searchNpCities>>, TError = ErrorType<unknown>>(
+ params?: SearchNpCitiesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchNpCities>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getSearchNpCitiesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSearchNpWarehousesUrl = (params: SearchNpWarehousesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/np/warehouses?${stringifiedParams}` : `/api/np/warehouses`
+}
+
+/**
+ * @summary Nova Poshta branches and parcel lockers of a city
+ */
+export const searchNpWarehouses = async (params: SearchNpWarehousesParams, options?: Parameters<typeof customFetch>[1]): Promise<NpWarehouse[]> => {
+
+  return customFetch<NpWarehouse[]>(getSearchNpWarehousesUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getSearchNpWarehousesQueryKey = (params?: SearchNpWarehousesParams,) => {
+    return [
+    `/api/np/warehouses`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getSearchNpWarehousesQueryOptions = <TData = Awaited<ReturnType<typeof searchNpWarehouses>>, TError = ErrorType<unknown>>(params: SearchNpWarehousesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchNpWarehouses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getSearchNpWarehousesQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof searchNpWarehouses>>> = ({ signal }) => searchNpWarehouses(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof searchNpWarehouses>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type SearchNpWarehousesQueryResult = NonNullable<Awaited<ReturnType<typeof searchNpWarehouses>>>
+export type SearchNpWarehousesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Nova Poshta branches and parcel lockers of a city
+ */
+
+export function useSearchNpWarehouses<TData = Awaited<ReturnType<typeof searchNpWarehouses>>, TError = ErrorType<unknown>>(
+ params: SearchNpWarehousesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof searchNpWarehouses>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getSearchNpWarehousesQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getGetAdminStatsUrl = () => {
 

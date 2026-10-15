@@ -4,6 +4,7 @@ import { Search, PackageOpen, Truck, Wallet, Sparkles } from 'lucide-react';
 import type { Category, SiteSettings } from '@workspace/api-client-react';
 import { PromoCarousel } from './PromoCarousel';
 import { formatPrice } from '../../lib/utils';
+import { GlassSelect } from '../GlassSelect';
 
 const fieldCls =
   'w-full h-12 rounded-2xl bg-background/70 dark:bg-white/5 border border-foreground/10 px-4 text-sm font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 transition';
@@ -55,19 +56,15 @@ export function Hero({
           }}
           className="mt-6 rounded-[24px] bg-background/50 dark:bg-white/[0.04] ring-1 ring-foreground/10 p-3 md:p-4 grid sm:grid-cols-2 gap-3"
         >
-          <label className="space-y-1.5">
-            <span className="text-xs font-bold text-foreground/70 ml-1">Що шукаєте?</span>
-            <select
-              value={categoryId ?? ''}
-              onChange={(e) => setCategoryId(e.target.value ? Number(e.target.value) : null)}
+          <div className="space-y-1.5">
+            <span className="block text-xs font-bold text-foreground/70 ml-1">Що шукаєте?</span>
+            <GlassSelect<number | null>
+              value={categoryId}
+              onChange={setCategoryId}
+              options={[{ value: null, label: 'Усі категорії' }, ...categories.map((c) => ({ value: c.id, label: c.name }))]}
               className={fieldCls}
-            >
-              <option value="">Усі категорії</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </label>
+            />
+          </div>
           <label className="space-y-1.5">
             <span className="text-xs font-bold text-foreground/70 ml-1">Назва або слово</span>
             <input

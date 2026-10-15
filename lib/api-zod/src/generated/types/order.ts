@@ -10,8 +10,16 @@ import type { OrderItem } from './orderItem';
 export interface Order {
   id: number;
   customerName: string;
+  /** @nullable */
+  lastName?: string | null;
+  /** @nullable */
+  firstName?: string | null;
+  /** @nullable */
+  middleName?: string | null;
+  /** @nullable */
+  email?: string | null;
   phone: string;
-  /** viber | telegram */
+  /** viber | telegram | whatsapp | phone */
   contactMethod: string;
   /** @nullable */
   comment?: string | null;

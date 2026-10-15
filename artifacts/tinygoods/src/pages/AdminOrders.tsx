@@ -111,7 +111,8 @@ export default function AdminOrders() {
                     <div>
                       <div className="text-white/40 mb-1">Клієнт</div>
                       <div>{order.customerName}</div>
-                      <div>{order.phone} ({order.contactMethod})</div>
+                      <div>{order.phone} · {({ viber: 'Viber', telegram: 'Telegram', whatsapp: 'WhatsApp', phone: 'Подзвонити' } as Record<string, string>)[order.contactMethod] ?? order.contactMethod}</div>
+                      {order.email && <div className="text-white/60">{order.email}</div>}
                     </div>
                     <div>
                       <div className="text-white/40 mb-1">Доставка</div>

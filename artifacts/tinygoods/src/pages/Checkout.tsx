@@ -105,8 +105,8 @@ export default function Checkout() {
             <div className="w-20 h-20 bg-primary/20 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-10 h-10" />
             </div>
-            <h1 className="text-3xl font-bold text-white">Дякуємо!</h1>
-            <p className="text-white/70">
+            <h1 className="text-3xl font-bold text-foreground">Дякуємо!</h1>
+            <p className="text-foreground/70">
               Ваше замовлення #{successOrderId} прийнято.<br />
               Наш менеджер зв'яжеться з вами найближчим часом.
             </p>
@@ -126,7 +126,7 @@ export default function Checkout() {
       <StoreLayout>
         <div className="max-w-md mx-auto py-20 text-center">
           <div className="glass-panel p-10 rounded-[3rem]">
-            <h1 className="text-2xl font-bold text-white mb-4">Кошик порожній</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-4">Кошик порожній</h1>
             <Link href="/">
               <Button size="lg" className="rounded-2xl">До каталогу</Button>
             </Link>
@@ -150,16 +150,16 @@ export default function Checkout() {
       </form>
 
       <div className="max-w-5xl mx-auto pb-20">
-        <h1 className="text-3xl font-bold text-white mb-8">Оформлення замовлення</h1>
+        <h1 className="text-3xl font-bold text-foreground mb-8">Оформлення замовлення</h1>
 
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="glass-panel p-6 md:p-8 space-y-6 rounded-[2rem]">
-            <h2 className="text-xl font-semibold text-white mb-4">Контактні дані</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">Контактні дані</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm text-white/70 ml-1">Ім'я та прізвище</label>
+                <label className="text-sm text-foreground/70 ml-1">Ім'я та прізвище</label>
                 <Input
                   {...register('customerName')}
                   placeholder="Іван Іваненко"
@@ -169,7 +169,7 @@ export default function Checkout() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm text-white/70 ml-1">Телефон</label>
+                <label className="text-sm text-foreground/70 ml-1">Телефон</label>
                 <Input
                   {...register('phone')}
                   placeholder="+380 50 123 4567"
@@ -180,16 +180,16 @@ export default function Checkout() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm text-white/70 ml-1">Спосіб зв'язку</label>
+              <label className="text-sm text-foreground/70 ml-1">Спосіб зв'язку</label>
               <Controller
                 control={control}
                 name="contactMethod"
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <SelectTrigger className="bg-white/5 border-white/10 text-white rounded-xl h-12">
+                    <SelectTrigger className="bg-foreground/5 border-foreground/10 text-foreground rounded-xl h-12">
                       <SelectValue placeholder="Оберіть спосіб" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background/90 backdrop-blur-xl border-white/10 text-white">
+                    <SelectContent className="bg-background/90 backdrop-blur-xl border-foreground/10 text-foreground">
                       <SelectItem value="viber">Viber</SelectItem>
                       <SelectItem value="telegram">Telegram</SelectItem>
                     </SelectContent>
@@ -198,11 +198,11 @@ export default function Checkout() {
               />
             </div>
 
-            <h2 className="text-xl font-semibold text-white pt-4 mb-4 border-t border-white/10">Доставка (Нова Пошта)</h2>
+            <h2 className="text-xl font-semibold text-foreground pt-4 mb-4 border-t border-foreground/10">Доставка (Нова Пошта)</h2>
 
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm text-white/70 ml-1">Місто</label>
+                <label className="text-sm text-foreground/70 ml-1">Місто</label>
                 <Input
                   {...register('city')}
                   placeholder="Київ"
@@ -212,7 +212,7 @@ export default function Checkout() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm text-white/70 ml-1">Відділення / Поштомат</label>
+                <label className="text-sm text-foreground/70 ml-1">Відділення / Поштомат</label>
                 <Input
                   {...register('novaPoshtaBranch')}
                   placeholder="№123"
@@ -223,17 +223,17 @@ export default function Checkout() {
             </div>
 
             <div className="space-y-2 pt-4">
-              <label className="text-sm text-white/70 ml-1">Коментар до замовлення (необов'язково)</label>
+              <label className="text-sm text-foreground/70 ml-1">Коментар до замовлення (необов'язково)</label>
               <Textarea
                 {...register('comment')}
                 placeholder="Ваші побажання..."
-                className="resize-none min-h-[100px] bg-white/5 border-white/10 text-white rounded-xl focus:border-primary/50"
+                className="resize-none min-h-[100px] bg-foreground/5 border-foreground/10 text-foreground rounded-xl focus:border-primary/50"
               />
             </div>
 
             {/* Payment method */}
-            <div className="pt-4 border-t border-white/10">
-              <h2 className="text-xl font-semibold text-white mb-4">Спосіб оплати</h2>
+            <div className="pt-4 border-t border-foreground/10">
+              <h2 className="text-xl font-semibold text-foreground mb-4">Спосіб оплати</h2>
               <Controller
                 control={control}
                 name="paymentMethod"
@@ -244,8 +244,8 @@ export default function Checkout() {
                       onClick={() => field.onChange('cash')}
                       className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${
                         field.value === 'cash'
-                          ? 'border-primary bg-primary/10 text-white'
-                          : 'border-white/10 bg-white/5 text-white/50 hover:border-white/30'
+                          ? 'border-primary bg-primary/10 text-foreground'
+                          : 'border-foreground/10 bg-foreground/5 text-foreground/50 hover:border-foreground/30'
                       }`}
                     >
                       <Banknote className="w-6 h-6" />
@@ -257,8 +257,8 @@ export default function Checkout() {
                       onClick={() => field.onChange('liqpay')}
                       className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${
                         field.value === 'liqpay'
-                          ? 'border-primary bg-primary/10 text-white'
-                          : 'border-white/10 bg-white/5 text-white/50 hover:border-white/30'
+                          ? 'border-primary bg-primary/10 text-foreground'
+                          : 'border-foreground/10 bg-foreground/5 text-foreground/50 hover:border-foreground/30'
                       }`}
                     >
                       <CreditCard className="w-6 h-6" />
@@ -269,7 +269,7 @@ export default function Checkout() {
                 )}
               />
               {paymentMethod === 'liqpay' && (
-                <p className="mt-3 text-xs text-white/50 text-center">
+                <p className="mt-3 text-xs text-foreground/50 text-center">
                   Після підтвердження замовлення вас буде перенаправлено на захищену сторінку оплати LiqPay.
                 </p>
               )}
@@ -295,30 +295,30 @@ export default function Checkout() {
           {/* Summary */}
           <div className="space-y-6">
             <div className="glass-panel p-6 rounded-[2rem] sticky top-24">
-              <h3 className="text-lg font-semibold text-white mb-6">Ваше замовлення</h3>
+              <h3 className="text-lg font-semibold text-foreground mb-6">Ваше замовлення</h3>
 
               <div className="space-y-4 mb-6 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                 {items.map((item) => (
                   <div key={item.productId} className="flex gap-3 text-sm">
-                    <div className="w-12 h-12 rounded-lg bg-white/10 shrink-0 overflow-hidden">
+                    <div className="w-12 h-12 rounded-lg bg-foreground/10 shrink-0 overflow-hidden">
                       {item.imageUrl ? (
                         <img src={item.imageUrl} alt="" className="w-full h-full object-cover" />
                       ) : null}
                     </div>
                     <div className="flex-1 flex flex-col justify-center">
-                      <span className="text-white line-clamp-1">{item.productName}</span>
-                      <span className="text-white/50">{item.quantity} шт × {formatPrice(item.price)}</span>
+                      <span className="text-foreground line-clamp-1">{item.productName}</span>
+                      <span className="text-foreground/50">{item.quantity} шт × {formatPrice(item.price)}</span>
                     </div>
                   </div>
                 ))}
               </div>
 
-              <div className="border-t border-white/10 pt-4 space-y-3">
-                <div className="flex justify-between text-white/70">
+              <div className="border-t border-foreground/10 pt-4 space-y-3">
+                <div className="flex justify-between text-foreground/70">
                   <span>Доставка</span>
                   <span>За тарифами НП</span>
                 </div>
-                <div className="flex justify-between text-white text-lg font-bold">
+                <div className="flex justify-between text-foreground text-lg font-bold">
                   <span>До сплати</span>
                   <span className="text-primary">{formatPrice(cartTotal)}</span>
                 </div>

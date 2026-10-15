@@ -1,23 +1,55 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uk">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>TinyGoods UA</title>
-    <meta name="description" content="TinyGoods UA — built on Replit. Update this description to reflect the app." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, viewport-fit=cover" />
+    <title>TinyGoods UA — подарункове пакування та товари для дому</title>
+    <meta name="description" content="Подарункове пакування, коробки, стрічки, гаджети та атмосферне освітлення. Доставка Новою Поштою по всій Україні." />
     <meta name="robots" content="index, follow" />
     <meta property="og:title" content="TinyGoods UA" />
-    <meta property="og:description" content="TinyGoods UA — built on Replit. Update this description to reflect the app." />
+    <meta property="og:description" content="Подарункове пакування, коробки, стрічки, гаджети та атмосферне освітлення." />
     <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="TinyGoods UA" />
-    <meta name="twitter:description" content="TinyGoods UA — built on Replit. Update this description to reflect the app." />
+
+    <!-- App-like on phones -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#fbf5ef" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#12070c" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TinyGoods" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&family=Marck+Script&display=swap" rel="stylesheet">
+
+    <script>
+      // Apply the saved theme before first paint (next-themes uses the same key); light by default.
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          var dark = t === 'dark' || (t === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+          if (dark || location.pathname.indexOf('/tiny-admin') === 0) document.documentElement.classList.add('dark');
+        } catch (e) {}
+        // Only Chromium refracts the backdrop through SVG filters.
+        if (navigator.userAgentData && navigator.userAgentData.brands.some(function (b) { return b.brand === 'Chromium'; })) {
+          document.documentElement.classList.add('chromium');
+        }
+      })();
+    </script>
   </head>
   <body>
+    <!-- Displacement map used by .liquid-glass-refract -->
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+      <filter id="liquid-refract" x="0" y="0" width="100%" height="100%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.008 0.012" numOctaves="2" seed="7" result="noise" />
+        <feGaussianBlur in="noise" stdDeviation="2" result="soft" />
+        <feDisplacementMap in="SourceGraphic" in2="soft" scale="38" xChannelSelector="R" yChannelSelector="G" />
+      </filter>
+    </svg>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -34,7 +34,7 @@ export default function ProductDetail() {
   if (!product) {
     return (
       <StoreLayout>
-        <div className="py-20 text-center text-white/50 glass-panel rounded-3xl">
+        <div className="py-20 text-center text-foreground/50 glass-panel rounded-3xl">
           Товар не знайдено
         </div>
       </StoreLayout>
@@ -50,7 +50,7 @@ export default function ProductDetail() {
   return (
     <StoreLayout>
       <div className="max-w-4xl mx-auto space-y-8 pb-12">
-        <Link href="/" className="inline-flex items-center text-white/60 hover:text-white transition-colors">
+        <Link href="/" className="inline-flex items-center text-foreground/60 hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4 mr-2" />
           Назад до каталогу
         </Link>
@@ -69,18 +69,18 @@ export default function ProductDetail() {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-white/20">
+              <div className="w-full h-full flex items-center justify-center text-foreground/20">
                 No image
               </div>
             )}
             
             {product.oldPrice && product.oldPrice > product.price && (
-              <div className="absolute top-4 left-4 bg-destructive text-white text-sm font-bold px-3 py-1 rounded-full backdrop-blur-md shadow-lg">
+              <div className="absolute top-4 left-4 bg-destructive text-destructive-foreground text-sm font-bold px-3 py-1 rounded-full backdrop-blur-md shadow-lg">
                 Знижка
               </div>
             )}
             {product.stock <= 5 && product.stock > 0 && (
-              <div className="absolute top-4 right-4 bg-orange-500/80 text-white text-sm font-bold px-3 py-1 rounded-full backdrop-blur-md shadow-lg">
+              <div className="absolute top-4 right-4 bg-orange-500/80 text-foreground text-sm font-bold px-3 py-1 rounded-full backdrop-blur-md shadow-lg">
                 Залишилось {product.stock} шт
               </div>
             )}
@@ -92,22 +92,22 @@ export default function ProductDetail() {
             animate={{ opacity: 1, x: 0 }}
             className="flex flex-col justify-center"
           >
-            <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-foreground leading-tight mb-4">
               {product.name}
             </h1>
             
             <div className="flex items-end gap-4 mb-6">
-              <div className="text-4xl font-bold text-white">
+              <div className="text-4xl font-bold text-foreground">
                 {formatPrice(product.price)}
               </div>
               {product.oldPrice && product.oldPrice > product.price && (
-                <div className="text-xl text-white/40 line-through mb-1">
+                <div className="text-xl text-foreground/40 line-through mb-1">
                   {formatPrice(product.oldPrice)}
                 </div>
               )}
             </div>
 
-            <div className="prose prose-invert prose-p:text-white/70 max-w-none mb-8">
+            <div className="prose prose-invert prose-p:text-foreground/70 max-w-none mb-8">
               {product.description ? (
                 <p className="whitespace-pre-wrap">{product.description}</p>
               ) : (
@@ -117,18 +117,18 @@ export default function ProductDetail() {
 
             <div className="glass p-6 rounded-3xl space-y-6">
               <div className="flex items-center justify-between">
-                <span className="text-white/70">Кількість</span>
+                <span className="text-foreground/70">Кількість</span>
                 <div className="flex items-center gap-4 glass rounded-xl p-1">
                   <button 
                     onClick={() => setQuantity(q => Math.max(1, q - 1))}
-                    className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                    className="p-2 rounded-lg hover:bg-foreground/10 text-foreground/70 hover:text-foreground transition-colors"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
-                  <span className="w-8 text-center text-white font-medium">{quantity}</span>
+                  <span className="w-8 text-center text-foreground font-medium">{quantity}</span>
                   <button 
                     onClick={() => setQuantity(q => Math.min(product.stock, q + 1))}
-                    className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white transition-colors"
+                    className="p-2 rounded-lg hover:bg-foreground/10 text-foreground/70 hover:text-foreground transition-colors"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -141,7 +141,7 @@ export default function ProductDetail() {
                 onClick={handleAdd}
                 disabled={product.stock === 0}
               >
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
+                <div className="absolute inset-0 bg-foreground/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />
                 <span className="relative flex items-center justify-center gap-2">
                   {added ? (
                     <>
@@ -160,16 +160,16 @@ export default function ProductDetail() {
             
             <div className="mt-8 grid grid-cols-2 gap-4">
               <div className="glass-panel p-4 flex flex-col items-center justify-center text-center">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-2">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg>
+                <div className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center mb-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-foreground/70"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 9.5h20"/></svg>
                 </div>
-                <span className="text-sm text-white/70">Безпечна оплата</span>
+                <span className="text-sm text-foreground/70">Безпечна оплата</span>
               </div>
               <div className="glass-panel p-4 flex flex-col items-center justify-center text-center">
-                <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center mb-2">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/70"><path d="M5 12l5 5L20 7"/></svg>
+                <div className="w-10 h-10 rounded-full bg-foreground/10 flex items-center justify-center mb-2">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-foreground/70"><path d="M5 12l5 5L20 7"/></svg>
                 </div>
-                <span className="text-sm text-white/70">Швидка доставка</span>
+                <span className="text-sm text-foreground/70">Швидка доставка</span>
               </div>
             </div>
           </motion.div>

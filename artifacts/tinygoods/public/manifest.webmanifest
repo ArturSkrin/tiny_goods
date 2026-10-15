@@ -1,0 +1,16 @@
+{
+  "name": "TinyGoods UA",
+  "short_name": "TinyGoods",
+  "description": "Подарункове пакування та товари для дому",
+  "lang": "uk",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fbf5ef",
+  "theme_color": "#c21f4f",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

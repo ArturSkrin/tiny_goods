@@ -29,7 +29,7 @@ export default function About() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl font-bold text-white"
+            className="text-4xl md:text-5xl font-bold text-foreground"
           >
             Про магазин <span className="text-primary">TinyGoods UA</span>
           </motion.h1>
@@ -37,7 +37,7 @@ export default function About() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-lg text-white/70 leading-relaxed max-w-2xl mx-auto"
+            className="text-lg text-foreground/70 leading-relaxed max-w-2xl mx-auto"
           >
             Ми — невеликий український інтернет-магазин, створений з любов'ю до деталей.
             Наша мета — зібрати в одному місці сучасні гаджети, атмосферне освітлення 
@@ -59,8 +59,8 @@ export default function About() {
                 <div className="w-16 h-16 bg-primary/20 rounded-2xl flex items-center justify-center text-primary mb-6">
                   <Icon className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold text-white mb-3">{feature.title}</h3>
-                <p className="text-white/60 text-sm leading-relaxed">{feature.desc}</p>
+                <h3 className="text-xl font-bold text-foreground mb-3">{feature.title}</h3>
+                <p className="text-foreground/60 text-sm leading-relaxed">{feature.desc}</p>
               </motion.div>
             )
           })}
@@ -72,8 +72,8 @@ export default function About() {
           transition={{ delay: 0.5 }}
           className="glass-panel p-8 md:p-12 rounded-[2rem] text-center"
         >
-          <h2 className="text-2xl font-bold text-white mb-4">Маєте запитання?</h2>
-          <p className="text-white/70 mb-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">Маєте запитання?</h2>
+          <p className="text-foreground/70 mb-8">
             Наш менеджер із задоволенням відповість на всі ваші питання.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

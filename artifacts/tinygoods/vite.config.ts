@@ -72,6 +72,10 @@ export default defineConfig({
     fs: {
       strict: true,
     },
+    // Local dev without the API server: proxy /api to a running instance (e.g. prod).
+    proxy: process.env.API_PROXY
+      ? { '/api': { target: process.env.API_PROXY, changeOrigin: true } }
+      : undefined,
   },
   preview: {
     port,

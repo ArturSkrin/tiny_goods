@@ -39,7 +39,7 @@ export default function PaymentSuccess() {
       <StoreLayout>
         <div className="max-w-md mx-auto py-20 text-center">
           <div className="glass-panel p-10 rounded-[3rem]">
-            <h1 className="text-2xl font-bold text-white mb-4">Замовлення не знайдено</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-4">Замовлення не знайдено</h1>
             <Link href="/"><Button size="lg" className="rounded-2xl">На головну</Button></Link>
           </div>
         </div>
@@ -61,10 +61,10 @@ export default function PaymentSuccess() {
             </div>
           ) : isError || !data ? (
             <>
-              <div className="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mx-auto">
-                <XCircle className="w-10 h-10 text-white/40" />
+              <div className="w-20 h-20 bg-foreground/10 rounded-full flex items-center justify-center mx-auto">
+                <XCircle className="w-10 h-10 text-foreground/40" />
               </div>
-              <h1 className="text-2xl font-bold text-white">Замовлення не знайдено</h1>
+              <h1 className="text-2xl font-bold text-foreground">Замовлення не знайдено</h1>
               <Link href="/"><Button size="lg" className="w-full rounded-2xl">На головну</Button></Link>
             </>
           ) : (
@@ -85,13 +85,13 @@ export default function PaymentSuccess() {
                 </div>
               )}
 
-              <h1 className="text-3xl font-bold text-white">
+              <h1 className="text-3xl font-bold text-foreground">
                 {isPaid && 'Оплата успішна!'}
                 {isPending && 'Очікуємо підтвердження оплати'}
                 {isFailed && 'Оплата не вдалася'}
               </h1>
 
-              <p className="text-white/70">
+              <p className="text-foreground/70">
                 {isPaid && <>Замовлення №{data.orderId} оплачено та підтверджено.<br />Менеджер зв'яжеться з вами найближчим часом.</>}
                 {isPending && <>Статус оплати ще уточнюється.<br />Сторінка оновлюється автоматично кожні 5 секунд.</>}
                 {isFailed && <>Оплату не підтверджено.<br />Спробуйте оплатити ще раз або зверніться до менеджера.</>}

@@ -39,7 +39,11 @@
   --color-destructive-foreground: hsl(var(--destructive-foreground));
   --color-destructive-border: hsl(var(--destructive-border));
 
+  --color-gold: hsl(var(--gold));
+
   --font-sans: var(--app-font-sans);
+  --font-display: var(--app-font-display);
+  --font-script: var(--app-font-script);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
 
@@ -49,103 +53,304 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ── Light: cream paper, powder pink, burgundy ─────────────────────────── */
 :root {
-  --background: 260 20% 10%; /* Dark abstract ambient */
-  --foreground: 0 0% 98%;
+  --background: 32 60% 97%;
+  --foreground: 345 30% 13%;
 
-  --border: 0 0% 100% / 0.15;
-  --input: 0 0% 100% / 0.1;
-  --ring: 250 100% 70%;
+  --border: 345 30% 13% / 0.1;
+  --input: 345 30% 13% / 0.12;
+  --ring: 345 72% 45%;
 
-  /* Glass surfaces */
-  --card: 260 15% 15% / 0.4;
-  --card-foreground: 0 0% 98%;
-  --card-border: 0 0% 100% / 0.15;
+  --card: 0 0% 100% / 0.55;
+  --card-foreground: 345 30% 13%;
+  --card-border: 0 0% 100% / 0.7;
 
-  --popover: 260 15% 15% / 0.6;
-  --popover-foreground: 0 0% 98%;
-  --popover-border: 0 0% 100% / 0.2;
+  --popover: 32 60% 98% / 0.92;
+  --popover-foreground: 345 30% 13%;
+  --popover-border: 345 30% 13% / 0.08;
 
-  --primary: 250 100% 75%;
+  --primary: 345 72% 45%;
   --primary-foreground: 0 0% 100%;
-  --primary-border: 250 100% 75% / 0.5;
+  --primary-border: 345 72% 45% / 0.5;
 
-  --secondary: 0 0% 100% / 0.1;
-  --secondary-foreground: 0 0% 98%;
-  --secondary-border: 0 0% 100% / 0.05;
+  --secondary: 345 60% 94%;
+  --secondary-foreground: 345 30% 18%;
+  --secondary-border: 345 60% 88%;
 
-  --muted: 0 0% 100% / 0.05;
-  --muted-foreground: 0 0% 70%;
-  --muted-border: 0 0% 100% / 0.05;
+  --muted: 345 30% 13% / 0.05;
+  --muted-foreground: 345 12% 38%;
+  --muted-border: 345 30% 13% / 0.06;
 
-  --accent: 0 0% 100% / 0.1;
-  --accent-foreground: 0 0% 98%;
-  --accent-border: 0 0% 100% / 0.1;
+  --accent: 345 60% 94%;
+  --accent-foreground: 345 30% 18%;
+  --accent-border: 345 60% 88%;
 
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --destructive-border: 0 84% 60% / 0.5;
+  --destructive: 0 72% 48%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-border: 0 72% 48% / 0.5;
 
-  --app-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --gold: 36 62% 46%;
+
+  /* Liquid glass */
+  --glass-tint: 0 0% 100%;
+  --glass-a1: 0.62;
+  --glass-a2: 0.3;
+  --glass-edge: 0 0% 100%;
+  --glass-spec: 0.95;
+  --glass-shadow: 345 40% 30%;
+
+  /* Ambient backdrop */
+  --bg-base: #fbf5ef;
+  --blob-1: 350 85% 86%;
+  --blob-2: 24 90% 85%;
+  --blob-3: 40 80% 80%;
+  --blob-4: 345 60% 70%;
+  --blob-opacity: 0.75;
+  --cursor-light: 0 0% 100% / 0.65;
+  --grain-opacity: 0.09;
+  --grain-blend: multiply;
+
+  --app-font-sans: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --app-font-display: 'Unbounded', 'Manrope', sans-serif;
+  --app-font-script: 'Marck Script', cursive;
   --app-font-serif: Georgia, serif;
   --app-font-mono: Menlo, monospace;
   --radius: 1rem;
+
+  color-scheme: light;
+}
+
+/* ── Dark: wine night with warm glow ───────────────────────────────────── */
+.dark {
+  --background: 340 32% 6%;
+  --foreground: 30 35% 95%;
+
+  --border: 0 0% 100% / 0.12;
+  --input: 0 0% 100% / 0.12;
+  --ring: 345 85% 64%;
+
+  --card: 340 25% 14% / 0.45;
+  --card-foreground: 30 35% 95%;
+  --card-border: 0 0% 100% / 0.14;
+
+  --popover: 340 28% 10% / 0.92;
+  --popover-foreground: 30 35% 95%;
+  --popover-border: 0 0% 100% / 0.12;
+
+  --primary: 345 85% 62%;
+  --primary-foreground: 0 0% 100%;
+  --primary-border: 345 85% 62% / 0.5;
+
+  --secondary: 0 0% 100% / 0.08;
+  --secondary-foreground: 30 35% 95%;
+  --secondary-border: 0 0% 100% / 0.06;
+
+  --muted: 0 0% 100% / 0.05;
+  --muted-foreground: 340 12% 72%;
+  --muted-border: 0 0% 100% / 0.05;
+
+  --accent: 0 0% 100% / 0.08;
+  --accent-foreground: 30 35% 95%;
+  --accent-border: 0 0% 100% / 0.1;
+
+  --destructive: 0 80% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --destructive-border: 0 80% 60% / 0.5;
+
+  --gold: 38 75% 62%;
+
+  --glass-tint: 340 30% 30%;
+  --glass-a1: 0.32;
+  --glass-a2: 0.12;
+  --glass-edge: 0 0% 100%;
+  --glass-spec: 0.28;
+  --glass-shadow: 340 60% 2%;
+
+  --bg-base: #12070c;
+  --blob-1: 345 80% 38%;
+  --blob-2: 20 85% 40%;
+  --blob-3: 280 50% 32%;
+  --blob-4: 340 90% 55%;
+  --blob-opacity: 0.55;
+  --cursor-light: 345 100% 75% / 0.16;
+  --grain-opacity: 0.07;
+  --grain-blend: overlay;
+
+  color-scheme: dark;
 }
 
 @layer base {
   * {
     @apply border-border;
   }
-  
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply font-sans antialiased bg-background text-foreground;
-    /* Ambient mesh-like background */
-    background-color: #0c0a15;
-    background-image: 
-      radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-      radial-gradient(at 50% 0%, hsla(225,39%,30%,0.3) 0, transparent 50%), 
-      radial-gradient(at 100% 0%, hsla(339,49%,30%,0.3) 0, transparent 50%);
-    background-attachment: fixed;
-    background-size: cover;
+    @apply font-sans antialiased text-foreground;
+    background-color: var(--bg-base);
     min-height: 100dvh;
+    overflow-x: clip; /* entry animations slide in from off-screen */
+    overscroll-behavior-y: none;
+    transition: background-color 0.5s ease, color 0.3s ease;
   }
 
-  /* VisionOS Glass Effect Classes */
-  .glass {
-    @apply bg-white/5 backdrop-blur-2xl border border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.2)] relative overflow-hidden;
-  }
-  
-  .glass::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  
-  .glass > * {
-    position: relative;
-    z-index: 1;
+  h1, h2, h3 {
+    text-wrap: balance;
   }
 
+  /* Legacy glass classes (still used by checkout/admin) now render as liquid glass */
+  .glass,
   .glass-panel {
-    @apply bg-white/10 backdrop-blur-3xl border border-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.3)] relative overflow-hidden rounded-[2rem];
+    @apply liquid-glass;
   }
-  
-  .glass-panel::before {
+  .glass-panel {
+    border-radius: 2rem;
+  }
+}
+
+/* ── Liquid glass ──────────────────────────────────────────────────────────
+   Layers: tinted translucent fill + strong backdrop blur/saturation,
+   a bright specular rim (::before, masked to the border),
+   and a soft sheen lit by the shared cursor light (::after, fixed-attached
+   so every glass surface reflects the same light source). */
+@utility liquid-glass {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    hsl(var(--glass-tint) / var(--glass-a1)) 0%,
+    hsl(var(--glass-tint) / var(--glass-a2)) 100%
+  );
+  -webkit-backdrop-filter: blur(22px) saturate(185%);
+  backdrop-filter: blur(22px) saturate(185%);
+  box-shadow:
+    inset 0 1px 0 0 hsl(0 0% 100% / var(--glass-spec)),
+    inset 0 -1px 0 0 hsl(0 0% 100% / 0.08),
+    inset 0 0 24px 0 hsl(0 0% 100% / 0.07),
+    0 12px 32px -12px hsl(var(--glass-shadow) / 0.35),
+    0 2px 6px -2px hsl(var(--glass-shadow) / 0.12);
+
+  &::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(to bottom, rgba(255,255,255,0.3), rgba(255,255,255,0.05));
+    background: linear-gradient(
+      160deg,
+      hsl(var(--glass-edge) / 0.9) 0%,
+      hsl(var(--glass-edge) / 0.15) 35%,
+      hsl(var(--glass-edge) / 0.05) 60%,
+      hsl(var(--glass-edge) / 0.5) 100%
+    );
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
-    z-index: 0;
+    z-index: 2;
   }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      420px circle at var(--mx, 50%) var(--my, 0%),
+      hsl(var(--cursor-light)),
+      transparent 60%
+    );
+    background-attachment: fixed;
+    opacity: 0.55;
+    mix-blend-mode: soft-light;
+    pointer-events: none;
+    z-index: -1;
+  }
+}
+
+/* Chromium can refract the backdrop through an SVG displacement map (filter in index.html). */
+@utility liquid-glass-refract {
+  :where(html.chromium) & {
+    -webkit-backdrop-filter: url(#liquid-refract) blur(14px) saturate(190%);
+    backdrop-filter: url(#liquid-refract) blur(14px) saturate(190%);
+  }
+}
+
+/* ── Ambient backdrop ──────────────────────────────────────────────────── */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -10;
+  overflow: hidden;
+  pointer-events: none;
+  background-color: var(--bg-base);
+  transition: background-color 0.5s ease;
+}
+
+.ambient-blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  opacity: var(--blob-opacity);
+  will-change: transform;
+  translate: 0 calc(var(--sy, 0) * var(--depth, 0.1) * -1px);
+}
+
+.ambient-blob--1 { width: 55vmax; height: 55vmax; left: -15vmax; top: -20vmax; background: radial-gradient(circle, hsl(var(--blob-1)) 0%, transparent 65%); animation: drift-1 28s ease-in-out infinite alternate; --depth: 0.15; }
+.ambient-blob--2 { width: 45vmax; height: 45vmax; right: -12vmax; top: 10vh;    background: radial-gradient(circle, hsl(var(--blob-2)) 0%, transparent 65%); animation: drift-2 34s ease-in-out infinite alternate; --depth: 0.3; }
+.ambient-blob--3 { width: 50vmax; height: 50vmax; left: 20vw;   bottom: -25vmax; background: radial-gradient(circle, hsl(var(--blob-3)) 0%, transparent 65%); animation: drift-3 40s ease-in-out infinite alternate; --depth: 0.22; }
+.ambient-blob--4 { width: 30vmax; height: 30vmax; right: 15vw;  bottom: 5vh;     background: radial-gradient(circle, hsl(var(--blob-4)) 0%, transparent 65%); animation: drift-1 46s ease-in-out infinite alternate-reverse; --depth: 0.4; opacity: calc(var(--blob-opacity) * 0.6); }
+
+/* Light that follows the pointer */
+.ambient-cursor {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(600px circle at var(--mx, 50%) var(--my, 20%), hsl(var(--cursor-light)), transparent 55%);
+  transition: opacity 0.6s ease;
+}
+
+/* Slow light rays sweeping across */
+.ambient-rays {
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(from 200deg at 30% 0%, transparent 0deg, hsl(var(--cursor-light)) 12deg, transparent 24deg, transparent 50deg, hsl(var(--cursor-light)) 58deg, transparent 70deg);
+  opacity: 0.35;
+  filter: blur(30px);
+  animation: rays 24s ease-in-out infinite alternate;
+}
+
+/* Paper grain texture */
+.ambient-grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: var(--grain-blend);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.3 0 0 0 0 0.15 0 0 0 0 0.2 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+@keyframes drift-1 { to { transform: translate(8vw, 10vh) scale(1.15); } }
+@keyframes drift-2 { to { transform: translate(-10vw, 14vh) scale(0.9); } }
+@keyframes drift-3 { to { transform: translate(6vw, -12vh) scale(1.1); } }
+@keyframes rays { to { transform: rotate(14deg) translateX(6%); } }
+
+/* Hand-drawn dieline animation for the custom-order section */
+.draw-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 2.4s cubic-bezier(.65,0,.35,1);
+}
+.in-view .draw-path { stroke-dashoffset: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient-blob, .ambient-rays { animation: none; }
+  .draw-path { transition: none; stroke-dashoffset: 0; }
+  html { scroll-behavior: auto; }
 }
 
 @layer utilities {
@@ -155,7 +360,20 @@
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom);
   }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+  .text-gradient-brand {
+    background: linear-gradient(110deg, hsl(var(--primary)) 0%, hsl(var(--gold)) 50%, hsl(var(--primary)) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    animation: shine 6s linear infinite;
+  }
 }
+
+@keyframes shine { to { background-position: 200% center; } }
 
 /* Hide horizontal scrollbars on chip rows and carousels */
 .no-scrollbar {

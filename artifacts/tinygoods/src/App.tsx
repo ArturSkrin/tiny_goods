@@ -2,7 +2,10 @@ import { QueryClient, QueryClientProvider, QueryCache } from '@tanstack/react-qu
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
-import { Route, Switch, Router as WouterRouter } from 'wouter';
+import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
+import type { ReactNode } from 'react';
+import { ThemeProvider } from 'next-themes';
+import { AmbientBackground } from './components/AmbientBackground';
 import { CartProvider } from './context/cart';
 import { getGetAdminSessionQueryKey } from '@workspace/api-client-react';
 
@@ -52,13 +55,31 @@ function Router() {
   );
 }
 
+// The admin panel is designed for the dark theme only.
+function Themed({ children }: { children: ReactNode }) {
+  const [location] = useLocation();
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="light"
+      enableSystem={false}
+      forcedTheme={location.startsWith('/tiny-admin') ? 'dark' : undefined}
+    >
+      <AmbientBackground />
+      {children}
+    </ThemeProvider>
+  );
+}
+
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
           <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-            <Router />
+            <Themed>
+              <Router />
+            </Themed>
           </WouterRouter>
         </CartProvider>
         <Toaster />

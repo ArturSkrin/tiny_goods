@@ -2,13 +2,33 @@ import React from 'react';
 import { Link } from 'wouter';
 import { Product } from '@workspace/api-client-react';
 import { formatPrice } from '../../lib/utils';
-import { Button } from '../ui/button';
 import { useCart } from '../../context/cart';
-import { ShoppingBag } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { Plus, Gift } from 'lucide-react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
+  const hasDiscount = product.oldPrice != null && product.oldPrice > product.price;
+
+  // Subtle 3D tilt following the pointer (mouse only; touch keeps the card flat).
+  const px = useMotionValue(0.5);
+  const py = useMotionValue(0.5);
+  const rotateX = useSpring(useTransform(py, [0, 1], [6, -6]), { stiffness: 200, damping: 20 });
+  const rotateY = useSpring(useTransform(px, [0, 1], [-6, 6]), { stiffness: 200, damping: 20 });
+  const glare = useTransform([px, py], ([x, y]: number[]) =>
+    `radial-gradient(circle at ${x * 100}% ${y * 100}%, hsl(0 0% 100% / 0.35), transparent 55%)`,
+  );
+
+  const onMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (e.pointerType !== 'mouse') return;
+    const r = e.currentTarget.getBoundingClientRect();
+    px.set((e.clientX - r.left) / r.width);
+    py.set((e.clientY - r.top) / r.height);
+  };
+  const onLeave = () => {
+    px.set(0.5);
+    py.set(0.5);
+  };
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -17,54 +37,60 @@ export function ProductCard({ product }: { product: Product }) {
 
   return (
     <Link href={`/product/${product.id}`}>
-      <motion.div 
-        whileHover={{ y: -5 }}
-        className="glass-panel group rounded-2xl flex flex-col h-full overflow-hidden cursor-pointer"
+      <motion.div
+        onPointerMove={onMove}
+        onPointerLeave={onLeave}
+        style={{ rotateX, rotateY, transformPerspective: 900 }}
+        whileTap={{ scale: 0.97 }}
+        className="liquid-glass group rounded-[24px] flex flex-col h-full cursor-pointer"
       >
-        <div className="aspect-[4/3] bg-white/5 relative overflow-hidden">
+        <div className="m-2 mb-0 aspect-square rounded-[18px] bg-foreground/5 relative overflow-hidden">
           {product.imageUrl ? (
-            <img 
-              src={product.imageUrl} 
-              alt={product.name} 
-              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              loading="lazy"
+              className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-white/20">
-              No image
+            <div className="w-full h-full flex items-center justify-center text-foreground/20">
+              <Gift className="w-10 h-10" />
             </div>
           )}
-          {product.oldPrice && product.oldPrice > product.price && (
-            <div className="absolute top-3 left-3 bg-destructive text-white text-xs font-bold px-2 py-1 rounded-full backdrop-blur-md">
-              Знижка
+          <motion.div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: glare }} />
+          {hasDiscount && (
+            <div className="absolute top-2.5 left-2.5 bg-primary text-primary-foreground text-[11px] font-bold px-2.5 py-1 rounded-full shadow-lg">
+              −{Math.round((1 - product.price / product.oldPrice!) * 100)}%
+            </div>
+          )}
+          {product.stock > 0 && product.stock <= 5 && (
+            <div className="absolute bottom-2.5 left-2.5 liquid-glass text-foreground text-[11px] font-semibold px-2.5 py-1 rounded-full">
+              Залишилось {product.stock}
             </div>
           )}
         </div>
-        
-        <div className="p-4 flex flex-col flex-1">
-          <h3 className="text-white font-medium line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+
+        <div className="p-3.5 md:p-4 flex flex-col flex-1 gap-2">
+          <h3 className="text-foreground text-sm md:text-[15px] font-semibold leading-snug line-clamp-2">
             {product.name}
           </h3>
-          
-          <div className="mt-auto flex items-end justify-between">
+
+          <div className="mt-auto flex items-end justify-between gap-2">
             <div>
-              {product.oldPrice && product.oldPrice > product.price && (
-                <div className="text-white/40 text-sm line-through mb-0.5">
-                  {formatPrice(product.oldPrice)}
-                </div>
+              {hasDiscount && (
+                <div className="text-muted-foreground text-xs line-through">{formatPrice(product.oldPrice!)}</div>
               )}
-              <div className="text-lg font-bold text-white">
-                {formatPrice(product.price)}
-              </div>
+              <div className="text-base md:text-lg font-extrabold text-foreground">{formatPrice(product.price)}</div>
             </div>
-            
-            <Button 
-              size="icon" 
-              variant="glass" 
-              className="rounded-full shrink-0 group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-all"
+
+            <button
               onClick={handleAdd}
+              disabled={product.stock === 0}
+              aria-label="Додати в кошик"
+              className="shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_8px_18px_-8px_hsl(var(--primary)/0.9)] transition hover:scale-110 hover:rotate-90 active:scale-90 disabled:opacity-40 disabled:hover:scale-100 disabled:hover:rotate-0"
             >
-              <ShoppingBag className="w-4 h-4" />
-            </Button>
+              <Plus className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </motion.div>

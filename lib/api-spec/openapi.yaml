@@ -771,10 +771,11 @@ components:
         revenue: { type: number }
     SiteContacts:
       type: object
-      required: [phone, viber, telegram, instagram, email, address, workHours]
+      required: [phone, viber, telegram, whatsapp, instagram, email, address, workHours]
       properties:
         phone: { type: string }
         viber: { type: string, description: "Phone number used for the Viber link" }
+        whatsapp: { type: string, description: "Phone number used for the WhatsApp link" }
         telegram: { type: string, description: "Username or t.me link" }
         instagram: { type: string, description: "Username or link" }
         email: { type: string }

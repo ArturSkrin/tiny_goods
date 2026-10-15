@@ -1,11 +1,11 @@
 import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import * as AccordionPrimitive from '@radix-ui/react-accordion';
-import { Plus, Package, Truck, Wallet, MessageCircle, Ruler } from 'lucide-react';
+import { Plus, Package, Truck, Wallet, MessageCircle } from 'lucide-react';
 import type { FaqItem } from '@workspace/api-client-react';
 import { Reveal, SectionTitle } from './Reveal';
 
-const ICONS = [Package, Truck, Wallet, Ruler, MessageCircle];
+const ICONS = [Package, Truck, Wallet, MessageCircle];
 
 export function Faq({ items }: { items: FaqItem[] }) {
   const ref = useRef<HTMLDivElement>(null);

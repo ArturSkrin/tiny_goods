@@ -11,7 +11,7 @@ import { useCreateOrder, useCreateLiqpayCheckout } from '@workspace/api-client-r
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CheckCircle2, ArrowRight, CreditCard, Banknote } from 'lucide-react';
+import { CheckCircle2, ArrowRight, CreditCard } from 'lucide-react';
 import { Link } from 'wouter';
 import { motion } from 'framer-motion';
 
@@ -24,7 +24,7 @@ const checkoutSchema = z.object({
   city: z.string().min(2, "Введіть місто"),
   novaPoshtaBranch: z.string().min(1, "Введіть відділення"),
   comment: z.string().optional(),
-  paymentMethod: z.enum(['cash', 'liqpay']),
+  paymentMethod: z.literal('liqpay'),
 });
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
@@ -41,15 +41,14 @@ export default function Checkout() {
   const liqpayDataRef = useRef<HTMLInputElement>(null);
   const liqpaySigRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, control, watch, formState: { errors } } = useForm<CheckoutForm>({
+  const { register, handleSubmit, control, formState: { errors } } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       contactMethod: 'viber',
-      paymentMethod: 'cash',
+      paymentMethod: 'liqpay',
     }
   });
 
-  const paymentMethod = watch('paymentMethod');
 
   const onSubmit = async (data: CheckoutForm) => {
     if (cartTotal < minOrder) return;
@@ -237,46 +236,14 @@ export default function Checkout() {
 
             {/* Payment method */}
             <div className="pt-4 border-t border-foreground/10">
-              <h2 className="text-xl font-semibold text-foreground mb-4">Спосіб оплати</h2>
-              <Controller
-                control={control}
-                name="paymentMethod"
-                render={({ field }) => (
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => field.onChange('cash')}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${
-                        field.value === 'cash'
-                          ? 'border-primary bg-primary/10 text-foreground'
-                          : 'border-foreground/10 bg-foreground/5 text-foreground/50 hover:border-foreground/30'
-                      }`}
-                    >
-                      <Banknote className="w-6 h-6" />
-                      <span className="text-sm font-medium">Накладений платіж</span>
-                      <span className="text-xs opacity-70">Оплата при отриманні</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => field.onChange('liqpay')}
-                      className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all ${
-                        field.value === 'liqpay'
-                          ? 'border-primary bg-primary/10 text-foreground'
-                          : 'border-foreground/10 bg-foreground/5 text-foreground/50 hover:border-foreground/30'
-                      }`}
-                    >
-                      <CreditCard className="w-6 h-6" />
-                      <span className="text-sm font-medium">Онлайн оплата</span>
-                      <span className="text-xs opacity-70">LiqPay / картка</span>
-                    </button>
-                  </div>
-                )}
-              />
-              {paymentMethod === 'liqpay' && (
-                <p className="mt-3 text-xs text-foreground/50 text-center">
-                  Після підтвердження замовлення вас буде перенаправлено на захищену сторінку оплати LiqPay.
-                </p>
-              )}
+              <h2 className="text-xl font-semibold text-foreground mb-4">Оплата</h2>
+              <div className="flex items-center gap-4 p-4 rounded-2xl border border-primary/40 bg-primary/10">
+                <CreditCard className="w-6 h-6 text-primary shrink-0" />
+                <div>
+                  <div className="text-sm font-semibold text-foreground">Онлайн карткою через LiqPay</div>
+                  <div className="text-xs text-foreground/60">Після підтвердження вас буде перенаправлено на захищену сторінку оплати.</div>
+                </div>
+              </div>
             </div>
 
             <div className="pt-6">
@@ -286,11 +253,7 @@ export default function Checkout() {
                 className="w-full h-14 text-base rounded-2xl"
                 disabled={cartTotal < minOrder || isPending}
               >
-                {isPending
-                  ? 'Обробка...'
-                  : paymentMethod === 'liqpay'
-                    ? 'Перейти до оплати'
-                    : 'Підтвердити замовлення'}
+                {isPending ? 'Обробка...' : 'Перейти до оплати'}
                 {!isPending && <ArrowRight className="ml-2 w-5 h-5" />}
               </Button>
             </div>

@@ -25,10 +25,13 @@ spec:
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
-          # DATABASE_URL, SESSION_SECRET (and optionally LIQPAY_*) — created by hand, not in Git
+          # DATABASE_URL, SESSION_SECRET, LIQPAY_PUBLIC_KEY, LIQPAY_PRIVATE_KEY — created by hand, not in Git
           envFrom:
             - secretRef:
                 name: tinygoods-secrets
+          env:
+            - name: PUBLIC_URL # LiqPay return/webhook URLs
+              value: https://tinygoods.skrin.pp.ua
           readinessProbe:
             httpGet:
               path: /api/healthz

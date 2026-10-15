@@ -43,11 +43,8 @@ router.post("/orders/:id/liqpay-checkout", async (req, res): Promise<void> => {
     return;
   }
 
-  // Derive URLs server-side — never trust client-supplied return URLs.
-  // Prefer REPLIT_DOMAINS (production), fall back to REPLIT_DEV_DOMAIN (dev preview).
-  const domain =
-    process.env.REPLIT_DOMAINS?.split(",")[0] ?? process.env.REPLIT_DEV_DOMAIN;
-  const baseUrl = domain ? `https://${domain}` : "";
+  // Derive URLs server-side from config — never trust client-supplied return URLs.
+  const baseUrl = (process.env.PUBLIC_URL ?? "").replace(/\/+$/, "");
   const serverUrl = baseUrl ? `${baseUrl}/api/liqpay/webhook` : "";
   // Embed the opaque customer token in the return URL so the buyer can
   // poll only their own payment status — no PII, no enumerable order IDs.

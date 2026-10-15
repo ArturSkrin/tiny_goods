@@ -614,6 +614,7 @@ export const GetSettingsResponse = zod.object({
   "contacts": zod.object({
   "phone": zod.string(),
   "viber": zod.string().describe('Phone number used for the Viber link'),
+  "whatsapp": zod.string().describe('Phone number used for the WhatsApp link'),
   "telegram": zod.string().describe('Username or t.me link'),
   "instagram": zod.string().describe('Username or link'),
   "email": zod.string(),
@@ -658,6 +659,7 @@ export const UpdateSettingsBody = zod.object({
   "contacts": zod.object({
   "phone": zod.string(),
   "viber": zod.string().describe('Phone number used for the Viber link'),
+  "whatsapp": zod.string().describe('Phone number used for the WhatsApp link'),
   "telegram": zod.string().describe('Username or t.me link'),
   "instagram": zod.string().describe('Username or link'),
   "email": zod.string(),
@@ -698,6 +700,7 @@ export const UpdateSettingsResponse = zod.object({
   "contacts": zod.object({
   "phone": zod.string(),
   "viber": zod.string().describe('Phone number used for the Viber link'),
+  "whatsapp": zod.string().describe('Phone number used for the WhatsApp link'),
   "telegram": zod.string().describe('Username or t.me link'),
   "instagram": zod.string().describe('Username or link'),
   "email": zod.string(),

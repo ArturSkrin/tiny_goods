@@ -10,6 +10,8 @@ export interface SiteContacts {
   phone: string;
   /** Phone number used for the Viber link */
   viber: string;
+  /** Phone number used for the WhatsApp link */
+  whatsapp: string;
   /** Username or t.me link */
   telegram: string;
   /** Username or link */

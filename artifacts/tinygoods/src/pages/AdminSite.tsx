@@ -122,6 +122,7 @@ export default function AdminSite() {
             {contact('phone', 'Телефон', '+380 67 123 45 67')}
             {contact('viber', 'Viber (номер)', '+380 67 123 45 67')}
             {contact('telegram', 'Telegram', '@tinygoods або https://t.me/…')}
+            {contact('whatsapp', 'WhatsApp (номер)', '+380 67 123 45 67')}
             {contact('instagram', 'Instagram', '@tinygoods.ua')}
             {contact('email', 'Email', 'hello@example.com')}
             {contact('workHours', 'Графік роботи', 'Пн–Пт 10:00–19:00')}

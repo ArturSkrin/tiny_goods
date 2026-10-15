@@ -40,10 +40,12 @@
   --color-destructive-border: hsl(var(--destructive-border));
 
   --color-gold: hsl(var(--gold));
+  --color-plum: hsl(var(--plum));
 
   --font-sans: var(--app-font-sans);
   --font-display: var(--app-font-display);
   --font-script: var(--app-font-script);
+  --font-fancy: 'Lobster', var(--app-font-script);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
 
@@ -56,10 +58,12 @@
 /* ── Light: cream paper, powder pink, burgundy ─────────────────────────── */
 :root {
   --background: 32 60% 97%;
-  --foreground: 345 30% 13%;
+  /* Deep aubergine instead of near-black for text */
+  --foreground: 322 32% 24%;
+  --plum: 285 38% 45%;
 
-  --border: 345 30% 13% / 0.1;
-  --input: 345 30% 13% / 0.12;
+  --border: 322 32% 24% / 0.12;
+  --input: 322 32% 24% / 0.14;
   --ring: 345 72% 45%;
 
   --card: 0 0% 100% / 0.55;
@@ -159,6 +163,7 @@
   --destructive-border: 0 80% 60% / 0.5;
 
   --gold: 38 75% 62%;
+  --plum: 290 60% 80%;
 
   --glass-tint: 340 30% 30%;
   --glass-a1: 0.32;
@@ -339,17 +344,29 @@
 @keyframes drift-3 { to { transform: translate(6vw, -12vh) scale(1.1); } }
 @keyframes rays { to { transform: rotate(14deg) translateX(6%); } }
 
-/* Hand-drawn dieline animation for the custom-order section */
-.draw-path {
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
-  transition: stroke-dashoffset 2.4s cubic-bezier(.65,0,.35,1);
+/* Falling blossom petals in the brand banner */
+.petal {
+  position: absolute;
+  top: -24px;
+  width: 12px;
+  height: 9px;
+  border-radius: 80% 0 80% 0;
+  background: linear-gradient(135deg, #ffd3e2, #f59ab8);
+  opacity: 0.85;
+  animation: petal-fall linear infinite;
 }
-.in-view .draw-path { stroke-dashoffset: 0; }
+@keyframes petal-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(40px, 50vh, 0) rotate(200deg); }
+  100% { transform: translate3d(-20px, 105vh, 0) rotate(420deg); opacity: 0.2; }
+}
+@keyframes sway { 50% { transform: rotate(-2.5deg); } }
+@keyframes bob { 50% { transform: translateY(-8px); } }
+.sway { transform-origin: 0 0; animation: sway 7s ease-in-out infinite; }
+.bob { transform-box: fill-box; animation: bob 5s ease-in-out infinite; }
 
 @media (prefers-reduced-motion: reduce) {
-  .ambient-blob, .ambient-rays { animation: none; }
-  .draw-path { transition: none; stroke-dashoffset: 0; }
+  .ambient-blob, .ambient-rays, .petal, .sway, .bob { animation: none; }
   html { scroll-behavior: auto; }
 }
 

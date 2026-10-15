@@ -13,6 +13,7 @@ export function contactLinks(c: SiteContacts) {
   return {
     phone: c.phone ? `tel:+${digits(c.phone)}` : null,
     viber: c.viber ? `viber://chat?number=%2B${digits(c.viber)}` : null,
+    whatsapp: c.whatsapp ? `https://wa.me/${digits(c.whatsapp)}` : null,
     telegram: c.telegram ? (/^https?:/.test(c.telegram) ? c.telegram : `https://t.me/${handle(c.telegram)}`) : null,
     instagram: c.instagram ? (/^https?:/.test(c.instagram) ? c.instagram : `https://instagram.com/${handle(c.instagram)}`) : null,
     email: c.email ? `mailto:${c.email.trim()}` : null,

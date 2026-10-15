@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, type Variants } from 'framer-motion';
-import { Search, PackageOpen, Send, Truck, Wallet, Sparkles } from 'lucide-react';
+import { Search, PackageOpen, Truck, Wallet, Sparkles } from 'lucide-react';
 import type { Category, SiteSettings } from '@workspace/api-client-react';
 import { PromoCarousel } from './PromoCarousel';
 import { formatPrice } from '../../lib/utils';
@@ -39,7 +39,8 @@ export function Hero({
         )}
 
         <motion.h1 variants={item} className="mt-4 font-display text-[30px] leading-[1.08] md:text-[44px] font-semibold tracking-tight text-foreground">
-          {hero.title} <span className="text-gradient-brand">{hero.titleAccent}</span>
+          <span className="font-fancy font-normal text-[1.12em] leading-[1] text-plum">{hero.title}</span>{' '}
+          <span className="text-gradient-brand">{hero.titleAccent}</span>
         </motion.h1>
         <motion.p variants={item} className="mt-3 text-muted-foreground md:text-lg max-w-xl">
           {hero.subtitle}
@@ -84,29 +85,15 @@ export function Hero({
           </button>
         </motion.form>
 
-        <motion.div variants={item} className="mt-3 grid grid-cols-2 gap-3">
-          <button
-            onClick={() => onFind('', null)}
-            className="h-12 rounded-2xl bg-foreground text-background font-bold text-sm flex items-center justify-center gap-2 active:scale-[0.98] hover:opacity-90 transition"
-          >
-            <PackageOpen className="w-4 h-4" /> Обрати готове
-          </button>
-          <a
-            href="#custom"
-            className="h-12 rounded-2xl ring-1 ring-primary/40 text-primary font-bold text-sm flex items-center justify-center gap-2 hover:bg-primary/5 active:scale-[0.98] transition"
-          >
-            <Send className="w-4 h-4" /> Замовити своє
-          </a>
-        </motion.div>
-
         <motion.ul variants={item} className="mt-6 pt-5 border-t border-foreground/10 grid grid-cols-3 gap-2 text-[11px] md:text-xs text-muted-foreground font-semibold">
           <li className="flex flex-col md:flex-row md:items-center gap-1.5"><Truck className="w-4 h-4 text-primary" /> Нова Пошта по Україні</li>
-          <li className="flex flex-col md:flex-row md:items-center gap-1.5"><Wallet className="w-4 h-4 text-primary" /> Оплата при отриманні або онлайн</li>
+          <li className="flex flex-col md:flex-row md:items-center gap-1.5"><Wallet className="w-4 h-4 text-primary" /> Оплата онлайн карткою</li>
           <li className="flex flex-col md:flex-row md:items-center gap-1.5"><PackageOpen className="w-4 h-4 text-primary" /> Замовлення від {formatPrice(settings.minOrderTotal)}</li>
         </motion.ul>
       </motion.div>
 
-      <div className="lg:col-span-7 min-w-0">
+      {/* On phones the carousel comes first, above the finder card. */}
+      <div className="lg:col-span-7 min-w-0 order-first lg:order-none">
         <PromoCarousel promos={settings.promos} onPick={(q) => onFind(q, null)} />
       </div>
     </section>

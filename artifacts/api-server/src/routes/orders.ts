@@ -176,10 +176,12 @@ router.post("/orders", async (req, res): Promise<void> => {
     return;
   }
 
-  const paymentMethod =
-    (input as { paymentMethod?: string }).paymentMethod === "liqpay"
-      ? "liqpay"
-      : "cash";
+  // The shop takes online payment only; refuse up front rather than leave an unpayable order.
+  if (!process.env.LIQPAY_PUBLIC_KEY || !process.env.LIQPAY_PRIVATE_KEY) {
+    res.status(503).json({ error: "Онлайн-оплата тимчасово недоступна. Спробуйте пізніше." });
+    return;
+  }
+  const paymentMethod = "liqpay";
 
   // High-entropy customer token used only for polling payment status (no PII exposed)
   const customerToken = crypto.randomUUID();

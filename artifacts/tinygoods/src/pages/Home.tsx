@@ -7,7 +7,8 @@ import { cn } from '../lib/utils';
 import { Search, X, PackageSearch } from 'lucide-react';
 import { Hero } from '../components/home/Hero';
 import { Showcase } from '../components/home/Showcase';
-import { CustomOrder } from '../components/home/CustomOrder';
+import { BrandBanner } from '../components/home/BrandBanner';
+import { ContactsSection } from '../components/home/ContactsSection';
 import { Faq } from '../components/home/Faq';
 import { Reveal, SectionTitle } from '../components/home/Reveal';
 import { useSettings } from '../hooks/use-settings';
@@ -50,6 +51,8 @@ export default function Home() {
         )}
 
         {settings && <Showcase items={settings.showcase} onPick={(q) => find(q, null)} />}
+
+        <BrandBanner />
 
         {/* Catalog */}
         <section id="catalog" className="scroll-mt-24 md:scroll-mt-28 space-y-5">
@@ -109,10 +112,10 @@ export default function Home() {
                 <PackageSearch className="w-8 h-8" />
               </motion.div>
               <p className="font-bold text-foreground">Нічого не знайшли</p>
-              <p className="text-sm text-muted-foreground max-w-sm">Спробуйте інше слово або подивіться весь каталог. А якщо потрібне особливе пакування — ми його виготовимо.</p>
+              <p className="text-sm text-muted-foreground max-w-sm">Спробуйте інше слово або подивіться весь каталог. Не знайшли потрібне — напишіть нам.</p>
               <div className="flex gap-2 mt-2">
                 <button onClick={() => find('', null)} className="h-10 px-5 rounded-full bg-primary text-primary-foreground text-sm font-bold">Весь каталог</button>
-                <a href="#custom" className="h-10 px-5 rounded-full ring-1 ring-primary/40 text-primary text-sm font-bold flex items-center">Замовити своє</a>
+                <a href="#contacts" className="h-10 px-5 rounded-full ring-1 ring-primary/40 text-primary text-sm font-bold flex items-center">Контакти</a>
               </div>
             </div>
           ) : (
@@ -120,8 +123,8 @@ export default function Home() {
           )}
         </section>
 
-        {settings && <CustomOrder contacts={settings.contacts} />}
         {settings && <Faq items={settings.faq} />}
+        {settings && <ContactsSection contacts={settings.contacts} />}
       </div>
     </StoreLayout>
   );

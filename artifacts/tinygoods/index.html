@@ -52,5 +52,25 @@
     </svg>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+
+    <!-- BEGIN PLERDY CODE (trial): storefront only, loaded after the page has rendered -->
+    <script data-plerdy_code='1'>
+    (function(w,d){
+      if(w.__plerdyCode||location.pathname.indexOf('/tiny-admin')===0)return;
+      w.__plerdyCode=1;
+      w._protocol=w.location.protocol=="https:"?"https://":"http://";
+      w._site_hash_code="94b2a641517729b9a1c40af170f3c9a2";
+      w._suid=82143;
+      var load=function(){
+        var s=d.createElement("script");
+        s.async=true;
+        s.referrerPolicy="strict-origin-when-cross-origin";
+        s.src="https://a.plerdy.com/public/js/click/main.js?v="+Math.random();
+        d.head.appendChild(s);
+      };
+      if(d.readyState==="complete")load();else w.addEventListener("load",load);
+    })(window,document);
+    </script>
+    <!-- END PLERDY CODE -->
   </body>
 </html>

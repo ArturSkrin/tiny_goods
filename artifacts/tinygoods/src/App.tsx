@@ -6,6 +6,7 @@ import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import type { ReactNode } from 'react';
 import { ThemeProvider } from 'next-themes';
 import { AmbientBackground } from './components/AmbientBackground';
+import { DynamicFavicon } from './components/DynamicFavicon';
 import { CartProvider } from './context/cart';
 import { getGetAdminSessionQueryKey } from '@workspace/api-client-react';
 
@@ -68,6 +69,7 @@ function Themed({ children }: { children: ReactNode }) {
       forcedTheme={location.startsWith('/tiny-admin') ? 'dark' : undefined}
     >
       <AmbientBackground />
+      <DynamicFavicon />
       {children}
     </ThemeProvider>
   );

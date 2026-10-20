@@ -12,6 +12,7 @@ import {
   type ProductOption,
 } from "@workspace/db";
 import { getSettings } from "../lib/settings";
+import { getCustomer, rememberFromOrder } from "../lib/customerAuth";
 import {
   ListOrdersQueryParams,
   ListOrdersResponse,
@@ -190,6 +191,8 @@ router.post("/orders", async (req, res): Promise<void> => {
     return;
   }
 
+  const customer = await getCustomer(req);
+
   // High-entropy customer token used only for polling payment status (no PII exposed)
   const customerToken = crypto.randomUUID();
 
@@ -197,6 +200,7 @@ router.post("/orders", async (req, res): Promise<void> => {
     const [created] = await tx
       .insert(ordersTable)
       .values({
+        customerId: customer?.id ?? null,
         customerName: [input.lastName, input.firstName, input.middleName]
           .map((s) => s?.trim())
           .filter(Boolean)
@@ -240,6 +244,14 @@ router.post("/orders", async (req, res): Promise<void> => {
 
     return created!;
   });
+
+  if (customer) {
+    await rememberFromOrder(
+      customer,
+      { ...input, branch: input.novaPoshtaBranch },
+      input.saveAsDefault === true,
+    );
+  }
 
   const items = await db
     .select()

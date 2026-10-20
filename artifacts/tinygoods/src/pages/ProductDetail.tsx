@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowLeft, Minus, Plus, Check, ShieldCheck, Truck, ChevronDown, Gift } from 'lucide-react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { RichText } from '../components/store/RichText';
+import { useRecordView } from '../hooks/use-me';
 import { useCart, variantImage, variantPrice } from '../context/cart';
 import { cn, formatPrice } from '../lib/utils';
 
@@ -92,6 +93,7 @@ export default function ProductDetail() {
   });
 
   const { addToCart } = useCart();
+  useRecordView(product?.id);
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [size, setSize] = useState<string>();

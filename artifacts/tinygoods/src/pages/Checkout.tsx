@@ -1,7 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { useCart, variantLabel } from '../context/cart';
 import { useSettings } from '../hooks/use-settings';
+import { useMe, useRefreshMe } from '../hooks/use-me';
 import { formatPrice } from '../lib/utils';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -30,6 +31,7 @@ const checkoutSchema = z.object({
   npWarehouseRef: z.string().min(1, 'Оберіть відділення зі списку'),
   comment: z.string().optional(),
   paymentMethod: z.enum(['liqpay', 'bank_transfer']),
+  saveAsDefault: z.boolean().optional(),
 });
 
 const CONTACT_METHODS = [
@@ -66,7 +68,10 @@ export default function Checkout() {
   const liqpayDataRef = useRef<HTMLInputElement>(null);
   const liqpaySigRef = useRef<HTMLInputElement>(null);
 
-  const { register, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<CheckoutForm>({
+  const { customer, defaultAddress } = useMe();
+  const refreshMe = useRefreshMe();
+
+  const { register, handleSubmit, control, setValue, getValues, watch, formState: { errors } } = useForm<CheckoutForm>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
       contactMethod: 'viber',
@@ -75,11 +80,44 @@ export default function Checkout() {
       npCityRef: '',
       novaPoshtaBranch: '',
       npWarehouseRef: '',
+      saveAsDefault: true,
     }
   });
   const npCityRef = watch('npCityRef');
   const paymentMethod = watch('paymentMethod');
   const contactMethod = watch('contactMethod');
+
+  // Signed-in buyer: fill the form from the saved profile once, without any clicks.
+  const [prefilled, setPrefilled] = useState(false);
+  useEffect(() => {
+    if (!customer || prefilled) return;
+    const saved: Partial<CheckoutForm> = {
+      lastName: customer.lastName ?? '',
+      firstName: customer.firstName ?? '',
+      middleName: customer.middleName ?? '',
+      phone: customer.phone ?? '',
+      email: customer.email ?? '',
+      ...(customer.contactMethod ? { contactMethod: customer.contactMethod as CheckoutForm['contactMethod'] } : {}),
+      ...(defaultAddress ? { city: defaultAddress.city, npCityRef: defaultAddress.npCityRef, novaPoshtaBranch: defaultAddress.branch, npWarehouseRef: defaultAddress.npWarehouseRef } : {}),
+    };
+    // Don't overwrite what the buyer already typed; contactMethod only holds the form's default.
+    for (const [k, v] of Object.entries(saved)) {
+      if (v && (k === 'contactMethod' || !getValues(k as keyof CheckoutForm))) setValue(k as keyof CheckoutForm, v as never);
+    }
+    setPrefilled(true);
+  }, [customer, defaultAddress, prefilled]);
+
+  // Offer "save as default" only when a saved profile exists and the buyer changed something.
+  const watched = watch();
+  const differsFromSaved =
+    prefilled &&
+    !!customer?.phone &&
+    (watched.lastName !== (customer.lastName ?? '') ||
+      watched.firstName !== (customer.firstName ?? '') ||
+      (watched.middleName ?? '') !== (customer.middleName ?? '') ||
+      watched.phone !== customer.phone ||
+      watched.contactMethod !== customer.contactMethod ||
+      (!!watched.npWarehouseRef && watched.npWarehouseRef !== defaultAddress?.npWarehouseRef));
 
 
   const onSubmit = async (data: CheckoutForm) => {
@@ -100,6 +138,7 @@ export default function Checkout() {
           npWarehouseRef: data.npWarehouseRef,
           comment: data.comment,
           paymentMethod: data.paymentMethod,
+          saveAsDefault: differsFromSaved && data.saveAsDefault,
           items: items.map(item => ({
             productId: item.productId,
             quantity: item.quantity,
@@ -110,6 +149,7 @@ export default function Checkout() {
       });
 
       clearCart();
+      if (customer) refreshMe();
 
       if (data.paymentMethod === 'liqpay') {
         // Get LiqPay checkout params and redirect
@@ -197,7 +237,12 @@ export default function Checkout() {
         <div className="grid md:grid-cols-[1fr_400px] gap-8">
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="glass-panel p-6 md:p-8 space-y-6 rounded-[2rem]">
-            <h2 className="text-xl font-semibold text-foreground mb-4">Контактні дані</h2>
+            <div className="flex flex-wrap items-baseline justify-between gap-2 mb-4">
+              <h2 className="text-xl font-semibold text-foreground">Контактні дані</h2>
+              {customer === null && (
+                <Link href="/account" className="text-sm font-semibold text-primary hover:underline">Увійти — дані підставляться самі</Link>
+              )}
+            </div>
 
             <div className="grid md:grid-cols-3 gap-4">
               {([
@@ -255,6 +300,8 @@ export default function Checkout() {
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <CityPicker
+                  key={prefilled ? 'saved' : 'empty'}
+                  initial={watch('city')}
                   invalid={!!errors.npCityRef}
                   onChange={(c) => {
                     setValue('city', `${c.name} (${c.area} обл.)`);
@@ -288,6 +335,20 @@ export default function Checkout() {
                 className="resize-none min-h-[100px] bg-foreground/5 border-foreground/10 text-foreground rounded-xl focus:border-primary/50"
               />
             </div>
+
+            <AnimatePresence>
+              {differsFromSaved && (
+                <motion.label
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="flex items-center gap-3 rounded-2xl bg-primary/5 ring-1 ring-primary/20 p-3 text-sm text-foreground cursor-pointer overflow-hidden"
+                >
+                  <input type="checkbox" {...register('saveAsDefault')} className="w-4 h-4 accent-primary" />
+                  Зберегти ці дані як дані за замовчуванням для наступних замовлень
+                </motion.label>
+              )}
+            </AnimatePresence>
 
             {/* Payment method */}
             <div className="pt-4 border-t border-foreground/10">

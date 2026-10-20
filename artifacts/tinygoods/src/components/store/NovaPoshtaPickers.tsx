@@ -157,9 +157,9 @@ function Combobox<T>({
   );
 }
 
-export function CityPicker({ invalid, onChange }: { invalid?: boolean; onChange: (city: NpCity) => void }) {
-  const [query, setQuery] = useState('');
-  const [picked, setPicked] = useState('');
+export function CityPicker({ initial = '', invalid, onChange }: { initial?: string; invalid?: boolean; onChange: (city: NpCity) => void }) {
+  const [query, setQuery] = useState(initial);
+  const [picked, setPicked] = useState(initial);
   // Reopening after a pick shows the big-city list again rather than a one-item search.
   const q = useDebounced(query.trim() === picked ? '' : query.trim());
   const { data, isFetching } = useSearchNpCities(q ? { q } : {}, {

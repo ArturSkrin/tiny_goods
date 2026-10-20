@@ -386,6 +386,7 @@ export const CreateOrderBody = zod.object({
   "novaPoshtaBranch": zod.string().optional(),
   "npCityRef": zod.string().optional().describe('Nova Poshta city Ref'),
   "npWarehouseRef": zod.string().optional().describe('Nova Poshta warehouse Ref'),
+  "saveAsDefault": zod.boolean().optional().describe('Signed-in buyer: store these contacts and address as defaults'),
   "paymentMethod": zod.enum(['liqpay', 'bank_transfer']).optional().describe('Online card via LiqPay, or bank details sent by the manager'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
@@ -806,6 +807,358 @@ export const SearchNpWarehousesResponseItem = zod.object({
   "name": zod.string()
 })
 export const SearchNpWarehousesResponse = zod.array(SearchNpWarehousesResponseItem)
+
+
+/**
+ * @summary Which sign-in methods are configured
+ */
+export const GetAuthConfigResponse = zod.object({
+  "email": zod.boolean(),
+  "google": zod.boolean(),
+  "telegramBot": zod.string().nullable().describe('Bot username for the Telegram Login Widget')
+})
+
+
+/**
+ * @summary Email a one-time sign-in code
+ */
+export const StartEmailLoginBody = zod.object({
+  "email": zod.email()
+})
+
+export const StartEmailLoginResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Sign in with the emailed code
+ */
+export const verifyEmailLoginBodyCodeMin = 6;
+export const verifyEmailLoginBodyCodeMax = 6;
+
+
+
+export const VerifyEmailLoginBody = zod.object({
+  "email": zod.email(),
+  "code": zod.string().min(verifyEmailLoginBodyCodeMin).max(verifyEmailLoginBodyCodeMax)
+})
+
+export const VerifyEmailLoginResponse = zod.object({
+  "customer": zod.union([zod.object({
+  "id": zod.int(),
+  "email": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "firstName": zod.string().nullable(),
+  "middleName": zod.string().nullable(),
+  "phone": zod.string().nullable(),
+  "contactMethod": zod.string().nullable(),
+  "hasGoogle": zod.boolean(),
+  "hasTelegram": zod.boolean()
+}),zod.null()]),
+  "defaultAddress": zod.union([zod.object({
+  "id": zod.int(),
+  "city": zod.string(),
+  "npCityRef": zod.string(),
+  "branch": zod.string(),
+  "npWarehouseRef": zod.string(),
+  "isDefault": zod.boolean()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Sign in with data from the Telegram Login Widget
+ */
+export const TelegramLoginBody = zod.object({
+  "id": zod.int(),
+  "first_name": zod.string().optional(),
+  "last_name": zod.string().optional(),
+  "username": zod.string().optional(),
+  "photo_url": zod.string().optional(),
+  "auth_date": zod.int(),
+  "hash": zod.string()
+})
+
+export const TelegramLoginResponse = zod.object({
+  "customer": zod.union([zod.object({
+  "id": zod.int(),
+  "email": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "firstName": zod.string().nullable(),
+  "middleName": zod.string().nullable(),
+  "phone": zod.string().nullable(),
+  "contactMethod": zod.string().nullable(),
+  "hasGoogle": zod.boolean(),
+  "hasTelegram": zod.boolean()
+}),zod.null()]),
+  "defaultAddress": zod.union([zod.object({
+  "id": zod.int(),
+  "city": zod.string(),
+  "npCityRef": zod.string(),
+  "branch": zod.string(),
+  "npWarehouseRef": zod.string(),
+  "isDefault": zod.boolean()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Sign out
+ */
+export const CustomerLogoutResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Current buyer (customer is null when signed out)
+ */
+export const GetMeResponse = zod.object({
+  "customer": zod.union([zod.object({
+  "id": zod.int(),
+  "email": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "firstName": zod.string().nullable(),
+  "middleName": zod.string().nullable(),
+  "phone": zod.string().nullable(),
+  "contactMethod": zod.string().nullable(),
+  "hasGoogle": zod.boolean(),
+  "hasTelegram": zod.boolean()
+}),zod.null()]),
+  "defaultAddress": zod.union([zod.object({
+  "id": zod.int(),
+  "city": zod.string(),
+  "npCityRef": zod.string(),
+  "branch": zod.string(),
+  "npWarehouseRef": zod.string(),
+  "isDefault": zod.boolean()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Update contact details
+ */
+export const UpdateMeBody = zod.object({
+  "lastName": zod.string().optional(),
+  "firstName": zod.string().optional(),
+  "middleName": zod.string().optional(),
+  "phone": zod.string().optional(),
+  "contactMethod": zod.enum(['viber', 'telegram', 'whatsapp', 'phone']).optional()
+})
+
+export const UpdateMeResponse = zod.object({
+  "customer": zod.union([zod.object({
+  "id": zod.int(),
+  "email": zod.string().nullable(),
+  "lastName": zod.string().nullable(),
+  "firstName": zod.string().nullable(),
+  "middleName": zod.string().nullable(),
+  "phone": zod.string().nullable(),
+  "contactMethod": zod.string().nullable(),
+  "hasGoogle": zod.boolean(),
+  "hasTelegram": zod.boolean()
+}),zod.null()]),
+  "defaultAddress": zod.union([zod.object({
+  "id": zod.int(),
+  "city": zod.string(),
+  "npCityRef": zod.string(),
+  "branch": zod.string(),
+  "npWarehouseRef": zod.string(),
+  "isDefault": zod.boolean()
+}),zod.null()])
+})
+
+
+/**
+ * @summary Delete the account (orders are kept without the link)
+ */
+export const DeleteMeResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Saved delivery addresses
+ */
+export const ListMyAddressesResponseItem = zod.object({
+  "id": zod.int(),
+  "city": zod.string(),
+  "npCityRef": zod.string(),
+  "branch": zod.string(),
+  "npWarehouseRef": zod.string(),
+  "isDefault": zod.boolean()
+})
+export const ListMyAddressesResponse = zod.array(ListMyAddressesResponseItem)
+
+
+/**
+ * @summary Save a delivery address
+ */
+
+
+
+
+
+
+export const AddMyAddressBody = zod.object({
+  "city": zod.string().min(1),
+  "npCityRef": zod.string().min(1),
+  "branch": zod.string().min(1),
+  "npWarehouseRef": zod.string().min(1),
+  "isDefault": zod.boolean().optional()
+})
+
+export const AddMyAddressResponse = zod.object({
+  "id": zod.int(),
+  "city": zod.string(),
+  "npCityRef": zod.string(),
+  "branch": zod.string(),
+  "npWarehouseRef": zod.string(),
+  "isDefault": zod.boolean()
+})
+
+
+/**
+ * @summary Make an address the default
+ */
+export const SetMyDefaultAddressParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const SetMyDefaultAddressResponse = zod.object({
+  "id": zod.int(),
+  "city": zod.string(),
+  "npCityRef": zod.string(),
+  "branch": zod.string(),
+  "npWarehouseRef": zod.string(),
+  "isDefault": zod.boolean()
+})
+
+
+/**
+ * @summary Remove an address
+ */
+export const DeleteMyAddressParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const DeleteMyAddressResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Order history
+ */
+export const ListMyOrdersResponseItem = zod.object({
+  "id": zod.int(),
+  "customerName": zod.string(),
+  "lastName": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "middleName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "phone": zod.string(),
+  "contactMethod": zod.string().describe('viber | telegram | whatsapp | phone'),
+  "comment": zod.string().nullish(),
+  "city": zod.string().nullish(),
+  "novaPoshtaBranch": zod.string().nullish(),
+  "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
+  "total": zod.number(),
+  "paymentMethod": zod.string().describe('liqpay | bank_transfer (cash on legacy orders)'),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
+  "items": zod.array(zod.object({
+  "productId": zod.int().nullable().describe('null when the product was deleted'),
+  "productName": zod.string(),
+  "variant": zod.string().nullish().describe('Chosen size \/ colour'),
+  "price": zod.number(),
+  "quantity": zod.int(),
+  "imageUrl": zod.string().nullish()
+})),
+  "createdAt": zod.string()
+})
+export const ListMyOrdersResponse = zod.array(ListMyOrdersResponseItem)
+
+
+/**
+ * @summary Recently viewed products
+ */
+
+
+
+
+export const ListMyViewedResponseItem = zod.object({
+  "id": zod.int(),
+  "categoryId": zod.int(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "sku": zod.string().nullish(),
+  "price": zod.number(),
+  "oldPrice": zod.number().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "stock": zod.int(),
+  "isActive": zod.boolean(),
+  "isFeatured": zod.boolean(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
+})),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
+})),
+  "createdAt": zod.string()
+})
+export const ListMyViewedResponse = zod.array(ListMyViewedResponseItem)
+
+
+/**
+ * @summary Merge viewed product ids (newest first) into the history
+ */
+export const addMyViewedBodyProductIdsMax = 50;
+
+
+
+export const AddMyViewedBody = zod.object({
+  "productIds": zod.array(zod.int()).max(addMyViewedBodyProductIdsMax)
+})
+
+
+
+
+
+export const AddMyViewedResponseItem = zod.object({
+  "id": zod.int(),
+  "categoryId": zod.int(),
+  "name": zod.string(),
+  "description": zod.string().nullish(),
+  "sku": zod.string().nullish(),
+  "price": zod.number(),
+  "oldPrice": zod.number().nullish(),
+  "imageUrl": zod.string().nullish(),
+  "stock": zod.int(),
+  "isActive": zod.boolean(),
+  "isFeatured": zod.boolean(),
+  "sizes": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
+})),
+  "colors": zod.array(zod.object({
+  "name": zod.string().min(1),
+  "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
+  "hex": zod.string().nullish().describe('Swatch colour for colour options'),
+  "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
+})),
+  "createdAt": zod.string()
+})
+export const AddMyViewedResponse = zod.array(AddMyViewedResponseItem)
 
 
 /**

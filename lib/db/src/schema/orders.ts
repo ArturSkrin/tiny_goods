@@ -9,9 +9,11 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { productsTable } from "./products";
+import { customersTable } from "./customers";
 
 export const ordersTable = pgTable("orders", {
   id: serial("id").primaryKey(),
+  customerId: integer("customer_id").references(() => customersTable.id, { onDelete: "set null" }),
   customerName: text("customer_name").notNull(), // "Last First Middle", kept for display
   lastName: text("last_name"),
   firstName: text("first_name"),

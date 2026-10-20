@@ -15,6 +15,7 @@ import Home from './pages/Home';
 import ProductDetail from './pages/ProductDetail';
 import Checkout from './pages/Checkout';
 import About from './pages/About';
+import Account from './pages/Account';
 
 // Admin
 import AdminDashboard from './pages/AdminDashboard';
@@ -44,6 +45,7 @@ function Router() {
       <Route path="/checkout" component={Checkout} />
       <Route path="/checkout/success" component={PaymentSuccess} />
       <Route path="/about" component={About} />
+      <Route path="/account" component={Account} />
       
       {/* Admin */}
       <Route path="/tiny-admin" component={AdminDashboard} />

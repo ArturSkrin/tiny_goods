@@ -9,6 +9,7 @@ import liqpayRouter from "./liqpay";
 import settingsRouter from "./settings";
 import imagesRouter from "./images";
 import novaPoshtaRouter from "./novaposhta";
+import accountRouter from "./account";
 
 const router: IRouter = Router();
 
@@ -22,5 +23,6 @@ router.use(adminRouter);
 router.use(settingsRouter);
 router.use(imagesRouter);
 router.use(novaPoshtaRouter);
+router.use(accountRouter);
 
 export default router;

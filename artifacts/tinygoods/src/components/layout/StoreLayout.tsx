@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'wouter';
-import { ShoppingBag, Home, Info, LayoutGrid } from 'lucide-react';
+import { ShoppingBag, Home, LayoutGrid, UserRound } from 'lucide-react';
 import { useCart } from '../../context/cart';
 import { cn } from '../../lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -107,7 +107,7 @@ export function StoreLayout({ children }: { children: React.ReactNode }) {
     { key: 'home', label: 'Головна', icon: Home, href: '/', active: location === '/' },
     { key: 'catalog', label: 'Каталог', icon: LayoutGrid, onClick: goToCatalog, active: false },
     { key: 'cart', label: 'Кошик', icon: ShoppingBag, onClick: () => setIsCartOpen(true), active: false, badge: cartCount },
-    { key: 'about', label: 'Про нас', icon: Info, href: '/about', active: location === '/about' },
+    { key: 'account', label: 'Кабінет', icon: UserRound, href: '/account', active: location === '/account' },
   ];
 
   return (
@@ -154,6 +154,9 @@ export function StoreLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <Link href="/account" aria-label="Особистий кабінет" className={cn('liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-foreground active:scale-90 transition-transform', location === '/account' && 'ring-2 ring-primary/50')}>
+              <UserRound className="w-[18px] h-[18px]" />
+            </Link>
             <button
               onClick={() => setIsCartOpen(true)}
               className="relative h-10 pl-4 pr-5 rounded-full bg-primary text-primary-foreground text-sm font-semibold flex items-center gap-2 shadow-[0_8px_20px_-8px_hsl(var(--primary)/0.8)] hover:brightness-110 active:scale-95 transition"

@@ -26,6 +26,8 @@ export interface OrderInput {
   npCityRef?: string;
   /** Nova Poshta warehouse Ref */
   npWarehouseRef?: string;
+  /** Signed-in buyer: store these contacts and address as defaults */
+  saveAsDefault?: boolean;
   /** Online card via LiqPay, or bank details sent by the manager */
   paymentMethod?: OrderInputPaymentMethod;
   /** @minItems 1 */

@@ -225,6 +225,8 @@ export interface OrderInput {
   npCityRef?: string;
   /** Nova Poshta warehouse Ref */
   npWarehouseRef?: string;
+  /** Signed-in buyer: store these contacts and address as defaults */
+  saveAsDefault?: boolean;
   /** Online card via LiqPay, or bank details sent by the manager */
   paymentMethod?: OrderInputPaymentMethod;
   /** @minItems 1 */
@@ -392,6 +394,110 @@ export interface NpWarehouse {
   ref: string;
   number: string;
   name: string;
+}
+
+export interface AuthConfig {
+  email: boolean;
+  google: boolean;
+  /**
+     * Bot username for the Telegram Login Widget
+     * @nullable
+     */
+  telegramBot: string | null;
+}
+
+export interface OkResult {
+  ok: boolean;
+}
+
+export interface EmailLoginStart {
+  email: string;
+}
+
+export interface EmailLoginVerify {
+  email: string;
+  /**
+     * @minLength 6
+     * @maxLength 6
+     */
+  code: string;
+}
+
+export interface TelegramAuthInput {
+  id: number;
+  first_name?: string;
+  last_name?: string;
+  username?: string;
+  photo_url?: string;
+  auth_date: number;
+  hash: string;
+}
+
+export interface Customer {
+  id: number;
+  /** @nullable */
+  email: string | null;
+  /** @nullable */
+  lastName: string | null;
+  /** @nullable */
+  firstName: string | null;
+  /** @nullable */
+  middleName: string | null;
+  /** @nullable */
+  phone: string | null;
+  /** @nullable */
+  contactMethod: string | null;
+  hasGoogle: boolean;
+  hasTelegram: boolean;
+}
+
+export type CustomerUpdateContactMethod = typeof CustomerUpdateContactMethod[keyof typeof CustomerUpdateContactMethod];
+
+
+export const CustomerUpdateContactMethod = {
+  viber: 'viber',
+  telegram: 'telegram',
+  whatsapp: 'whatsapp',
+  phone: 'phone',
+} as const;
+
+export interface CustomerUpdate {
+  lastName?: string;
+  firstName?: string;
+  middleName?: string;
+  phone?: string;
+  contactMethod?: CustomerUpdateContactMethod;
+}
+
+export interface Address {
+  id: number;
+  city: string;
+  npCityRef: string;
+  branch: string;
+  npWarehouseRef: string;
+  isDefault: boolean;
+}
+
+export interface AddressInput {
+  /** @minLength 1 */
+  city: string;
+  /** @minLength 1 */
+  npCityRef: string;
+  /** @minLength 1 */
+  branch: string;
+  /** @minLength 1 */
+  npWarehouseRef: string;
+  isDefault?: boolean;
+}
+
+export interface Me {
+  customer: Customer | null;
+  defaultAddress: Address | null;
+}
+
+export interface ViewedInput {
+  /** @maxItems 50 */
+  productIds: number[];
 }
 
 export interface ImageUpload {

@@ -18,6 +18,8 @@ tags:
     description: Orders
   - name: admin
     description: Admin analytics
+  - name: account
+    description: Buyer account
 paths:
   /healthz:
     get:
@@ -545,6 +547,214 @@ paths:
               schema:
                 type: array
                 items: { $ref: "#/components/schemas/NpWarehouse" }
+  /auth/config:
+    get:
+      operationId: getAuthConfig
+      tags: [account]
+      summary: Which sign-in methods are configured
+      responses:
+        "200":
+          description: Config
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AuthConfig" }
+  /auth/email/start:
+    post:
+      operationId: startEmailLogin
+      tags: [account]
+      summary: Email a one-time sign-in code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EmailLoginStart" }
+      responses:
+        "200":
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResult" }
+  /auth/email/verify:
+    post:
+      operationId: verifyEmailLogin
+      tags: [account]
+      summary: Sign in with the emailed code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/EmailLoginVerify" }
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+  /auth/telegram:
+    post:
+      operationId: telegramLogin
+      tags: [account]
+      summary: Sign in with data from the Telegram Login Widget
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TelegramAuthInput" }
+      responses:
+        "200":
+          description: Signed in
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+  /auth/logout:
+    post:
+      operationId: customerLogout
+      tags: [account]
+      summary: Sign out
+      responses:
+        "200":
+          description: Signed out
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResult" }
+  /me:
+    get:
+      operationId: getMe
+      tags: [account]
+      summary: Current buyer (customer is null when signed out)
+      responses:
+        "200":
+          description: Me
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+    patch:
+      operationId: updateMe
+      tags: [account]
+      summary: Update contact details
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/CustomerUpdate" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Me" }
+    delete:
+      operationId: deleteMe
+      tags: [account]
+      summary: Delete the account (orders are kept without the link)
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResult" }
+  /me/addresses:
+    get:
+      operationId: listMyAddresses
+      tags: [account]
+      summary: Saved delivery addresses
+      responses:
+        "200":
+          description: Addresses
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Address" }
+    post:
+      operationId: addMyAddress
+      tags: [account]
+      summary: Save a delivery address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AddressInput" }
+      responses:
+        "201":
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Address" }
+  /me/addresses/{id}:
+    patch:
+      operationId: setMyDefaultAddress
+      tags: [account]
+      summary: Make an address the default
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Address" }
+    delete:
+      operationId: deleteMyAddress
+      tags: [account]
+      summary: Remove an address
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Removed
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/OkResult" }
+  /me/orders:
+    get:
+      operationId: listMyOrders
+      tags: [account]
+      summary: Order history
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Order" }
+  /me/viewed:
+    get:
+      operationId: listMyViewed
+      tags: [account]
+      summary: Recently viewed products
+      responses:
+        "200":
+          description: Products
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Product" }
+    post:
+      operationId: addMyViewed
+      tags: [account]
+      summary: Merge viewed product ids (newest first) into the history
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ViewedInput" }
+      responses:
+        "200":
+          description: Products
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Product" }
   /admin/stats:
     get:
       operationId: getAdminStats
@@ -721,6 +931,7 @@ components:
         novaPoshtaBranch: { type: string }
         npCityRef: { type: string, description: "Nova Poshta city Ref" }
         npWarehouseRef: { type: string, description: "Nova Poshta warehouse Ref" }
+        saveAsDefault: { type: boolean, description: "Signed-in buyer: store these contacts and address as defaults" }
         paymentMethod: { type: string, enum: [liqpay, bank_transfer], description: "Online card via LiqPay, or bank details sent by the manager" }
         items:
           type: array
@@ -889,6 +1100,100 @@ components:
         ref: { type: string }
         number: { type: string }
         name: { type: string }
+    AuthConfig:
+      type: object
+      required: [email, google, telegramBot]
+      properties:
+        email: { type: boolean }
+        google: { type: boolean }
+        telegramBot: { type: ["string", "null"], description: "Bot username for the Telegram Login Widget" }
+    OkResult:
+      type: object
+      required: [ok]
+      properties:
+        ok: { type: boolean }
+    EmailLoginStart:
+      type: object
+      required: [email]
+      properties:
+        email: { type: string, format: email }
+    EmailLoginVerify:
+      type: object
+      required: [email, code]
+      properties:
+        email: { type: string, format: email }
+        code: { type: string, minLength: 6, maxLength: 6 }
+    TelegramAuthInput:
+      type: object
+      required: [id, auth_date, hash]
+      properties:
+        id: { type: integer }
+        first_name: { type: string }
+        last_name: { type: string }
+        username: { type: string }
+        photo_url: { type: string }
+        auth_date: { type: integer }
+        hash: { type: string }
+    Customer:
+      type: object
+      required: [id, email, lastName, firstName, middleName, phone, contactMethod, hasGoogle, hasTelegram]
+      properties:
+        id: { type: integer }
+        email: { type: ["string", "null"] }
+        lastName: { type: ["string", "null"] }
+        firstName: { type: ["string", "null"] }
+        middleName: { type: ["string", "null"] }
+        phone: { type: ["string", "null"] }
+        contactMethod: { type: ["string", "null"] }
+        hasGoogle: { type: boolean }
+        hasTelegram: { type: boolean }
+    CustomerUpdate:
+      type: object
+      properties:
+        lastName: { type: string }
+        firstName: { type: string }
+        middleName: { type: string }
+        phone: { type: string }
+        contactMethod: { type: string, enum: [viber, telegram, whatsapp, phone] }
+    Address:
+      type: object
+      required: [id, city, npCityRef, branch, npWarehouseRef, isDefault]
+      properties:
+        id: { type: integer }
+        city: { type: string }
+        npCityRef: { type: string }
+        branch: { type: string }
+        npWarehouseRef: { type: string }
+        isDefault: { type: boolean }
+    AddressInput:
+      type: object
+      required: [city, npCityRef, branch, npWarehouseRef]
+      properties:
+        city: { type: string, minLength: 1 }
+        npCityRef: { type: string, minLength: 1 }
+        branch: { type: string, minLength: 1 }
+        npWarehouseRef: { type: string, minLength: 1 }
+        isDefault: { type: boolean }
+    Me:
+      type: object
+      required: [customer, defaultAddress]
+      properties:
+        customer:
+          oneOf:
+            - { $ref: "#/components/schemas/Customer" }
+            - { type: "null" }
+        defaultAddress:
+          oneOf:
+            - { $ref: "#/components/schemas/Address" }
+            - { type: "null" }
+    ViewedInput:
+      type: object
+      required: [productIds]
+      properties:
+        productIds:
+          type: array
+          maxItems: 50
+          items: { type: integer }
     ImageUpload:
       type: object
       required: [dataUrl]

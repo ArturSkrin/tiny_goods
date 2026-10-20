@@ -99,6 +99,9 @@ export default function AdminOrders() {
                       <div className={`px-3 py-1.5 rounded-xl border text-sm font-medium ${statusColors[order.status]}`}>
                         {statusLabels[order.status] || order.status}
                       </div>
+                      {order.paymentMethod === 'bank_transfer' && (
+                        <div className="px-3 py-1.5 rounded-xl border text-sm font-medium bg-sky-500/15 text-sky-300 border-sky-500/30">🏦 Реквізити — надіслати клієнту</div>
+                      )}
                       {order.paymentMethod === 'liqpay' && (
                         <div className={`px-3 py-1.5 rounded-xl border text-sm font-medium ${paymentStatusColors[order.paymentStatus] ?? 'bg-white/10 text-white/60 border-white/10'}`}>
                           💳 {paymentStatusLabels[order.paymentStatus] ?? order.paymentStatus}

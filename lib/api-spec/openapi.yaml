@@ -691,7 +691,7 @@ components:
         novaPoshtaBranch: { type: ["string", "null"] }
         status: { type: string, description: "new | confirmed | shipped | completed | cancelled" }
         total: { type: number }
-        paymentMethod: { type: string, description: "cash | liqpay" }
+        paymentMethod: { type: string, description: "liqpay | bank_transfer (cash on legacy orders)" }
         paymentStatus: { type: string, description: "pending | paid | failed" }
         items:
           type: array
@@ -721,7 +721,7 @@ components:
         novaPoshtaBranch: { type: string }
         npCityRef: { type: string, description: "Nova Poshta city Ref" }
         npWarehouseRef: { type: string, description: "Nova Poshta warehouse Ref" }
-        paymentMethod: { type: string, description: "cash | liqpay" }
+        paymentMethod: { type: string, enum: [liqpay, bank_transfer], description: "Online card via LiqPay, or bank details sent by the manager" }
         items:
           type: array
           minItems: 1

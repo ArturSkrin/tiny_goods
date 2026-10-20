@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { OrderInputContactMethod } from './orderInputContactMethod';
+import type { OrderInputPaymentMethod } from './orderInputPaymentMethod';
 import type { OrderItemInput } from './orderItemInput';
 
 export interface OrderInput {
@@ -25,8 +26,8 @@ export interface OrderInput {
   npCityRef?: string;
   /** Nova Poshta warehouse Ref */
   npWarehouseRef?: string;
-  /** cash | liqpay */
-  paymentMethod?: string;
+  /** Online card via LiqPay, or bank details sent by the manager */
+  paymentMethod?: OrderInputPaymentMethod;
   /** @minItems 1 */
   items: OrderItemInput[];
 }

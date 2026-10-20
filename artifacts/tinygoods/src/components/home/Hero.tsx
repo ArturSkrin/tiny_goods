@@ -84,7 +84,7 @@ export function Hero({
 
         <motion.ul variants={item} className="mt-6 pt-5 border-t border-foreground/10 grid grid-cols-3 gap-2 text-[11px] md:text-xs text-muted-foreground font-semibold">
           <li className="flex flex-col md:flex-row md:items-center gap-1.5"><Truck className="w-4 h-4 text-primary" /> Нова Пошта по Україні</li>
-          <li className="flex flex-col md:flex-row md:items-center gap-1.5"><Wallet className="w-4 h-4 text-primary" /> Оплата онлайн карткою</li>
+          <li className="flex flex-col md:flex-row md:items-center gap-1.5"><Wallet className="w-4 h-4 text-primary" /> Оплата карткою або за реквізитами</li>
           <li className="flex flex-col md:flex-row md:items-center gap-1.5"><PackageOpen className="w-4 h-4 text-primary" /> Замовлення від {formatPrice(settings.minOrderTotal)}</li>
         </motion.ul>
       </motion.div>

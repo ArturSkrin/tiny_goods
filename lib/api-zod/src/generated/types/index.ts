@@ -28,6 +28,7 @@ export * from './npWarehouse';
 export * from './order';
 export * from './orderInput';
 export * from './orderInputContactMethod';
+export * from './orderInputPaymentMethod';
 export * from './orderItem';
 export * from './orderItemInput';
 export * from './orderPaymentStatus';

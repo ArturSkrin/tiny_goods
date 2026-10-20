@@ -182,12 +182,13 @@ router.post("/orders", async (req, res): Promise<void> => {
     return;
   }
 
-  // The shop takes online payment only; refuse up front rather than leave an unpayable order.
-  if (!process.env.LIQPAY_PUBLIC_KEY || !process.env.LIQPAY_PRIVATE_KEY) {
-    res.status(503).json({ error: "Онлайн-оплата тимчасово недоступна. Спробуйте пізніше." });
+  // Card via LiqPay (default) or bank details that the manager sends in a messenger.
+  const paymentMethod = input.paymentMethod ?? "liqpay";
+  if (paymentMethod === "liqpay" && (!process.env.LIQPAY_PUBLIC_KEY || !process.env.LIQPAY_PRIVATE_KEY)) {
+    // Refuse up front rather than leave an unpayable order.
+    res.status(503).json({ error: "Онлайн-оплата тимчасово недоступна. Оберіть оплату за реквізитами." });
     return;
   }
-  const paymentMethod = "liqpay";
 
   // High-entropy customer token used only for polling payment status (no PII exposed)
   const customerToken = crypto.randomUUID();

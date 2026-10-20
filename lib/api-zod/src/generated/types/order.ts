@@ -30,7 +30,7 @@ export interface Order {
   /** new | confirmed | shipped | completed | cancelled */
   status: string;
   total: number;
-  /** cash | liqpay */
+  /** liqpay | bank_transfer (cash on legacy orders) */
   paymentMethod: string;
   /** pending | paid | failed */
   paymentStatus: string;

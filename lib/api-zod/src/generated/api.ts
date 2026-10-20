@@ -348,7 +348,7 @@ export const ListOrdersResponseItem = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
-  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentMethod": zod.string().describe('liqpay | bank_transfer (cash on legacy orders)'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int().nullable().describe('null when the product was deleted'),
@@ -386,7 +386,7 @@ export const CreateOrderBody = zod.object({
   "novaPoshtaBranch": zod.string().optional(),
   "npCityRef": zod.string().optional().describe('Nova Poshta city Ref'),
   "npWarehouseRef": zod.string().optional().describe('Nova Poshta warehouse Ref'),
-  "paymentMethod": zod.string().optional().describe('cash | liqpay'),
+  "paymentMethod": zod.enum(['liqpay', 'bank_transfer']).optional().describe('Online card via LiqPay, or bank details sent by the manager'),
   "items": zod.array(zod.object({
   "productId": zod.int(),
   "quantity": zod.int().min(1),
@@ -409,7 +409,7 @@ export const CreateOrderResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
-  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentMethod": zod.string().describe('liqpay | bank_transfer (cash on legacy orders)'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int().nullable().describe('null when the product was deleted'),
@@ -458,7 +458,7 @@ export const GetOrderResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
-  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentMethod": zod.string().describe('liqpay | bank_transfer (cash on legacy orders)'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int().nullable().describe('null when the product was deleted'),
@@ -498,7 +498,7 @@ export const UpdateOrderResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
-  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentMethod": zod.string().describe('liqpay | bank_transfer (cash on legacy orders)'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int().nullable().describe('null when the product was deleted'),
@@ -836,7 +836,7 @@ export const GetAdminStatsResponse = zod.object({
   "novaPoshtaBranch": zod.string().nullish(),
   "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
   "total": zod.number(),
-  "paymentMethod": zod.string().describe('cash | liqpay'),
+  "paymentMethod": zod.string().describe('liqpay | bank_transfer (cash on legacy orders)'),
   "paymentStatus": zod.string().describe('pending | paid | failed'),
   "items": zod.array(zod.object({
   "productId": zod.int().nullable().describe('null when the product was deleted'),

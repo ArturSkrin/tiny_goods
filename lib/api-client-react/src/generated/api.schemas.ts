@@ -169,7 +169,7 @@ export interface Order {
   /** new | confirmed | shipped | completed | cancelled */
   status: string;
   total: number;
-  /** cash | liqpay */
+  /** liqpay | bank_transfer (cash on legacy orders) */
   paymentMethod: string;
   /** pending | paid | failed */
   paymentStatus: string;
@@ -197,6 +197,17 @@ export const OrderInputContactMethod = {
   phone: 'phone',
 } as const;
 
+/**
+ * Online card via LiqPay, or bank details sent by the manager
+ */
+export type OrderInputPaymentMethod = typeof OrderInputPaymentMethod[keyof typeof OrderInputPaymentMethod];
+
+
+export const OrderInputPaymentMethod = {
+  liqpay: 'liqpay',
+  bank_transfer: 'bank_transfer',
+} as const;
+
 export interface OrderInput {
   /** @minLength 1 */
   lastName: string;
@@ -214,8 +225,8 @@ export interface OrderInput {
   npCityRef?: string;
   /** Nova Poshta warehouse Ref */
   npWarehouseRef?: string;
-  /** cash | liqpay */
-  paymentMethod?: string;
+  /** Online card via LiqPay, or bank details sent by the manager */
+  paymentMethod?: OrderInputPaymentMethod;
   /** @minItems 1 */
   items: OrderItemInput[];
 }

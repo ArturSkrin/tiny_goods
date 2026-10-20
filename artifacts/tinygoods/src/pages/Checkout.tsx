@@ -11,9 +11,9 @@ import { useCreateOrder, useCreateLiqpayCheckout } from '@workspace/api-client-r
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { CheckCircle2, ArrowRight, CreditCard } from 'lucide-react';
+import { CheckCircle2, ArrowRight, CreditCard, Landmark, Info } from 'lucide-react';
 import { Link } from 'wouter';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const LIQPAY_URL = 'https://www.liqpay.ua/api/3/checkout';
 
@@ -29,7 +29,7 @@ const checkoutSchema = z.object({
   novaPoshtaBranch: z.string(),
   npWarehouseRef: z.string().min(1, 'Оберіть відділення зі списку'),
   comment: z.string().optional(),
-  paymentMethod: z.literal('liqpay'),
+  paymentMethod: z.enum(['liqpay', 'bank_transfer']),
 });
 
 const CONTACT_METHODS = [
@@ -38,6 +38,19 @@ const CONTACT_METHODS = [
   { value: 'whatsapp', label: 'WhatsApp' },
   { value: 'phone', label: 'Подзвонити' },
 ] as const;
+
+const PAYMENT_METHODS = [
+  { value: 'liqpay', label: 'Онлайн карткою', note: 'Visa / Mastercard через LiqPay', icon: CreditCard },
+  { value: 'bank_transfer', label: 'За реквізитами', note: 'Надішлемо реквізити в месенджер', icon: Landmark },
+] as const;
+
+/** "…зв'яжеться з вами <how>" for the chosen contact method. */
+const CONTACT_HINT: Record<string, string> = {
+  viber: 'у Viber',
+  telegram: 'у Telegram',
+  whatsapp: 'у WhatsApp',
+  phone: 'телефоном',
+};
 
 type CheckoutForm = z.infer<typeof checkoutSchema>;
 
@@ -65,6 +78,8 @@ export default function Checkout() {
     }
   });
   const npCityRef = watch('npCityRef');
+  const paymentMethod = watch('paymentMethod');
+  const contactMethod = watch('contactMethod');
 
 
   const onSubmit = async (data: CheckoutForm) => {
@@ -133,7 +148,9 @@ export default function Checkout() {
             <h1 className="text-3xl font-bold text-foreground">Дякуємо!</h1>
             <p className="text-foreground/70">
               Ваше замовлення #{successOrderId} прийнято.<br />
-              Наш менеджер зв'яжеться з вами найближчим часом.
+              {paymentMethod === 'bank_transfer'
+                ? `Менеджер звʼяжеться з вами ${CONTACT_HINT[contactMethod]} і надішле реквізити для оплати.`
+                : "Наш менеджер зв'яжеться з вами найближчим часом."}
             </p>
             <div className="pt-6">
               <Link href="/">
@@ -275,13 +292,47 @@ export default function Checkout() {
             {/* Payment method */}
             <div className="pt-4 border-t border-foreground/10">
               <h2 className="text-xl font-semibold text-foreground mb-4">Оплата</h2>
-              <div className="flex items-center gap-4 p-4 rounded-2xl border border-primary/40 bg-primary/10">
-                <CreditCard className="w-6 h-6 text-primary shrink-0" />
-                <div>
-                  <div className="text-sm font-semibold text-foreground">Онлайн карткою через LiqPay</div>
-                  <div className="text-xs text-foreground/60">Після підтвердження вас буде перенаправлено на захищену сторінку оплати.</div>
-                </div>
-              </div>
+              <Controller
+                control={control}
+                name="paymentMethod"
+                render={({ field }) => (
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {PAYMENT_METHODS.map((m) => {
+                      const active = field.value === m.value;
+                      return (
+                        <button
+                          key={m.value}
+                          type="button"
+                          onClick={() => field.onChange(m.value)}
+                          className={`flex items-center gap-3 p-4 rounded-2xl border text-left transition active:scale-[0.98] ${
+                            active ? 'border-primary/50 bg-primary/10 ring-1 ring-primary/40' : 'border-foreground/10 bg-foreground/5 hover:border-foreground/25'
+                          }`}
+                        >
+                          <m.icon className={`w-6 h-6 shrink-0 ${active ? 'text-primary' : 'text-foreground/50'}`} />
+                          <div>
+                            <div className="text-sm font-semibold text-foreground">{m.label}</div>
+                            <div className="text-xs text-foreground/60">{m.note}</div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              />
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={paymentMethod}
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mt-3 flex gap-2 text-sm text-foreground/70 rounded-xl bg-foreground/5 p-3"
+                >
+                  <Info className="w-4 h-4 mt-0.5 shrink-0 text-primary" />
+                  {paymentMethod === 'bank_transfer'
+                    ? `Менеджер звʼяжеться з вами ${CONTACT_HINT[contactMethod]}, погодить замовлення й надішле реквізити для оплати.`
+                    : 'Після підтвердження вас буде перенаправлено на захищену сторінку оплати LiqPay.'}
+                </motion.p>
+              </AnimatePresence>
             </div>
 
             <div className="pt-6">
@@ -291,7 +342,7 @@ export default function Checkout() {
                 className="w-full h-14 text-base rounded-2xl"
                 disabled={cartTotal < minOrder || isPending}
               >
-                {isPending ? 'Обробка...' : 'Перейти до оплати'}
+                {isPending ? 'Обробка...' : paymentMethod === 'bank_transfer' ? 'Оформити замовлення' : 'Перейти до оплати'}
                 {!isPending && <ArrowRight className="ml-2 w-5 h-5" />}
               </Button>
             </div>

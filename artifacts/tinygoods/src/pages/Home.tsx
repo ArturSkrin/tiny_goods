@@ -33,6 +33,11 @@ export default function Home() {
     document.getElementById('catalog')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  const pickChip = (categoryId: number | null) => {
+    setSearchQuery('');
+    setSelectedCategory(categoryId);
+  };
+
   const chip = (active: boolean) =>
     cn(
       'shrink-0 whitespace-nowrap px-5 h-10 rounded-full transition-all text-sm font-semibold active:scale-95',
@@ -79,11 +84,12 @@ export default function Home() {
           </Reveal>
 
           <div className="flex gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain py-1 no-scrollbar -mx-3 px-3 md:mx-0 md:px-0">
-            <button onClick={() => setSelectedCategory(null)} className={chip(selectedCategory === null)}>
+            {/* Chips browse by category, so they also drop a search left over from the hero or a promo. */}
+            <button onClick={() => pickChip(null)} className={chip(selectedCategory === null && !searchQuery)}>
               Усі товари
             </button>
             {categories?.map((cat) => (
-              <button key={cat.id} onClick={() => setSelectedCategory(cat.id)} className={chip(selectedCategory === cat.id)}>
+              <button key={cat.id} onClick={() => pickChip(cat.id)} className={chip(selectedCategory === cat.id)}>
                 {cat.name} <span className="opacity-60 ml-1">{cat.productCount}</span>
               </button>
             ))}

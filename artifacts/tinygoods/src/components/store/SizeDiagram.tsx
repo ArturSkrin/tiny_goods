@@ -1,6 +1,6 @@
 import type { MouseEvent } from 'react';
 import { motion } from 'framer-motion';
-import type { ProductOption } from '@workspace/api-client-react';
+import type { ProductOption, SizeOrder } from '@workspace/api-client-react';
 import { cn, formatPrice } from '../../lib/utils';
 
 export type Dims = { w: number; h: number; d?: number; unit: string };
@@ -9,19 +9,31 @@ const NUM = String.raw`(\d+(?:[.,]\d+)?)`;
 const SEP = String.raw`\s*[*xх×]\s*`;
 const DIMS_RE = new RegExp(`${NUM}${SEP}${NUM}(?:${SEP}${NUM})?`, 'i');
 
-/** "23*18*10 см", "23x18", "30 × 20 × 12 мм" → width/height/depth; null if the name has no dimensions. */
-export function parseDims(text: string): Dims | null {
+/** Per product: what the numbers in a size name mean, in order. */
+export const SIZE_ORDERS: { value: SizeOrder; label: string }[] = [
+  { value: 'whd', label: 'Ширина × Висота × Глибина' },
+  { value: 'hwd', label: 'Висота × Ширина × Глибина' },
+  { value: 'wdh', label: 'Довжина × Ширина × Висота (коробка)' },
+];
+
+/**
+ * "23*18*10 см", "23x18", "30 × 20 × 12 мм" → width/height/depth by the product's number order;
+ * null if the name has no dimensions. Two numbers are always width × height of a flat item.
+ */
+export function parseDims(text: string, order: SizeOrder = 'whd'): Dims | null {
   const m = DIMS_RE.exec(text);
   if (!m) return null;
-  const n = (s?: string) => (s ? parseFloat(s.replace(',', '.')) : undefined);
+  const nums = [m[1], m[2], m[3]].filter(Boolean).map((s) => parseFloat(s!.replace(',', '.')));
   const unit = /(мм|см|м)(?![а-яіїєґ])/i.exec(text.slice(m.index + m[0].length))?.[1]?.toLowerCase() ?? '';
-  return { w: n(m[1])!, h: n(m[2])!, d: n(m[3]), unit };
+  if (nums.length === 2) return { w: nums[0]!, h: nums[1]!, unit };
+  const at = (k: 'w' | 'h' | 'd') => nums[order.indexOf(k)]!;
+  return { w: at('w'), h: at('h'), d: at('d'), unit };
 }
 
 /** All sizes parsed, or null when any of them is a plain label like "M" (then the text chips are used). */
-export function parseAllDims(sizes: ProductOption[]): Dims[] | null {
+export function parseAllDims(sizes: ProductOption[], order?: SizeOrder): Dims[] | null {
   if (sizes.length === 0) return null;
-  const all = sizes.map((s) => parseDims(s.name));
+  const all = sizes.map((s) => parseDims(s.name, order));
   return all.every(Boolean) ? (all as Dims[]) : null;
 }
 
@@ -111,8 +123,6 @@ export function BoxDiagram({ dims, group, labels = false, className }: { dims: D
   );
 }
 
-const sizeLabel = (d: Dims) => [d.w, d.h, d.d].filter((n) => n != null).map((n) => fmt(n!)).join('×') + (d.unit ? ` ${d.unit}` : '');
-
 /** Drawing of the chosen size with its measurements, plus a box icon per size to switch between them. */
 export function SizePicker({
   sizes,
@@ -171,7 +181,7 @@ export function SizePicker({
   return (
     <div className="space-y-2.5">
       <div className="text-sm text-foreground/70">
-        Розмір: <span className="font-bold text-foreground">{sizeLabel(dims[i]!)}</span>
+        Розмір: <span className="font-bold text-foreground">{sizes[i]?.name}</span>
       </div>
       <div className="grid sm:grid-cols-[1fr_auto] gap-3 items-stretch">
         <motion.div key={sizes[i]?.name} initial={{ opacity: 0.3, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="rounded-2xl bg-foreground/[0.04] ring-1 ring-foreground/10 p-2 flex items-center justify-center">
@@ -191,7 +201,7 @@ export function SizePicker({
               >
                 <BoxDiagram dims={dims[n]!} group={dims} className="w-11 h-10 shrink-0" />
                 <span className="leading-tight">
-                  <span className="block text-sm font-semibold text-foreground whitespace-nowrap">{sizeLabel(dims[n]!)}</span>
+                  <span className="block text-sm font-semibold text-foreground whitespace-nowrap">{s.name}</span>
                   {s.priceDelta !== 0 && (
                     <span className="block text-xs text-muted-foreground">
                       {s.priceDelta > 0 ? '+' : '−'}

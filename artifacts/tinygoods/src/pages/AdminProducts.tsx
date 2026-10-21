@@ -9,6 +9,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { Trash2, Edit2, Plus, X, Copy, Image as ImageIcon } from 'lucide-react';
 import { ImageUpload } from '../components/admin/ImageUpload';
 import { OptionsEditor } from '../components/admin/OptionsEditor';
+import { SizeOrderPicker } from '../components/admin/SizeOrderPicker';
 
 const apiError = (e: unknown, fallback: string) => (e as { data?: { error?: string } })?.data?.error ?? fallback;
 import { formatPrice } from '../lib/utils';
@@ -38,7 +39,8 @@ export default function AdminProducts() {
     isActive: true,
     isFeatured: false,
     sizes: [],
-    colors: []
+    colors: [],
+    sizeOrder: 'whd'
   };
 
   const resetForm = () => {
@@ -229,12 +231,19 @@ export default function AdminProducts() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-white/10">
-              <OptionsEditor
-                label="Розміри"
-                placeholder="Напр. 10×10×5 см"
-                value={formData.sizes ?? []}
-                onChange={sizes => setFormData({...formData, sizes})}
-              />
+              <div className="space-y-4">
+                <OptionsEditor
+                  label="Розміри"
+                  placeholder="Напр. 10×10×5 см"
+                  value={formData.sizes ?? []}
+                  onChange={sizes => setFormData({...formData, sizes})}
+                />
+                <SizeOrderPicker
+                  sizes={formData.sizes ?? []}
+                  value={formData.sizeOrder ?? 'whd'}
+                  onChange={sizeOrder => setFormData({...formData, sizeOrder})}
+                />
+              </div>
               <OptionsEditor
                 label="Кольори"
                 placeholder="Напр. Пудровий"

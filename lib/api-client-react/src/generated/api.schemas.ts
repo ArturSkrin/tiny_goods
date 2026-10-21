@@ -70,6 +70,18 @@ export interface ProductOption {
   imageUrl?: string | null;
 }
 
+/**
+ * Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)
+ */
+export type SizeOrder = typeof SizeOrder[keyof typeof SizeOrder];
+
+
+export const SizeOrder = {
+  whd: 'whd',
+  hwd: 'hwd',
+  wdh: 'wdh',
+} as const;
+
 export interface Product {
   id: number;
   categoryId: number;
@@ -88,6 +100,7 @@ export interface Product {
   isFeatured: boolean;
   sizes: ProductOption[];
   colors: ProductOption[];
+  sizeOrder: SizeOrder;
   createdAt: string;
 }
 
@@ -106,6 +119,7 @@ export interface ProductInput {
   isFeatured?: boolean;
   sizes?: ProductOption[];
   colors?: ProductOption[];
+  sizeOrder?: SizeOrder;
 }
 
 export interface ProductUpdate {
@@ -126,6 +140,7 @@ export interface ProductUpdate {
   isFeatured?: boolean;
   sizes?: ProductOption[];
   colors?: ProductOption[];
+  sizeOrder?: SizeOrder;
 }
 
 export interface OrderItem {

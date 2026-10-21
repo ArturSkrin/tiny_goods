@@ -128,7 +128,7 @@ export default function ProductDetail() {
   const price = variantPrice(product, { size, color });
   const image = variantImage(product, color);
   const optionDelta = price - product.price;
-  const sizeDims = parseAllDims(product.sizes);
+  const sizeDims = parseAllDims(product.sizes, product.sizeOrder);
   const hasDiscount = product.oldPrice != null && product.oldPrice > product.price;
   const soldOut = product.stock === 0;
 

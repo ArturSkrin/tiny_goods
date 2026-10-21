@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ProductOption } from './productOption';
+import type { SizeOrder } from './sizeOrder';
 
 export interface ProductUpdate {
   categoryId?: number;
@@ -25,4 +26,5 @@ export interface ProductUpdate {
   isFeatured?: boolean;
   sizes?: ProductOption[];
   colors?: ProductOption[];
+  sizeOrder?: SizeOrder;
 }

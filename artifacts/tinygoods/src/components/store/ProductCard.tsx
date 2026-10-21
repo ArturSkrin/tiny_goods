@@ -16,7 +16,7 @@ export function ProductCard({ product }: { product: Product }) {
   const sizes = product.sizes ?? [];
   const [color, setColor] = useState(colors[0]?.name);
   // Sizes written as dimensions ("23*18*10 см") are drawn and picked right on the card.
-  const dims = parseAllDims(sizes);
+  const dims = parseAllDims(sizes, product.sizeOrder);
   const cheapest = [...sizes].sort((a, b) => a.priceDelta - b.priceDelta)[0];
   const [size, setSize] = useState(cheapest?.name);
 

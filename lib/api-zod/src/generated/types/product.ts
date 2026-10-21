@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ProductOption } from './productOption';
+import type { SizeOrder } from './sizeOrder';
 
 export interface Product {
   id: number;
@@ -25,5 +26,6 @@ export interface Product {
   isFeatured: boolean;
   sizes: ProductOption[];
   colors: ProductOption[];
+  sizeOrder: SizeOrder;
   createdAt: string;
 }

@@ -31,6 +31,8 @@ export const productsTable = pgTable("products", {
   // Selectable options; final price = price + size.priceDelta + color.priceDelta
   sizes: jsonb("sizes").$type<ProductOption[]>().notNull().default([]),
   colors: jsonb("colors").$type<ProductOption[]>().notNull().default([]),
+  // What the numbers in a size name mean, in order: w(idth), h(eight), d(epth); drives the size drawing
+  sizeOrder: text("size_order").$type<"whd" | "hwd" | "wdh">().notNull().default("whd"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

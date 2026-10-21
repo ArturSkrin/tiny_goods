@@ -55,6 +55,7 @@ export * from './siteContacts';
 export * from './siteHero';
 export * from './siteSettings';
 export * from './siteSettingsBannerTheme';
+export * from './sizeOrder';
 export * from './statusCount';
 export * from './telegramAuthInput';
 export * from './topProduct';

@@ -815,7 +815,7 @@ components:
         imageUrl: { type: ["string", "null"], description: "Photo of the product in this colour" }
     Product:
       type: object
-      required: [id, categoryId, name, price, stock, isActive, isFeatured, sizes, colors, createdAt]
+      required: [id, categoryId, name, price, stock, isActive, isFeatured, sizes, colors, sizeOrder, createdAt]
       properties:
         id: { type: integer }
         categoryId: { type: integer }
@@ -834,7 +834,12 @@ components:
         colors:
           type: array
           items: { $ref: "#/components/schemas/ProductOption" }
+        sizeOrder: { $ref: "#/components/schemas/SizeOrder" }
         createdAt: { type: string }
+    SizeOrder:
+      type: string
+      enum: [whd, hwd, wdh]
+      description: "Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)"
     ProductInput:
       type: object
       required: [categoryId, name, price]
@@ -855,6 +860,7 @@ components:
         colors:
           type: array
           items: { $ref: "#/components/schemas/ProductOption" }
+        sizeOrder: { $ref: "#/components/schemas/SizeOrder" }
     ProductUpdate:
       type: object
       properties:
@@ -874,6 +880,7 @@ components:
         colors:
           type: array
           items: { $ref: "#/components/schemas/ProductOption" }
+        sizeOrder: { $ref: "#/components/schemas/SizeOrder" }
     OrderItem:
       type: object
       required: [productId, productName, price, quantity]

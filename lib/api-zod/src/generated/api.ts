@@ -139,6 +139,7 @@ export const ListProductsResponseItem = zod.object({
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)'),
   "createdAt": zod.string()
 })
 export const ListProductsResponse = zod.array(ListProductsResponseItem)
@@ -174,7 +175,8 @@ export const CreateProductBody = zod.object({
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
-})).optional()
+})).optional(),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).optional().describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)')
 })
 
 
@@ -205,6 +207,7 @@ export const CreateProductResponse = zod.object({
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)'),
   "createdAt": zod.string()
 })
 
@@ -244,6 +247,7 @@ export const GetProductResponse = zod.object({
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)'),
   "createdAt": zod.string()
 })
 
@@ -282,7 +286,8 @@ export const UpdateProductBody = zod.object({
   "priceDelta": zod.number().describe('Added to the base price (UAH), may be 0 or negative'),
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
-})).optional()
+})).optional(),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).optional().describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)')
 })
 
 
@@ -313,6 +318,7 @@ export const UpdateProductResponse = zod.object({
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)'),
   "createdAt": zod.string()
 })
 
@@ -1112,6 +1118,7 @@ export const ListMyViewedResponseItem = zod.object({
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)'),
   "createdAt": zod.string()
 })
 export const ListMyViewedResponse = zod.array(ListMyViewedResponseItem)
@@ -1156,6 +1163,7 @@ export const AddMyViewedResponseItem = zod.object({
   "hex": zod.string().nullish().describe('Swatch colour for colour options'),
   "imageUrl": zod.string().nullish().describe('Photo of the product in this colour')
 })),
+  "sizeOrder": zod.enum(['whd', 'hwd', 'wdh']).describe('Meaning of the numbers in a size name: w=width, h=height, d=depth (e.g. wdh = length × width × height of a box)'),
   "createdAt": zod.string()
 })
 export const AddMyViewedResponse = zod.array(AddMyViewedResponseItem)

@@ -52,6 +52,25 @@ export function nameWithSize(name: string, size?: string) {
   return chosen ? name.replace(DIMS_RE, chosen) : name;
 }
 
+const SIZE_IN_TEXT = new RegExp(`${DIMS_RE.source}(?:\\s*(?:мм|см|м)(?![а-яіїєґ]))?`, 'i');
+
+/** "Пакет 23*18*10 см Продаж кратно 12 шт!" → size "23*18*10 см", rest "Пакет Продаж кратно 12 шт!". */
+export function splitSize(name: string): { size: string | null; rest: string } {
+  const m = SIZE_IN_TEXT.exec(name);
+  if (!m) return { size: null, rest: name };
+  const rest = (name.slice(0, m.index) + ' ' + name.slice(m.index + m[0].length))
+    .replace(/\s{2,}/g, ' ')
+    .replace(/\s+([,.!?])/g, '$1')
+    .trim();
+  return { size: m[0], rest };
+}
+
+/** "23*18*10 см" → "23×18×10 см"; the unit falls back to `unit` (e.g. from the product name). Plain labels stay as is. */
+export function prettySize(text: string, unit = '') {
+  const d = parseDims(text);
+  return d ? `${dimsText(d)} ${d.unit || unit}`.trim() : text;
+}
+
 // Oblique projection: depth goes up-right at 30°, drawn at half length.
 const K = 0.5;
 const CX = Math.cos(Math.PI / 6);

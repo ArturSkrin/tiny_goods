@@ -5,7 +5,7 @@ import { cn, formatPrice } from '../../lib/utils';
 import { useCart, variantImage, variantPrice } from '../../context/cart';
 import { Plus, Gift } from 'lucide-react';
 import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
-import { SizePicker, nameWithSize, parseAllDims } from './SizeDiagram';
+import { SizePicker, parseAllDims, parseDims, prettySize, splitSize } from './SizeDiagram';
 
 const MAX_SWATCHES = 4;
 
@@ -23,6 +23,11 @@ export function ProductCard({ product }: { product: Product }) {
   const price = variantPrice(product, { size, color });
   const image = variantImage(product, color);
   const hasDiscount = product.oldPrice != null && product.oldPrice > product.price;
+  const fromName = splitSize(product.name);
+  const sizeLine = size ? prettySize(size, fromName.size ? parseDims(fromName.size)?.unit : '') : fromName.size && prettySize(fromName.size);
+  const title = fromName.size ? fromName.rest : product.name;
+  const chosen = [sizes.find((s) => s.name === size), colors.find((c) => c.name === color)];
+  const skuLine = chosen.map((o) => o?.sku).filter(Boolean).join(' · ') || product.sku;
   const query = new URLSearchParams({ ...(color && { color }), ...(size && { size }) }).toString();
   const href = `/product/${product.id}${query ? `?${query}` : ''}`;
 
@@ -91,7 +96,12 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="p-3.5 md:p-4 flex flex-col flex-1 gap-2">
-          <h3 className="text-foreground text-sm md:text-[15px] font-semibold leading-snug line-clamp-2">{dims ? nameWithSize(product.name, size) : product.name}</h3>
+          {/* Size first (bold), then the warehouse code, then the name without the size in it */}
+          <div className="space-y-0.5">
+            {sizeLine && <div className="text-foreground text-[15px] md:text-base font-extrabold leading-tight tabular-nums">{sizeLine}</div>}
+            {skuLine && <div className="text-[10px] leading-tight text-muted-foreground tracking-wide">Арт. {skuLine}</div>}
+            <h3 className="pt-0.5 text-foreground/85 text-[13px] md:text-sm font-normal leading-snug line-clamp-2">{title}</h3>
+          </div>
 
           {colors.length > 0 && (
             <div className="space-y-1.5">

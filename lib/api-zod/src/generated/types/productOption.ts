@@ -21,4 +21,9 @@ export interface ProductOption {
      * @nullable
      */
   imageUrl?: string | null;
+  /**
+     * Warehouse code of this size / colour
+     * @nullable
+     */
+  sku?: string | null;
 }

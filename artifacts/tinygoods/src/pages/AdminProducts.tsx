@@ -230,7 +230,7 @@ export default function AdminProducts() {
               </div>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-white/10">
+            <div className="grid gap-6 pt-4 border-t border-white/10">
               <div className="space-y-4">
                 <OptionsEditor
                   label="Розміри"
@@ -251,7 +251,7 @@ export default function AdminProducts() {
                 value={formData.colors ?? []}
                 onChange={colors => setFormData({...formData, colors})}
               />
-              <p className="md:col-span-2 text-xs text-white/40">
+              <p className="text-xs text-white/40">
                 Ціна для покупця = базова ціна + надбавка обраного розміру + надбавка обраного кольору. Залишок спільний для всіх варіантів.
                 Якщо в товару є кольори, на його картці в каталозі зʼявиться вибір «Варіанти оформлення» — з фото кольору, якщо його додано.
               </p>

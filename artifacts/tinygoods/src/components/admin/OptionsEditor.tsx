@@ -47,7 +47,14 @@ export function OptionsEditor({
             </>
           )}
           <Input value={o.name} onChange={(e) => set(i, { name: e.target.value })} placeholder={placeholder} />
-          <div className="relative w-36 shrink-0">
+          <Input
+            value={o.sku ?? ''}
+            onChange={(e) => set(i, { sku: e.target.value || null })}
+            placeholder="Артикул"
+            title="Артикул цього варіанту — його побачить склад у замовленні"
+            className="w-28 shrink-0"
+          />
+          <div className="relative w-28 shrink-0">
             <Input
               type="number"
               value={o.priceDelta}

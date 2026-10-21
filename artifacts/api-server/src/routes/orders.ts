@@ -64,6 +64,7 @@ export function serializeOrder(order: Order, items: OrderItem[]) {
       productId: i.productId,
       productName: i.productName,
       variant: i.variant,
+      sku: i.sku,
       price: Number(i.price),
       quantity: i.quantity,
       imageUrl: i.imageUrl,
@@ -183,7 +184,7 @@ router.post("/orders", async (req, res): Promise<void> => {
   const productMap = new Map(products.map((p) => [p.id, p]));
 
   // Price every line on the server from the chosen size/colour; never trust client prices.
-  const lines: { product: Product; quantity: number; price: number; variant: string | null; imageUrl: string | null }[] = [];
+  const lines: { product: Product; quantity: number; price: number; variant: string | null; sku: string | null; imageUrl: string | null }[] = [];
   const qtyByProduct = new Map<number, number>();
   for (const item of input.items) {
     const product = productMap.get(item.productId);
@@ -206,7 +207,9 @@ router.post("/orders", async (req, res): Promise<void> => {
     const variant = [size?.name, color?.name].filter(Boolean).join(" · ") || null;
     // The chosen colour's own photo, if it has one, is what the buyer saw.
     const imageUrl = color?.imageUrl || product.imageUrl;
-    lines.push({ product, quantity: item.quantity, price: Math.max(0, price), variant, imageUrl });
+    // Variant codes say exactly what to pick from the shelf; fall back to the product's own code.
+    const sku = [size?.sku, color?.sku].filter(Boolean).join(" + ") || product.sku || null;
+    lines.push({ product, quantity: item.quantity, price: Math.max(0, price), variant, sku, imageUrl });
     qtyByProduct.set(product.id, (qtyByProduct.get(product.id) ?? 0) + item.quantity);
   }
 
@@ -277,6 +280,7 @@ router.post("/orders", async (req, res): Promise<void> => {
         productId: line.product.id,
         productName: line.product.name,
         variant: line.variant,
+        sku: line.sku,
         price: line.price.toFixed(2),
         quantity: line.quantity,
         imageUrl: line.imageUrl,

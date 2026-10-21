@@ -12,7 +12,7 @@ import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 import { categoriesTable } from "./categories";
 
-export type ProductOption = { name: string; priceDelta: number; hex?: string | null; imageUrl?: string | null };
+export type ProductOption = { name: string; priceDelta: number; hex?: string | null; imageUrl?: string | null; sku?: string | null };
 
 export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),

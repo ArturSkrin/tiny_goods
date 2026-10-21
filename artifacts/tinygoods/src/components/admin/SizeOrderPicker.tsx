@@ -12,7 +12,7 @@ export function SizeOrderPicker({ sizes, value, onChange }: { sizes: ProductOpti
   return (
     <div className="space-y-2">
       <label className="text-sm text-white/60">Як читати цифри «{sample.name}»?</label>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-3 gap-2 max-w-xl">
         {SIZE_ORDERS.map((o) => (
           <button
             key={o.value}

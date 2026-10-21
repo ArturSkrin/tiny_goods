@@ -832,6 +832,7 @@ components:
         priceDelta: { type: number, description: "Added to the base price (UAH), may be 0 or negative" }
         hex: { type: ["string", "null"], description: "Swatch colour for colour options" }
         imageUrl: { type: ["string", "null"], description: "Photo of the product in this colour" }
+        sku: { type: ["string", "null"], description: "Warehouse code of this size / colour" }
     Product:
       type: object
       required: [id, categoryId, name, price, stock, isActive, isFeatured, sizes, colors, sizeOrder, createdAt]
@@ -907,6 +908,7 @@ components:
         productId: { type: ["integer", "null"], description: "null when the product was deleted" }
         productName: { type: string }
         variant: { type: ["string", "null"], description: "Chosen size / colour" }
+        sku: { type: ["string", "null"], description: "Warehouse code(s) at order time" }
         price: { type: number }
         quantity: { type: integer }
         imageUrl: { type: ["string", "null"] }

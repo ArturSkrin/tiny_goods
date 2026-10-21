@@ -18,6 +18,11 @@ export interface OrderItem {
      * @nullable
      */
   variant?: string | null;
+  /**
+     * Warehouse code(s) at order time
+     * @nullable
+     */
+  sku?: string | null;
   price: number;
   quantity: number;
   /** @nullable */

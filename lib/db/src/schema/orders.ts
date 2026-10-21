@@ -60,6 +60,7 @@ export const orderItemsTable = pgTable("order_items", {
   }),
   productName: text("product_name").notNull(),
   variant: text("variant"),
+  sku: text("sku"), // warehouse code(s) of the product / chosen size and colour at order time
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   quantity: integer("quantity").notNull(),
   imageUrl: text("image_url"),

@@ -68,6 +68,11 @@ export interface ProductOption {
      * @nullable
      */
   imageUrl?: string | null;
+  /**
+     * Warehouse code of this size / colour
+     * @nullable
+     */
+  sku?: string | null;
 }
 
 /**
@@ -155,6 +160,11 @@ export interface OrderItem {
      * @nullable
      */
   variant?: string | null;
+  /**
+     * Warehouse code(s) at order time
+     * @nullable
+     */
+  sku?: string | null;
   price: number;
   quantity: number;
   /** @nullable */

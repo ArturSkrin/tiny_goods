@@ -160,6 +160,7 @@ function OrderDetails({ order, onUpdate, busy }: { order: Order; onUpdate: (data
               <div className="flex-1 min-w-0 text-sm">
                 <div className="text-white/90 leading-snug line-clamp-2">{item.productName}</div>
                 {item.variant && <div className="text-xs text-white/50">{item.variant}</div>}
+                {item.sku && <div className="inline-block mt-0.5 px-1.5 rounded bg-white/10 font-mono text-[11px] text-white/80">Арт. {item.sku}</div>}
               </div>
               <div className="text-right text-sm shrink-0">
                 <div className="text-white font-semibold">{formatPrice(item.price * item.quantity)}</div>

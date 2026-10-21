@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react';
+import { useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { motion } from 'framer-motion';
 import type { ProductOption, SizeOrder } from '@workspace/api-client-react';
 import { cn, formatPrice } from '../../lib/utils';
@@ -142,6 +142,81 @@ export function BoxDiagram({ dims, group, labels = false, className }: { dims: D
   );
 }
 
+/**
+ * Size chips for the catalog card: box icon + numbers while they all fit on one line;
+ * when they don't, only the chosen chip keeps its numbers, and on very narrow cards
+ * (phones) only the icons stay — the chosen size is in the product title anyway.
+ */
+function SizeChips({
+  sizes,
+  dims,
+  active,
+  onPick,
+}: {
+  sizes: ProductOption[];
+  dims: Dims[] | null;
+  active: number;
+  onPick: (name: string, e: MouseEvent) => void;
+}) {
+  const box = useRef<HTMLDivElement>(null);
+  const probe = useRef<HTMLDivElement>(null);
+  // full: numbers on every chip; selected: only on the chosen one; icons: no numbers (the title has the size)
+  const [mode, setMode] = useState<'full' | 'selected' | 'icons'>('full');
+
+  useLayoutEffect(() => {
+    if (!dims || !box.current) return;
+    const check = () => {
+      const room = box.current?.clientWidth ?? 0;
+      const row = probe.current;
+      if (!row || row.scrollWidth <= room) return setMode('full');
+      const icon = 28 + 4; // icon-only chip + gap
+      const chosen = (row.children[active] as HTMLElement | undefined)?.offsetWidth ?? 0;
+      setMode(chosen + (sizes.length - 1) * icon <= room ? 'selected' : 'icons');
+    };
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(box.current);
+    return () => ro.disconnect();
+  }, [dims, active, sizes.length]);
+
+  const chip = (s: ProductOption, n: number, withText: boolean, interactive = true) => (
+    <button
+      key={s.name}
+      type="button"
+      title={s.name}
+      tabIndex={interactive ? undefined : -1}
+      aria-pressed={interactive ? n === active : undefined}
+      onClick={interactive ? (e) => onPick(s.name, e) : undefined}
+      className={cn(
+        'h-8 shrink-0 rounded-lg flex items-center gap-0.5 ring-1 text-[11px] font-semibold tabular-nums tracking-tight transition active:scale-95',
+        !dims ? 'px-2.5' : withText ? 'pl-1 pr-1.5' : 'w-7 justify-center',
+        n === active ? 'ring-2 ring-primary bg-primary/10 text-foreground' : 'ring-foreground/15 text-foreground/70 hover:ring-foreground/35',
+      )}
+    >
+      {dims ? (
+        <>
+          <BoxDiagram dims={dims[n]!} group={dims} className="w-5 h-5 shrink-0" />
+          {withText && dimsText(dims[n]!)}
+        </>
+      ) : (
+        s.name
+      )}
+    </button>
+  );
+
+  return (
+    <div ref={box} className="relative flex flex-wrap gap-1">
+      {sizes.map((s, n) => chip(s, n, mode === 'full' || (mode === 'selected' && n === active)))}
+      {dims && (
+        // Invisible full-width row, measured to decide whether the numbers fit.
+        <div ref={probe} aria-hidden="true" className="absolute left-0 top-0 w-max flex gap-1 invisible pointer-events-none">
+          {sizes.map((s, n) => chip(s, n, true, false))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** Drawing of the chosen size with its measurements, plus a box icon per size to switch between them. */
 export function SizePicker({
   sizes,
@@ -163,39 +238,8 @@ export function SizePicker({
     e.stopPropagation();
   };
 
-  // Catalog card: one row of small chips (box icon + numbers); the full drawing lives on the product page.
-  if (compact) {
-    return (
-      <div className="flex flex-wrap gap-1.5">
-        {sizes.map((s, n) => (
-          <button
-            key={s.name}
-            type="button"
-            title={s.name}
-            aria-pressed={n === i}
-            onClick={(e) => {
-              stop(e);
-              onChange(s.name);
-            }}
-            className={cn(
-              'h-8 rounded-lg flex items-center gap-1 ring-1 text-[11px] font-semibold tabular-nums transition active:scale-95',
-              dims ? 'pl-1 pr-2' : 'px-2.5',
-              n === i ? 'ring-2 ring-primary bg-primary/10 text-foreground' : 'ring-foreground/15 text-foreground/70 hover:ring-foreground/35',
-            )}
-          >
-            {dims ? (
-              <>
-                <BoxDiagram dims={dims[n]!} group={dims} className="w-6 h-6 shrink-0" />
-                {dimsText(dims[n]!)}
-              </>
-            ) : (
-              s.name
-            )}
-          </button>
-        ))}
-      </div>
-    );
-  }
+  // Catalog card: one row of small chips; the full drawing lives on the product page.
+  if (compact) return <SizeChips sizes={sizes} dims={dims} active={i} onPick={(name, e) => (stop(e), onChange(name))} />;
 
   if (!dims) return null; // the product page uses plain chips for labels like "M"
 

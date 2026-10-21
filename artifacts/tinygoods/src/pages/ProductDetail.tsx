@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowLeft, Minus, Plus, Check, ShieldCheck, Truck, ChevronDown, Gift } from 'lucide-react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { RichText } from '../components/store/RichText';
-import { SizePicker, parseAllDims } from '../components/store/SizeDiagram';
+import { SizePicker, nameWithSize, parseAllDims } from '../components/store/SizeDiagram';
 import { useRecordView } from '../hooks/use-me';
 import { useCart, variantImage, variantPrice } from '../context/cart';
 import { cn, formatPrice } from '../lib/utils';
@@ -184,7 +184,7 @@ export default function ProductDetail() {
           <div className="space-y-5">
             {/* Buy box: everything needed to order, without scrolling */}
             <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="liquid-glass rounded-[28px] p-5 md:p-7 space-y-5">
-              <h1 className="font-display text-2xl md:text-[32px] leading-tight font-semibold text-foreground">{product.name}</h1>
+              <h1 className="font-display text-2xl md:text-[32px] leading-tight font-semibold text-foreground">{sizeDims ? nameWithSize(product.name, size) : product.name}</h1>
 
               <div className="flex items-end gap-3">
                 <motion.div key={price} initial={{ y: -6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} className="text-3xl md:text-4xl font-extrabold text-foreground">

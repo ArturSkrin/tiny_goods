@@ -6,7 +6,7 @@ import { cn } from '../../lib/utils';
 export function SizeOrderPicker({ sizes, value, onChange }: { sizes: ProductOption[]; value: SizeOrder; onChange: (v: SizeOrder) => void }) {
   // Prefer a size whose three numbers differ, so the three drawings actually look different.
   const boxes = sizes.filter((s) => parseDims(s.name)?.d != null);
-  const sample = boxes.find((s) => new Set(Object.values(parseDims(s.name)!).slice(0, 3)).size === 3) ?? boxes[0];
+  const sample = boxes.find((s) => new Set(parseDims(s.name)!.raw).size === 3) ?? boxes[0];
   if (!sample) return null;
 
   return (

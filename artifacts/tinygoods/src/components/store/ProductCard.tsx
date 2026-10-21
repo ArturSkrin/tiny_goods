@@ -4,8 +4,8 @@ import { Product } from '@workspace/api-client-react';
 import { cn, formatPrice } from '../../lib/utils';
 import { useCart, variantImage, variantPrice } from '../../context/cart';
 import { Plus, Gift } from 'lucide-react';
-import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { SizePicker, parseAllDims } from './SizeDiagram';
+import { AnimatePresence, motion, useMotionValue, useTransform } from 'framer-motion';
+import { SizePicker, nameWithSize, parseAllDims } from './SizeDiagram';
 
 const MAX_SWATCHES = 4;
 
@@ -29,11 +29,9 @@ export function ProductCard({ product }: { product: Product }) {
   const query = new URLSearchParams({ ...(color && { color }), ...(dims && size && { size }) }).toString();
   const href = `/product/${product.id}${query ? `?${query}` : ''}`;
 
-  // Subtle 3D tilt following the pointer (mouse only; touch keeps the card flat).
+  // Soft light following the pointer (mouse only).
   const px = useMotionValue(0.5);
   const py = useMotionValue(0.5);
-  const rotateX = useSpring(useTransform(py, [0, 1], [6, -6]), { stiffness: 200, damping: 20 });
-  const rotateY = useSpring(useTransform(px, [0, 1], [-6, 6]), { stiffness: 200, damping: 20 });
   const glare = useTransform([px, py], ([x, y]: number[]) =>
     `radial-gradient(circle at ${x * 100}% ${y * 100}%, hsl(0 0% 100% / 0.35), transparent 55%)`,
   );
@@ -60,7 +58,6 @@ export function ProductCard({ product }: { product: Product }) {
       <motion.div
         onPointerMove={onMove}
         onPointerLeave={onLeave}
-        style={{ rotateX, rotateY, transformPerspective: 900 }}
         whileTap={{ scale: 0.97 }}
         className="liquid-glass group rounded-[24px] flex flex-col h-full cursor-pointer"
       >
@@ -98,7 +95,7 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="p-3.5 md:p-4 flex flex-col flex-1 gap-2">
-          <h3 className="text-foreground text-sm md:text-[15px] font-semibold leading-snug line-clamp-2">{product.name}</h3>
+          <h3 className="text-foreground text-sm md:text-[15px] font-semibold leading-snug line-clamp-2">{dims ? nameWithSize(product.name, size) : product.name}</h3>
 
           {colors.length > 0 && (
             <div className="space-y-1.5">

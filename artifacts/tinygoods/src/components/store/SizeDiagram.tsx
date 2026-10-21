@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import type { ProductOption, SizeOrder } from '@workspace/api-client-react';
 import { cn, formatPrice } from '../../lib/utils';
 
-export type Dims = { w: number; h: number; d?: number; unit: string };
+export type Dims = { w: number; h: number; d?: number; unit: string; raw: number[] };
 
 const NUM = String.raw`(\d+(?:[.,]\d+)?)`;
 const SEP = String.raw`\s*[*xх×]\s*`;
@@ -25,9 +25,9 @@ export function parseDims(text: string, order: SizeOrder = 'whd'): Dims | null {
   if (!m) return null;
   const nums = [m[1], m[2], m[3]].filter(Boolean).map((s) => parseFloat(s!.replace(',', '.')));
   const unit = /(мм|см|м)(?![а-яіїєґ])/i.exec(text.slice(m.index + m[0].length))?.[1]?.toLowerCase() ?? '';
-  if (nums.length === 2) return { w: nums[0]!, h: nums[1]!, unit };
+  if (nums.length === 2) return { w: nums[0]!, h: nums[1]!, unit, raw: nums };
   const at = (k: 'w' | 'h' | 'd') => nums[order.indexOf(k)]!;
-  return { w: at('w'), h: at('h'), d: at('d'), unit };
+  return { w: at('w'), h: at('h'), d: at('d'), unit, raw: nums };
 }
 
 /** All sizes parsed, or null when any of them is a plain label like "M" (then the text chips are used). */
@@ -38,7 +38,19 @@ export function parseAllDims(sizes: ProductOption[], order?: SizeOrder): Dims[] 
 }
 
 const fmt = (n: number) => String(n).replace('.', ',');
-const unitOf = (all: Dims[]) => all.find((d) => d.unit)?.unit;
+
+/** The numbers as written in the size name, "23×18×10". */
+const dimsText = (d: Dims) => d.raw.map(fmt).join('×');
+
+/**
+ * Product names often carry the size ("Пакет 23*18*10 см"); swap it for the chosen size
+ * so the title matches the selection. Names without dimensions are returned as is.
+ */
+export function nameWithSize(name: string, size?: string) {
+  // Only the numbers are swapped; the unit written in the name stays.
+  const chosen = size?.match(DIMS_RE)?.[0];
+  return chosen ? name.replace(DIMS_RE, chosen) : name;
+}
 
 // Oblique projection: depth goes up-right at 30°, drawn at half length.
 const K = 0.5;
@@ -145,42 +157,34 @@ export function SizePicker({
   compact?: boolean;
 }) {
   const i = Math.max(0, sizes.findIndex((s) => s.name === value));
-  const unit = unitOf(dims);
   const stop = (e: MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
+  // Catalog card: one row of small chips (box icon + numbers); the full drawing lives on the product page.
   if (compact) {
     return (
-      <div className="space-y-1.5">
-        <div className="text-[10px] font-bold uppercase tracking-[0.12em] text-muted-foreground">Розмір{unit && `, ${unit}`}</div>
-        <motion.div key={sizes[i]?.name} initial={{ opacity: 0.3 }} animate={{ opacity: 1 }} className="rounded-xl bg-foreground/[0.04] ring-1 ring-foreground/10 px-1 py-1.5">
-          <BoxDiagram dims={dims[i]!} labels className="w-full h-[78px]" />
-        </motion.div>
-        {sizes.length > 1 && (
-          <div className="flex flex-wrap gap-1.5">
-            {sizes.map((s, n) => (
-              <button
-                key={s.name}
-                type="button"
-                title={s.name}
-                aria-label={s.name}
-                aria-pressed={n === i}
-                onClick={(e) => {
-                  stop(e);
-                  onChange(s.name);
-                }}
-                className={cn(
-                  'w-9 h-9 md:w-10 md:h-10 rounded-xl ring-1 transition active:scale-90',
-                  n === i ? 'ring-2 ring-primary ring-offset-2 ring-offset-background bg-primary/5' : 'ring-foreground/15 hover:ring-foreground/40',
-                )}
-              >
-                <BoxDiagram dims={dims[n]!} group={dims} className="w-full h-full" />
-              </button>
-            ))}
-          </div>
-        )}
+      <div className="flex flex-wrap gap-1.5">
+        {sizes.map((s, n) => (
+          <button
+            key={s.name}
+            type="button"
+            title={s.name}
+            aria-pressed={n === i}
+            onClick={(e) => {
+              stop(e);
+              onChange(s.name);
+            }}
+            className={cn(
+              'h-8 pl-1 pr-2 rounded-lg flex items-center gap-1 ring-1 text-[11px] font-semibold tabular-nums transition active:scale-95',
+              n === i ? 'ring-2 ring-primary bg-primary/10 text-foreground' : 'ring-foreground/15 text-foreground/70 hover:ring-foreground/35',
+            )}
+          >
+            <BoxDiagram dims={dims[n]!} group={dims} className="w-6 h-6 shrink-0" />
+            {dimsText(dims[n]!)}
+          </button>
+        ))}
       </div>
     );
   }

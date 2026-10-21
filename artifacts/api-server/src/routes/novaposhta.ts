@@ -1,9 +1,11 @@
 import { Router, type IRouter } from "express";
 import { SearchNpCitiesQueryParams, SearchNpWarehousesQueryParams } from "@workspace/api-zod";
+import { np as npCall, cached } from "../lib/novaposhta";
 
 const router: IRouter = Router();
 
-const NP_URL = "https://api.novaposhta.ua/v2.0/json/";
+const np = <T>(calledMethod: string, methodProperties: Record<string, string>) =>
+  npCall<T>("AddressGeneral", calledMethod, methodProperties);
 
 // Regional centres, biggest first: shown before the buyer types anything.
 const MAJOR_CITIES = [
@@ -14,35 +16,6 @@ const MAJOR_CITIES = [
 
 type NpCityRow = { Ref: string; Description: string; AreaDescription: string; SettlementTypeDescription: string };
 type NpWarehouseRow = { Ref: string; Number: string; Description: string };
-
-async function np<T>(calledMethod: string, methodProperties: Record<string, string>): Promise<T[]> {
-  const res = await fetch(NP_URL, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    // Public lookups work without a key; NOVA_POSHTA_API_KEY raises rate limits if set.
-    body: JSON.stringify({
-      apiKey: process.env.NOVA_POSHTA_API_KEY ?? "",
-      modelName: "AddressGeneral",
-      calledMethod,
-      methodProperties,
-    }),
-    signal: AbortSignal.timeout(8000),
-  });
-  const json = (await res.json()) as { success: boolean; data: T[]; errors?: string[] };
-  if (!json.success) throw new Error(json.errors?.join("; ") || "Nova Poshta request failed");
-  return json.data;
-}
-
-/** Small TTL cache; NP reference data changes rarely. */
-const cache = new Map<string, { at: number; value: unknown }>();
-async function cached<T>(key: string, ttlMs: number, load: () => Promise<T>): Promise<T> {
-  const hit = cache.get(key);
-  if (hit && Date.now() - hit.at < ttlMs) return hit.value as T;
-  const value = await load();
-  if (cache.size > 2000) cache.clear();
-  cache.set(key, { at: Date.now(), value });
-  return value;
-}
 
 const toCity = (c: NpCityRow) => ({ ref: c.Ref, name: c.Description, area: c.AreaDescription });
 

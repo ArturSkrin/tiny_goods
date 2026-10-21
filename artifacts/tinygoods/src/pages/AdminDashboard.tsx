@@ -1,6 +1,7 @@
 import React from 'react';
 import { AdminLayout } from '../components/layout/AdminLayout';
 import { useGetAdminStats } from '@workspace/api-client-react';
+import { Link } from 'wouter';
 import { formatPrice } from '../lib/utils';
 import { Package, ShoppingCart, DollarSign, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -68,7 +69,7 @@ export default function AdminDashboard() {
                 <div className="text-white/50 text-sm">Немає замовлень</div>
               ) : (
                 stats.recentOrders.map(order => (
-                  <div key={order.id} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5">
+                  <Link key={order.id} href={`/tiny-admin/orders?open=${order.id}`} className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/15 transition">
                     <div>
                       <div className="text-white font-medium">Замовлення #{order.id}</div>
                       <div className="text-white/50 text-sm">{order.customerName}</div>
@@ -77,7 +78,7 @@ export default function AdminDashboard() {
                       <div className="text-primary font-bold">{formatPrice(order.total)}</div>
                       <div className="text-white/50 text-xs">{new Date(order.createdAt).toLocaleDateString('uk-UA')}</div>
                     </div>
-                  </div>
+                  </Link>
                 ))
               )}
             </div>

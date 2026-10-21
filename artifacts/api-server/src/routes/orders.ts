@@ -23,8 +23,11 @@ import {
   UpdateOrderParams,
   UpdateOrderBody,
   UpdateOrderResponse,
+  TrackOrderParams,
+  TrackOrderResponse,
 } from "@workspace/api-zod";
 import { requireAdmin } from "../lib/adminAuth";
+import { trackWaybills } from "../lib/novaposhta";
 
 const router: IRouter = Router();
 
@@ -54,6 +57,8 @@ export function serializeOrder(order: Order, items: OrderItem[]) {
     total: Number(order.total),
     paymentMethod: order.paymentMethod,
     paymentStatus: order.paymentStatus,
+    ttn: order.ttn,
+    tracking: order.npTracking ?? null,
     createdAt: order.createdAt.toISOString(),
     items: items.map((i) => ({
       productId: i.productId,
@@ -81,19 +86,61 @@ async function loadItemsByOrderIds(orderIds: number[]) {
   return map;
 }
 
+const TRACK_TTL_MS = 20 * 60_000;
+const ON_THE_WAY = new Set(["sent", "in_transit", "at_branch"]);
+
+/** Parcels worth asking NP about again: have a waybill, not delivered or cancelled, not checked lately. */
+const trackingStale = (o: Order) =>
+  !!o.ttn &&
+  o.status !== "cancelled" &&
+  o.npTracking?.stage !== "received" &&
+  (!o.npTracking || Date.now() - Date.parse(o.npTracking.checkedAt) > TRACK_TTL_MS);
+
+/**
+ * Store the current NP status of these orders' parcels and move the order along with it:
+ * on the way → "shipped", delivered → "completed". Returns the updated rows by id.
+ */
+async function refreshTracking(orders: Order[]) {
+  const updated = new Map<number, Order>();
+  const withTtn = orders.filter((o) => o.ttn).slice(0, 100);
+  if (withTtn.length === 0) return updated;
+  const found = await trackWaybills(withTtn.map((o) => ({ ttn: o.ttn!, phone: o.phone })));
+  for (const o of withTtn) {
+    const t = found.get(o.ttn!);
+    if (!t) continue;
+    let status = o.status;
+    if (t.stage === "received" && status !== "cancelled") status = "completed";
+    else if (ON_THE_WAY.has(t.stage) && (status === "new" || status === "confirmed")) status = "shipped";
+    const [row] = await db
+      .update(ordersTable)
+      .set({ npTracking: t, status })
+      .where(eq(ordersTable.id, o.id))
+      .returning();
+    if (row) updated.set(o.id, row);
+  }
+  return updated;
+}
+
 router.get("/orders", requireAdmin, async (req, res): Promise<void> => {
   const query = ListOrdersQueryParams.safeParse(req.query);
   if (!query.success) {
     res.status(400).json({ error: query.error.message });
     return;
   }
-  const orders = await db
+  let orders = await db
     .select()
     .from(ordersTable)
     .where(
       query.data.status ? eq(ordersTable.status, query.data.status) : undefined,
     )
     .orderBy(desc(ordersTable.createdAt));
+  // Opening the list keeps parcel statuses fresh; NP being down must not break the list.
+  try {
+    const fresh = await refreshTracking(orders.filter(trackingStale));
+    orders = orders.map((o) => fresh.get(o.id) ?? o);
+  } catch (err) {
+    req.log.warn({ err }, "Nova Poshta tracking refresh failed");
+  }
   const itemsMap = await loadItemsByOrderIds(orders.map((o) => o.id));
   res.json(
     ListOrdersResponse.parse(
@@ -313,20 +360,66 @@ router.patch("/orders/:id", requireAdmin, async (req, res): Promise<void> => {
     res.status(400).json({ error: "Invalid paymentStatus" });
     return;
   }
-  const [updated] = await db
+  const { ttn: rawTtn, ...changes } = parsed.data;
+  const set: Partial<Order> = changes;
+  if (rawTtn !== undefined) {
+    // "20 4500 1234 5678" → digits; a new waybill drops the old tracking.
+    const ttn = (rawTtn ?? "").replace(/[\s-]/g, "");
+    if (ttn && !/^\d{10,20}$/.test(ttn)) {
+      res.status(400).json({ error: "Номер ТТН має містити 10–20 цифр" });
+      return;
+    }
+    set.ttn = ttn || null;
+    set.npTracking = null;
+  }
+  let [updated] = await db
     .update(ordersTable)
-    .set(parsed.data)
+    .set(set)
     .where(eq(ordersTable.id, params.data.id))
     .returning();
   if (!updated) {
     res.status(404).json({ error: "Order not found" });
     return;
   }
+  if (set.ttn) {
+    try {
+      updated = (await refreshTracking([updated])).get(updated.id) ?? updated;
+    } catch (err) {
+      req.log.warn({ err }, "Nova Poshta tracking failed");
+    }
+  }
   const items = await db
     .select()
     .from(orderItemsTable)
     .where(eq(orderItemsTable.orderId, updated.id));
   res.json(UpdateOrderResponse.parse(serializeOrder(updated, items)));
+});
+
+router.post("/orders/:id/track", requireAdmin, async (req, res): Promise<void> => {
+  const params = TrackOrderParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, params.data.id));
+  if (!order) {
+    res.status(404).json({ error: "Order not found" });
+    return;
+  }
+  if (!order.ttn) {
+    res.status(400).json({ error: "У замовлення немає ТТН" });
+    return;
+  }
+  let fresh: Order;
+  try {
+    fresh = (await refreshTracking([order])).get(order.id) ?? order;
+  } catch (err) {
+    req.log.warn({ err }, "Nova Poshta tracking failed");
+    res.status(502).json({ error: "Нова Пошта не відповідає, спробуйте пізніше" });
+    return;
+  }
+  const items = await db.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, order.id));
+  res.json(TrackOrderResponse.parse(serializeOrder(fresh, items)));
 });
 
 export default router;

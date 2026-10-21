@@ -48,6 +48,12 @@ const CY = Math.sin(Math.PI / 6);
 const LABELED = { vw: 170, vh: 104, ml: 20, mr: 26, mt: 6, mb: 20 };
 const ICON = { vw: 40, vh: 36, ml: 4, mr: 4, mt: 4, mb: 4 };
 
+/** Drawn shape: true proportions, but no side thinner than 1/4 of the longest so it stays readable. */
+function shape(d: Dims): Dims {
+  const min = Math.max(d.w, d.h, d.d ?? 0) / 4;
+  return { ...d, w: Math.max(d.w, min), h: Math.max(d.h, min), d: d.d == null ? undefined : Math.max(d.d, min) };
+}
+
 function fitScale(d: Dims, box: typeof LABELED) {
   const depth = d.d ?? 0;
   return Math.min((box.vw - box.ml - box.mr) / (d.w + depth * K * CX), (box.vh - box.mt - box.mb) / (d.h + depth * K * CY));
@@ -75,11 +81,12 @@ function DimLine({ x1, y1, x2, y2 }: { x1: number; y1: number; x2: number; y2: n
  */
 export function BoxDiagram({ dims, group, labels = false, className }: { dims: Dims; group?: Dims[]; labels?: boolean; className?: string }) {
   const box = labels ? LABELED : ICON;
-  const s = Math.min(...(group ?? [dims]).map((d) => fitScale(d, box)));
-  const w = dims.w * s;
-  const h = dims.h * s;
-  const dx = (dims.d ?? 0) * s * K * CX;
-  const dy = -(dims.d ?? 0) * s * K * CY;
+  const g = shape(dims);
+  const s = Math.min(...(group ?? [dims]).map((d) => fitScale(shape(d), box)));
+  const w = g.w * s;
+  const h = g.h * s;
+  const dx = (g.d ?? 0) * s * K * CX;
+  const dy = -(g.d ?? 0) * s * K * CY;
   const x0 = box.ml + (box.vw - box.ml - box.mr - (w + dx)) / 2;
   const y0 = box.vh - box.mb; // stands on the floor
   const top = y0 - h;

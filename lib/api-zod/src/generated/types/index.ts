@@ -33,6 +33,8 @@ export * from './listOrdersParams';
 export * from './listProductsParams';
 export * from './me';
 export * from './npCity';
+export * from './npTracking';
+export * from './npTrackingStage';
 export * from './npWarehouse';
 export * from './okResult';
 export * from './order';

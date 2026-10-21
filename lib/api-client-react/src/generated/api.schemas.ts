@@ -161,6 +161,33 @@ export interface OrderItem {
   imageUrl?: string | null;
 }
 
+export type NpTrackingStage = typeof NpTrackingStage[keyof typeof NpTrackingStage];
+
+
+export const NpTrackingStage = {
+  created: 'created',
+  sent: 'sent',
+  in_transit: 'in_transit',
+  at_branch: 'at_branch',
+  received: 'received',
+  problem: 'problem',
+} as const;
+
+export interface NpTracking {
+  stage: NpTrackingStage;
+  /** Status text from Nova Poshta */
+  status: string;
+  /** Nova Poshta StatusCode */
+  code: string;
+  /** @nullable */
+  scheduledDate?: string | null;
+  /** @nullable */
+  receivedAt?: string | null;
+  /** @nullable */
+  warehouse?: string | null;
+  checkedAt: string;
+}
+
 export interface Order {
   id: number;
   customerName: string;
@@ -189,6 +216,12 @@ export interface Order {
   /** pending | paid | failed */
   paymentStatus: string;
   items: OrderItem[];
+  /**
+     * Nova Poshta waybill number
+     * @nullable
+     */
+  ttn?: string | null;
+  tracking?: NpTracking | null;
   createdAt: string;
 }
 
@@ -251,6 +284,11 @@ export interface OrderInput {
 export interface OrderUpdate {
   status?: string;
   paymentStatus?: string;
+  /**
+     * Nova Poshta waybill; empty or null clears it
+     * @nullable
+     */
+  ttn?: string | null;
 }
 
 export interface OrderPaymentStatus {

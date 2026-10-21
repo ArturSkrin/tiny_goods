@@ -9,4 +9,9 @@
 export interface OrderUpdate {
   status?: string;
   paymentStatus?: string;
+  /**
+     * Nova Poshta waybill; empty or null clears it
+     * @nullable
+     */
+  ttn?: string | null;
 }

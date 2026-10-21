@@ -5,6 +5,7 @@ import {
   integer,
   numeric,
   timestamp,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -32,6 +33,17 @@ export const ordersTable = pgTable("orders", {
   paymentStatus: text("payment_status").notNull().default("pending"),
   liqpayOrderId: text("liqpay_order_id"),
   customerToken: text("customer_token").notNull().default(""),
+  // Nova Poshta waybill (ТТН) and its last known status from the NP tracking API
+  ttn: text("ttn"),
+  npTracking: jsonb("np_tracking").$type<{
+    stage: string;
+    status: string;
+    code: string;
+    scheduledDate?: string | null;
+    receivedAt?: string | null;
+    warehouse?: string | null;
+    checkedAt: string;
+  }>(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

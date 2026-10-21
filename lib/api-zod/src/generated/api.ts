@@ -364,6 +364,16 @@ export const ListOrdersResponseItem = zod.object({
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
 })),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill number'),
+  "tracking": zod.union([zod.object({
+  "stage": zod.enum(['created', 'sent', 'in_transit', 'at_branch', 'received', 'problem']),
+  "status": zod.string().describe('Status text from Nova Poshta'),
+  "code": zod.string().describe('Nova Poshta StatusCode'),
+  "scheduledDate": zod.string().nullish(),
+  "receivedAt": zod.string().nullish(),
+  "warehouse": zod.string().nullish(),
+  "checkedAt": zod.string()
+}),zod.null()]).optional(),
   "createdAt": zod.string()
 })
 export const ListOrdersResponse = zod.array(ListOrdersResponseItem)
@@ -426,6 +436,16 @@ export const CreateOrderResponse = zod.object({
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
 })),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill number'),
+  "tracking": zod.union([zod.object({
+  "stage": zod.enum(['created', 'sent', 'in_transit', 'at_branch', 'received', 'problem']),
+  "status": zod.string().describe('Status text from Nova Poshta'),
+  "code": zod.string().describe('Nova Poshta StatusCode'),
+  "scheduledDate": zod.string().nullish(),
+  "receivedAt": zod.string().nullish(),
+  "warehouse": zod.string().nullish(),
+  "checkedAt": zod.string()
+}),zod.null()]).optional(),
   "createdAt": zod.string()
 })
 
@@ -475,6 +495,16 @@ export const GetOrderResponse = zod.object({
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
 })),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill number'),
+  "tracking": zod.union([zod.object({
+  "stage": zod.enum(['created', 'sent', 'in_transit', 'at_branch', 'received', 'problem']),
+  "status": zod.string().describe('Status text from Nova Poshta'),
+  "code": zod.string().describe('Nova Poshta StatusCode'),
+  "scheduledDate": zod.string().nullish(),
+  "receivedAt": zod.string().nullish(),
+  "warehouse": zod.string().nullish(),
+  "checkedAt": zod.string()
+}),zod.null()]).optional(),
   "createdAt": zod.string()
 })
 
@@ -488,7 +518,8 @@ export const UpdateOrderParams = zod.object({
 
 export const UpdateOrderBody = zod.object({
   "status": zod.string().optional(),
-  "paymentStatus": zod.string().optional()
+  "paymentStatus": zod.string().optional(),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill; empty or null clears it')
 })
 
 export const UpdateOrderResponse = zod.object({
@@ -515,6 +546,61 @@ export const UpdateOrderResponse = zod.object({
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
 })),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill number'),
+  "tracking": zod.union([zod.object({
+  "stage": zod.enum(['created', 'sent', 'in_transit', 'at_branch', 'received', 'problem']),
+  "status": zod.string().describe('Status text from Nova Poshta'),
+  "code": zod.string().describe('Nova Poshta StatusCode'),
+  "scheduledDate": zod.string().nullish(),
+  "receivedAt": zod.string().nullish(),
+  "warehouse": zod.string().nullish(),
+  "checkedAt": zod.string()
+}),zod.null()]).optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Refresh the parcel status from Nova Poshta now (admin)
+ */
+export const TrackOrderParams = zod.object({
+  "id": zod.coerce.number().int()
+})
+
+export const TrackOrderResponse = zod.object({
+  "id": zod.int(),
+  "customerName": zod.string(),
+  "lastName": zod.string().nullish(),
+  "firstName": zod.string().nullish(),
+  "middleName": zod.string().nullish(),
+  "email": zod.string().nullish(),
+  "phone": zod.string(),
+  "contactMethod": zod.string().describe('viber | telegram | whatsapp | phone'),
+  "comment": zod.string().nullish(),
+  "city": zod.string().nullish(),
+  "novaPoshtaBranch": zod.string().nullish(),
+  "status": zod.string().describe('new | confirmed | shipped | completed | cancelled'),
+  "total": zod.number(),
+  "paymentMethod": zod.string().describe('liqpay | bank_transfer (cash on legacy orders)'),
+  "paymentStatus": zod.string().describe('pending | paid | failed'),
+  "items": zod.array(zod.object({
+  "productId": zod.int().nullable().describe('null when the product was deleted'),
+  "productName": zod.string(),
+  "variant": zod.string().nullish().describe('Chosen size \/ colour'),
+  "price": zod.number(),
+  "quantity": zod.int(),
+  "imageUrl": zod.string().nullish()
+})),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill number'),
+  "tracking": zod.union([zod.object({
+  "stage": zod.enum(['created', 'sent', 'in_transit', 'at_branch', 'received', 'problem']),
+  "status": zod.string().describe('Status text from Nova Poshta'),
+  "code": zod.string().describe('Nova Poshta StatusCode'),
+  "scheduledDate": zod.string().nullish(),
+  "receivedAt": zod.string().nullish(),
+  "warehouse": zod.string().nullish(),
+  "checkedAt": zod.string()
+}),zod.null()]).optional(),
   "createdAt": zod.string()
 })
 
@@ -1082,6 +1168,16 @@ export const ListMyOrdersResponseItem = zod.object({
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
 })),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill number'),
+  "tracking": zod.union([zod.object({
+  "stage": zod.enum(['created', 'sent', 'in_transit', 'at_branch', 'received', 'problem']),
+  "status": zod.string().describe('Status text from Nova Poshta'),
+  "code": zod.string().describe('Nova Poshta StatusCode'),
+  "scheduledDate": zod.string().nullish(),
+  "receivedAt": zod.string().nullish(),
+  "warehouse": zod.string().nullish(),
+  "checkedAt": zod.string()
+}),zod.null()]).optional(),
   "createdAt": zod.string()
 })
 export const ListMyOrdersResponse = zod.array(ListMyOrdersResponseItem)
@@ -1207,6 +1303,16 @@ export const GetAdminStatsResponse = zod.object({
   "quantity": zod.int(),
   "imageUrl": zod.string().nullish()
 })),
+  "ttn": zod.string().nullish().describe('Nova Poshta waybill number'),
+  "tracking": zod.union([zod.object({
+  "stage": zod.enum(['created', 'sent', 'in_transit', 'at_branch', 'received', 'problem']),
+  "status": zod.string().describe('Status text from Nova Poshta'),
+  "code": zod.string().describe('Nova Poshta StatusCode'),
+  "scheduledDate": zod.string().nullish(),
+  "receivedAt": zod.string().nullish(),
+  "warehouse": zod.string().nullish(),
+  "checkedAt": zod.string()
+}),zod.null()]).optional(),
   "createdAt": zod.string()
 })),
   "topProducts": zod.array(zod.object({

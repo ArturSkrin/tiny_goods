@@ -5,6 +5,7 @@
  * TinyGoods UA store API
  * OpenAPI spec version: 0.1.0
  */
+import type { NpTracking } from './npTracking';
 import type { OrderItem } from './orderItem';
 
 export interface Order {
@@ -35,5 +36,11 @@ export interface Order {
   /** pending | paid | failed */
   paymentStatus: string;
   items: OrderItem[];
+  /**
+     * Nova Poshta waybill number
+     * @nullable
+     */
+  ttn?: string | null;
+  tracking?: NpTracking | null;
   createdAt: string;
 }

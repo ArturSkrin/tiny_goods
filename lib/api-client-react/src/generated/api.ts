@@ -1222,6 +1222,77 @@ export const useUpdateOrder = <TError = ErrorType<unknown>,
       return useMutation(getUpdateOrderMutationOptions(options));
     }
 
+export const getTrackOrderUrl = (id: number,) => {
+
+
+
+
+  return `/api/orders/${id}/track`
+}
+
+/**
+ * @summary Refresh the parcel status from Nova Poshta now (admin)
+ */
+export const trackOrder = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<Order> => {
+
+  return customFetch<Order>(getTrackOrderUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getTrackOrderMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackOrder>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof trackOrder>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['trackOrder'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof trackOrder>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  trackOrder(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type TrackOrderMutationResult = NonNullable<Awaited<ReturnType<typeof trackOrder>>>
+
+    export type TrackOrderMutationError = ErrorType<void>
+
+    /**
+ * @summary Refresh the parcel status from Nova Poshta now (admin)
+ */
+export const useTrackOrder = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof trackOrder>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof trackOrder>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getTrackOrderMutationOptions(options));
+    }
+
 export const getCreateLiqpayCheckoutUrl = (id: number,) => {
 
 

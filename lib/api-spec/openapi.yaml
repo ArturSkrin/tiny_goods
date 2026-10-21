@@ -297,6 +297,25 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Order"
+  /orders/{id}/track:
+    post:
+      operationId: trackOrder
+      tags: [orders]
+      summary: Refresh the parcel status from Nova Poshta now (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        "200":
+          description: Order with fresh tracking
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "502":
+          description: Nova Poshta unavailable
   /orders/{id}/liqpay-checkout:
     post:
       operationId: createLiqpayCheckout
@@ -914,7 +933,23 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/OrderItem"
+        ttn: { type: ["string", "null"], description: "Nova Poshta waybill number" }
+        tracking:
+          oneOf:
+            - $ref: "#/components/schemas/NpTracking"
+            - type: "null"
         createdAt: { type: string }
+    NpTracking:
+      type: object
+      required: [stage, status, code, checkedAt]
+      properties:
+        stage: { type: string, enum: [created, sent, in_transit, at_branch, received, problem] }
+        status: { type: string, description: "Status text from Nova Poshta" }
+        code: { type: string, description: "Nova Poshta StatusCode" }
+        scheduledDate: { type: ["string", "null"] }
+        receivedAt: { type: ["string", "null"] }
+        warehouse: { type: ["string", "null"] }
+        checkedAt: { type: string }
     OrderItemInput:
       type: object
       required: [productId, quantity]
@@ -950,6 +985,7 @@ components:
       properties:
         status: { type: string }
         paymentStatus: { type: string }
+        ttn: { type: ["string", "null"], description: "Nova Poshta waybill; empty or null clears it" }
     OrderPaymentStatus:
       type: object
       required: [orderId, paymentStatus, status]

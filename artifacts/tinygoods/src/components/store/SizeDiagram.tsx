@@ -151,7 +151,8 @@ export function SizePicker({
   compact,
 }: {
   sizes: ProductOption[];
-  dims: Dims[];
+  /** null for plain labels like "M": chips show the name only (compact mode) */
+  dims: Dims[] | null;
   value?: string;
   onChange: (name: string) => void;
   compact?: boolean;
@@ -177,17 +178,26 @@ export function SizePicker({
               onChange(s.name);
             }}
             className={cn(
-              'h-8 pl-1 pr-2 rounded-lg flex items-center gap-1 ring-1 text-[11px] font-semibold tabular-nums transition active:scale-95',
+              'h-8 rounded-lg flex items-center gap-1 ring-1 text-[11px] font-semibold tabular-nums transition active:scale-95',
+              dims ? 'pl-1 pr-2' : 'px-2.5',
               n === i ? 'ring-2 ring-primary bg-primary/10 text-foreground' : 'ring-foreground/15 text-foreground/70 hover:ring-foreground/35',
             )}
           >
-            <BoxDiagram dims={dims[n]!} group={dims} className="w-6 h-6 shrink-0" />
-            {dimsText(dims[n]!)}
+            {dims ? (
+              <>
+                <BoxDiagram dims={dims[n]!} group={dims} className="w-6 h-6 shrink-0" />
+                {dimsText(dims[n]!)}
+              </>
+            ) : (
+              s.name
+            )}
           </button>
         ))}
       </div>
     );
   }
+
+  if (!dims) return null; // the product page uses plain chips for labels like "M"
 
   return (
     <div className="space-y-2.5">

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'wouter';
+import { Link } from 'wouter';
 import { Product } from '@workspace/api-client-react';
 import { cn, formatPrice } from '../../lib/utils';
 import { useCart, variantImage, variantPrice } from '../../context/cart';
@@ -11,22 +11,19 @@ const MAX_SWATCHES = 4;
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
-  const [, setLocation] = useLocation();
   const colors = product.colors ?? [];
   const sizes = product.sizes ?? [];
   const [color, setColor] = useState(colors[0]?.name);
-  // Sizes written as dimensions ("23*18*10 см") are drawn and picked right on the card.
+  // Sizes are picked right on the card; ones written as dimensions ("23*18*10 см") get a box icon.
   const dims = parseAllDims(sizes, product.sizeOrder);
   const cheapest = [...sizes].sort((a, b) => a.priceDelta - b.priceDelta)[0];
   const [size, setSize] = useState(cheapest?.name);
 
-  // Plain-label sizes: show the cheapest price ("від …"); the size is chosen on the product page.
+  // The cheapest size is preselected and the price is always for the chosen size.
   const price = variantPrice(product, { size, color });
-  const fromPrice = !dims && new Set(sizes.map((s) => s.priceDelta)).size > 1;
   const image = variantImage(product, color);
   const hasDiscount = product.oldPrice != null && product.oldPrice > product.price;
-  const needsPage = sizes.length > 0 && !dims;
-  const query = new URLSearchParams({ ...(color && { color }), ...(dims && size && { size }) }).toString();
+  const query = new URLSearchParams({ ...(color && { color }), ...(size && { size }) }).toString();
   const href = `/product/${product.id}${query ? `?${query}` : ''}`;
 
   // Soft light following the pointer (mouse only).
@@ -49,8 +46,7 @@ export function ProductCard({ product }: { product: Product }) {
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
-    if (needsPage) setLocation(href);
-    else addToCart(product, 1, { size, color });
+    addToCart(product, 1, { size, color });
   };
 
   return (
@@ -134,13 +130,12 @@ export function ProductCard({ product }: { product: Product }) {
             </div>
           )}
 
-          {dims && <SizePicker compact sizes={sizes} dims={dims} value={size} onChange={setSize} />}
+          {sizes.length > 0 && <SizePicker compact sizes={sizes} dims={dims} value={size} onChange={setSize} />}
 
           <div className="mt-auto flex items-end justify-between gap-2">
             <div>
               {hasDiscount && <div className="text-muted-foreground text-xs line-through">{formatPrice(product.oldPrice! + price - product.price)}</div>}
               <div className="text-base md:text-lg font-extrabold text-foreground">
-                {fromPrice && <span className="text-xs font-semibold text-muted-foreground mr-1">від</span>}
                 {formatPrice(price)}
               </div>
             </div>
@@ -148,7 +143,7 @@ export function ProductCard({ product }: { product: Product }) {
             <button
               onClick={handleAdd}
               disabled={product.stock === 0}
-              aria-label={needsPage ? 'Обрати розмір' : 'Додати в кошик'}
+              aria-label="Додати в кошик"
               className="shrink-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-[0_8px_18px_-8px_hsl(var(--primary)/0.9)] transition hover:scale-110 hover:rotate-90 active:scale-90 disabled:opacity-40 disabled:hover:scale-100 disabled:hover:rotate-0"
             >
               <Plus className="w-5 h-5" />

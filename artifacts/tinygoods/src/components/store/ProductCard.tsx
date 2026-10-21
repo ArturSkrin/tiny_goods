@@ -5,6 +5,7 @@ import { cn, formatPrice } from '../../lib/utils';
 import { useCart, variantImage, variantPrice } from '../../context/cart';
 import { Plus, Gift } from 'lucide-react';
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { SizePicker, parseAllDims } from './SizeDiagram';
 
 const MAX_SWATCHES = 4;
 
@@ -14,15 +15,19 @@ export function ProductCard({ product }: { product: Product }) {
   const colors = product.colors ?? [];
   const sizes = product.sizes ?? [];
   const [color, setColor] = useState(colors[0]?.name);
-
-  // With sizes, show the price of the cheapest size ("від …"); the size is chosen on the product page.
+  // Sizes written as dimensions ("23*18*10 см") are drawn and picked right on the card.
+  const dims = parseAllDims(sizes);
   const cheapest = [...sizes].sort((a, b) => a.priceDelta - b.priceDelta)[0];
-  const price = variantPrice(product, { size: cheapest?.name, color });
-  const fromPrice = new Set(sizes.map((s) => s.priceDelta)).size > 1;
+  const [size, setSize] = useState(cheapest?.name);
+
+  // Plain-label sizes: show the cheapest price ("від …"); the size is chosen on the product page.
+  const price = variantPrice(product, { size, color });
+  const fromPrice = !dims && new Set(sizes.map((s) => s.priceDelta)).size > 1;
   const image = variantImage(product, color);
   const hasDiscount = product.oldPrice != null && product.oldPrice > product.price;
-  const needsPage = sizes.length > 0;
-  const href = `/product/${product.id}${color ? `?color=${encodeURIComponent(color)}` : ''}`;
+  const needsPage = sizes.length > 0 && !dims;
+  const query = new URLSearchParams({ ...(color && { color }), ...(dims && size && { size }) }).toString();
+  const href = `/product/${product.id}${query ? `?${query}` : ''}`;
 
   // Subtle 3D tilt following the pointer (mouse only; touch keeps the card flat).
   const px = useMotionValue(0.5);
@@ -47,7 +52,7 @@ export function ProductCard({ product }: { product: Product }) {
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     if (needsPage) setLocation(href);
-    else addToCart(product, 1, { color });
+    else addToCart(product, 1, { size, color });
   };
 
   return (
@@ -131,6 +136,8 @@ export function ProductCard({ product }: { product: Product }) {
               </div>
             </div>
           )}
+
+          {dims && <SizePicker compact sizes={sizes} dims={dims} value={size} onChange={setSize} />}
 
           <div className="mt-auto flex items-end justify-between gap-2">
             <div>

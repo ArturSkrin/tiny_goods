@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingBag, ArrowLeft, Minus, Plus, Check, ShieldCheck, Truck, ChevronDown, Gift } from 'lucide-react';
 import { StoreLayout } from '../components/layout/StoreLayout';
 import { RichText } from '../components/store/RichText';
+import { SizePicker, parseAllDims } from '../components/store/SizeDiagram';
 import { useRecordView } from '../hooks/use-me';
 import { useCart, variantImage, variantPrice } from '../context/cart';
 import { cn, formatPrice } from '../lib/utils';
@@ -99,11 +100,11 @@ export default function ProductDetail() {
   const [size, setSize] = useState<string>();
   const [color, setColor] = useState<string>();
 
-  // Preselect the colour picked on the catalog card (?color=…), else the first options.
+  // Preselect the colour/size picked on the catalog card (?color=…&size=…), else the first options.
   useEffect(() => {
-    const wanted = new URLSearchParams(window.location.search).get('color');
-    setSize(product?.sizes?.[0]?.name);
-    setColor(product?.colors?.find((c) => c.name === wanted)?.name ?? product?.colors?.[0]?.name);
+    const params = new URLSearchParams(window.location.search);
+    setSize(product?.sizes?.find((s) => s.name === params.get('size'))?.name ?? product?.sizes?.[0]?.name);
+    setColor(product?.colors?.find((c) => c.name === params.get('color'))?.name ?? product?.colors?.[0]?.name);
   }, [product?.id]);
 
   if (isLoading) {
@@ -127,6 +128,7 @@ export default function ProductDetail() {
   const price = variantPrice(product, { size, color });
   const image = variantImage(product, color);
   const optionDelta = price - product.price;
+  const sizeDims = parseAllDims(product.sizes);
   const hasDiscount = product.oldPrice != null && product.oldPrice > product.price;
   const soldOut = product.stock === 0;
 
@@ -191,7 +193,11 @@ export default function ProductDetail() {
                 {hasDiscount && <div className="text-lg text-muted-foreground line-through mb-1">{formatPrice(product.oldPrice! + optionDelta)}</div>}
               </div>
 
-              {product.sizes.length > 0 && <OptionPicker label="Розмір" options={product.sizes} value={size} onChange={setSize} />}
+              {sizeDims ? (
+                <SizePicker sizes={product.sizes} dims={sizeDims} value={size} onChange={setSize} />
+              ) : (
+                product.sizes.length > 0 && <OptionPicker label="Розмір" options={product.sizes} value={size} onChange={setSize} />
+              )}
               {product.colors.length > 0 && <OptionPicker label="Колір" options={product.colors} value={color} onChange={setColor} />}
 
               <div className="flex gap-3">

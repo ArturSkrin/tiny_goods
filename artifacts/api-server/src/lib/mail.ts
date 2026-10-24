@@ -13,7 +13,7 @@ export async function sendLoginCode(email: string, code: string, req: Request): 
     method: "POST",
     headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
     body: JSON.stringify({
-      from: process.env.MAIL_FROM ?? "TinyGoods UA <no-reply@skrin.pp.ua>",
+      from: process.env.MAIL_FROM ?? "TinyGoods UA <no-reply@tinygoods.com.ua>",
       to: email,
       subject: `${code} — код для входу в TinyGoods`,
       text: `Ваш код для входу: ${code}\n\nКод діє 10 хвилин. Якщо ви не намагалися увійти, просто проігноруйте цей лист.`,

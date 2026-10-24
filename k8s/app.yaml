@@ -31,7 +31,7 @@ spec:
                 name: tinygoods-secrets
           env:
             - name: PUBLIC_URL # LiqPay return/webhook URLs
-              value: https://tinygoods.skrin.pp.ua
+              value: https://tinygoods.com.ua
           readinessProbe:
             httpGet:
               path: /api/healthz
@@ -71,6 +71,38 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
+    - host: tinygoods.com.ua
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tinygoods
+                port:
+                  number: 80
+---
+# Old and www hostnames: permanent redirect to the main domain, keeping the path.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: tinygoods-redirect
+  namespace: tinygoods
+  annotations:
+    nginx.ingress.kubernetes.io/permanent-redirect: https://tinygoods.com.ua$request_uri
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: www.tinygoods.com.ua
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: tinygoods
+                port:
+                  number: 80
     - host: tinygoods.skrin.pp.ua
       http:
         paths:

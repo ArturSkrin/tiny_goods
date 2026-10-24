@@ -14,7 +14,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     telegram: "+380000000000",
     whatsapp: "+380000000000",
     instagram: "",
-    email: "hello@tinygoods.skrin.pp.ua",
+    email: "hello@tinygoods.com.ua",
     address: "",
     workHours: "Пн–Сб 10:00–19:00",
   },

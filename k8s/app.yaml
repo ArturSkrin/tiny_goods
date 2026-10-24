@@ -21,7 +21,7 @@ spec:
       containers:
         - name: tinygoods
           # Tag is rewritten to the commit SHA by CI (.github/workflows/docker-build.yml)
-          image: ghcr.io/arturskrin/tiny_goods:256dec61dc4eca8e6a7e1b7a15196828d3b0c80d
+          image: ghcr.io/arturskrin/tiny_goods:1228c04d8aadc0b9d6b0f5d2f9df8ec9fe28a47e
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
